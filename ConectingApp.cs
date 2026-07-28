@@ -1612,6 +1612,7 @@ namespace Conecting
         private bool allowExit = false;
         private Thread serverThread;
         private Thread relayRegistrationThread;
+        private TcpClient currentHostRelayClient;
         private HostSessionFloatingWidget currentFloatingWidget;
 
         public MainForm()
@@ -1665,6 +1666,16 @@ namespace Conecting
             {
                 rawNumId = PeerResolver.GenerateRandom9DigitId();
                 PeerResolver.SavePersistentId(rawNumId);
+
+                try
+                {
+                    if (currentHostRelayClient != null)
+                    {
+                        currentHostRelayClient.Close();
+                        currentHostRelayClient = null;
+                    }
+                }
+                catch { }
             }
             else
             {
@@ -1684,12 +1695,14 @@ namespace Conecting
             {
                 while (isHostRunning)
                 {
+                    string idToRegister = rawNumId;
                     try
                     {
                         TcpClient relayClient = new TcpClient();
                         relayClient.NoDelay = true;
                         relayClient.SendBufferSize = 262144;
                         relayClient.ReceiveBufferSize = 262144;
+                        currentHostRelayClient = relayClient;
 
                         string targetHost = PeerResolver.OracleServerIp;
                         try { Dns.GetHostEntry(PeerResolver.OracleServerDomain); targetHost = PeerResolver.OracleServerDomain; } catch { }
@@ -1698,12 +1711,12 @@ namespace Conecting
                         if (ar.AsyncWaitHandle.WaitOne(2000) && relayClient.Connected)
                         {
                             NetworkStream ns = relayClient.GetStream();
-                            byte[] regBytes = Encoding.UTF8.GetBytes(string.Format("REGISTER:{0}\n", rawNumId));
+                            byte[] regBytes = Encoding.UTF8.GetBytes(string.Format("REGISTER:{0}\n", idToRegister));
                             ns.Write(regBytes, 0, regBytes.Length);
                             ns.Flush();
 
                             byte[] buf = new byte[256];
-                            while (relayClient.Connected && isHostRunning)
+                            while (relayClient.Connected && isHostRunning && idToRegister == rawNumId)
                             {
                                 int r = ns.Read(buf, 0, 256);
                                 if (r <= 0) break;
@@ -1844,8 +1857,12 @@ namespace Conecting
                         }
                     }
                     catch { }
+                    finally
+                    {
+                        try { if (currentHostRelayClient != null) { currentHostRelayClient.Close(); currentHostRelayClient = null; } } catch { }
+                    }
 
-                    Thread.Sleep(2000);
+                    Thread.Sleep(1000);
                 }
             }) { IsBackground = true };
 
