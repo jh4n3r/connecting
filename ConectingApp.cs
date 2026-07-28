@@ -109,10 +109,23 @@ namespace Conecting
         private static bool isLeftDown = false;
         private static bool isRightDown = false;
 
+        public const uint MOUSEEVENTF_WHEEL = 0x0800;
+
         public static void ExecuteMouseInput(byte evtType, float normX, float normY)
         {
             try
             {
+                if (evtType == 0x06) // SCROLL RUEDA ARRIBA
+                {
+                    mouse_event(MOUSEEVENTF_WHEEL, 0, 0, 120, UIntPtr.Zero);
+                    return;
+                }
+                else if (evtType == 0x07) // SCROLL RUEDA ABAJO
+                {
+                    mouse_event(MOUSEEVENTF_WHEEL, 0, 0, unchecked((uint)-120), UIntPtr.Zero);
+                    return;
+                }
+
                 Rectangle bounds = Screen.PrimaryScreen.Bounds;
                 int targetX = (int)(normX * bounds.Width);
                 int targetY = (int)(normY * bounds.Height);
@@ -188,19 +201,156 @@ namespace Conecting
             return null;
         }
 
+        private static ulong _lastSampleHash = 0;
+        private static long _lastForceSendTick = 0;
+
+        public static bool HasScreenChanged(Bitmap bitmap)
+        {
+            long now = Environment.TickCount;
+            if (now - _lastForceSendTick > 500)
+            {
+                _lastForceSendTick = now;
+                return true;
+            }
+
+            try
+            {
+                int w = bitmap.Width;
+                int h = bitmap.Height;
+                BitmapData data = bitmap.LockBits(new Rectangle(0, 0, w, h), ImageLockMode.ReadOnly, PixelFormat.Format24bppRgb);
+                ulong hash = 14695981039346656037ul;
+
+                unsafe
+                {
+                    byte* ptr = (byte*)data.Scan0.ToPointer();
+                    int stride = data.Stride;
+                    int stepY = Math.Max(1, h / 8);
+                    int stepX = Math.Max(1, w / 8);
+
+                    for (int y = 0; y < 8; y++)
+                    {
+                        byte* row = ptr + (y * stepY * stride);
+                        for (int x = 0; x < 8; x++)
+                        {
+                            int offset = x * stepX * 3;
+                            uint val = (uint)(row[offset] | (row[offset + 1] << 8) | (row[offset + 2] << 16));
+                            hash = (hash ^ val) * 1099511628211ul;
+                        }
+                    }
+                }
+
+                bitmap.UnlockBits(data);
+
+                if (hash != _lastSampleHash)
+                {
+                    _lastSampleHash = hash;
+                    _lastForceSendTick = now;
+                    return true;
+                }
+                return false;
+            }
+            catch
+            {
+                return true;
+            }
+        }
+
+        [DllImport("user32.dll")]
+        private static extern int GetSystemMetrics(int nIndex);
+        private const int SM_CXSCREEN = 0;
+        private const int SM_CYSCREEN = 1;
+        private const int SM_CXVIRTUALSCREEN = 78;
+        private const int SM_CYVIRTUALSCREEN = 79;
+
         public static byte[] CaptureHighQualityJpeg()
         {
             try
             {
-                Rectangle bounds = Screen.PrimaryScreen.Bounds;
-                if (bounds.Width <= 0 || bounds.Height <= 0) return null;
+                int width = 0;
+                int height = 0;
 
-                using (Bitmap bitmap = new Bitmap(bounds.Width, bounds.Height, PixelFormat.Format24bppRgb))
+                try
                 {
-                    using (Graphics g = Graphics.FromImage(bitmap))
+                    Rectangle bounds = Screen.PrimaryScreen.Bounds;
+                    width = bounds.Width;
+                    height = bounds.Height;
+                }
+                catch { }
+
+                if (width <= 0 || height <= 0)
+                {
+                    width = GetSystemMetrics(SM_CXVIRTUALSCREEN);
+                    height = GetSystemMetrics(SM_CYVIRTUALSCREEN);
+                }
+
+                if (width <= 0 || height <= 0)
+                {
+                    width = GetSystemMetrics(SM_CXSCREEN);
+                    height = GetSystemMetrics(SM_CYSCREEN);
+                }
+
+                if (width <= 0) width = 1920;
+                if (height <= 0) height = 1080;
+
+                using (Bitmap bitmap = new Bitmap(width, height, PixelFormat.Format24bppRgb))
+                {
+                    bool isBlackScreen = false;
+                    try
                     {
-                        g.CopyFromScreen(Point.Empty, Point.Empty, bounds.Size, CopyPixelOperation.SourceCopy);
+                        using (Graphics g = Graphics.FromImage(bitmap))
+                        {
+                            g.CopyFromScreen(Point.Empty, Point.Empty, new Size(width, height), CopyPixelOperation.SourceCopy);
+                        }
                     }
+                    catch
+                    {
+                        isBlackScreen = true;
+                    }
+
+                    // Detección de Pantalla Negra en equipos sin monitor (Headless PC)
+                    if (!isBlackScreen)
+                    {
+                        Color cornerSample = bitmap.GetPixel(width / 2, height / 2);
+                        if (cornerSample.R == 0 && cornerSample.G == 0 && cornerSample.B == 0)
+                        {
+                            Color sample2 = bitmap.GetPixel(width / 4, height / 4);
+                            if (sample2.R == 0 && sample2.G == 0 && sample2.B == 0)
+                            {
+                                isBlackScreen = true;
+                            }
+                        }
+                    }
+
+                    // Generación de Pantalla Virtual HD para Servidores/PCs sin Monitor Físico
+                    if (isBlackScreen)
+                    {
+                        using (Graphics gVirt = Graphics.FromImage(bitmap))
+                        {
+                            gVirt.SmoothingMode = SmoothingMode.AntiAlias;
+                            using (LinearGradientBrush bgBrush = new LinearGradientBrush(new Rectangle(0, 0, width, height), Color.FromArgb(15, 23, 42), Color.FromArgb(30, 41, 59), 45f))
+                            {
+                                gVirt.FillRectangle(bgBrush, 0, 0, width, height);
+                            }
+
+                            using (Pen gridPen = new Pen(Color.FromArgb(51, 65, 85), 1f))
+                            {
+                                for (int x = 0; x < width; x += 60) gVirt.DrawLine(gridPen, x, 0, x, height);
+                                for (int y = 0; y < height; y += 60) gVirt.DrawLine(gridPen, 0, y, width, y);
+                            }
+
+                            string pcName = Environment.MachineName;
+                            string statusText = string.Format("Connecting Virtual HD Display\nPuesto Remoto: {0}\n[Equipo sin Monitor Físico Conectado - Pantalla Virtual Activa]", pcName);
+
+                            using (Font fTitle = new Font("Segoe UI", 24F, FontStyle.Bold))
+                            using (SolidBrush textBrush = new SolidBrush(Color.FromArgb(241, 245, 249)))
+                            {
+                                StringFormat sf = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
+                                gVirt.DrawString(statusText, fTitle, textBrush, new RectangleF(0, 0, width, height), sf);
+                            }
+                        }
+                    }
+
+                    if (!HasScreenChanged(bitmap)) return null;
 
                     using (MemoryStream ms = new MemoryStream())
                     {
@@ -208,7 +358,7 @@ namespace Conecting
                         if (encoder != null)
                         {
                             EncoderParameters encoderParams = new EncoderParameters(1);
-                            encoderParams.Param[0] = new EncoderParameter(System.Drawing.Imaging.Encoder.Quality, 60L);
+                            encoderParams.Param[0] = new EncoderParameter(System.Drawing.Imaging.Encoder.Quality, 80L);
                             bitmap.Save(ms, encoder, encoderParams);
                         }
                         else
@@ -1278,6 +1428,7 @@ namespace Conecting
             picRemoteDesktop.MouseDown += PicRemoteDesktop_MouseDown;
             picRemoteDesktop.MouseMove += PicRemoteDesktop_MouseMove;
             picRemoteDesktop.MouseUp += PicRemoteDesktop_MouseUp;
+            picRemoteDesktop.MouseWheel += PicRemoteDesktop_MouseWheel;
             picRemoteDesktop.Click += (s, e) => { this.ActiveControl = picRemoteDesktop; };
 
             this.Controls.Add(picRemoteDesktop);
@@ -1547,6 +1698,12 @@ namespace Conecting
         private void PicRemoteDesktop_MouseUp(object sender, MouseEventArgs e)
         {
             byte evtType = (e.Button == MouseButtons.Right) ? (byte)0x05 : (byte)0x03;
+            SendRemoteInput(e.X, e.Y, evtType);
+        }
+
+        private void PicRemoteDesktop_MouseWheel(object sender, MouseEventArgs e)
+        {
+            byte evtType = (e.Delta > 0) ? (byte)0x06 : (byte)0x07;
             SendRemoteInput(e.X, e.Y, evtType);
         }
 
@@ -1861,20 +2018,15 @@ namespace Conecting
                                         }) { IsBackground = true };
                                         inputReadThread.Start();
 
-                                        byte[] lastFrameBytes = null;
                                         while (activeRelayClient.Connected && isHostRunning)
                                         {
                                             byte[] rawFrame = DesktopCapturer.CaptureHighQualityJpeg();
                                             if (rawFrame != null && rawFrame.Length > 0)
                                             {
-                                                if (lastFrameBytes == null || rawFrame.Length != lastFrameBytes.Length)
-                                                {
-                                                    lastFrameBytes = rawFrame;
-                                                    if (!PacketProtocol.SendPacket(activeStream, 0x00, rawFrame)) break;
-                                                }
+                                                if (!PacketProtocol.SendPacket(activeStream, 0x00, rawFrame)) break;
                                             }
 
-                                            Thread.Sleep(20);
+                                            Thread.Sleep(15);
                                         }
 
                                         this.Invoke((MethodInvoker)delegate
@@ -2102,7 +2254,7 @@ namespace Conecting
                 ForeColor = ColorTextDark,
                 BorderRadius = 8
             };
-            btnCopyId.Click += (s, e) => { Clipboard.SetText(rawNumId); MessageBox.Show("ID copiado al portapapeles: " + rawNumId, "Connecting", MessageBoxButtons.OK, MessageBoxIcon.Information); };
+            btnCopyId.Click += (s, e) => { try { Clipboard.SetText(rawNumId); } catch { } };
 
             btnRegenerateId = new ModernButton
             {
