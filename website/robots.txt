@@ -1,0 +1,19 @@
+User-agent: *
+Allow: /
+Sitemap: https://connecting.abrdns.com/sitemap.xml
+
+# AI & Search Spiders Optimization
+User-agent: Googlebot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: GPTBot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
