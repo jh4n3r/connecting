@@ -47,7 +47,7 @@ preguntar_datos() {
   echo -e "${CYAN}━━━ 📝 INGRESO DE DATOS ━━━${NC}"
   
   if [ -z "$DOMAIN" ]; then
-    read -p "🌐 Ingrese el dominio o subdominio (ej: connecting.abrdns.com): " DOMAIN
+    read -p "🌐 Ingrese el dominio o subdominio (ej: tu-dominio.com): " DOMAIN
   else
     read -p "🌐 Ingrese el dominio o subdominio [$DOMAIN]: " INPUT_DOMAIN
     DOMAIN=${INPUT_DOMAIN:-$DOMAIN}

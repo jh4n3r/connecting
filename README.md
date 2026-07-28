@@ -88,7 +88,7 @@ nohup node server.js > relay.log 2>&1 &
 - **Verificar puerto de escucha**: `ss -tlnp | grep 8443` o `netstat -tlpn`.
 - **Verificar sintaxis de Nginx**: `sudo nginx -t`.
 - **Revisar estado de certificados SSL**: `sudo certbot certificates`.
-- **Permisos del directorio web**: `sudo chown -R www-data:www-data /var/www/connecting.abrdns.com`.
+- **Permisos del directorio web**: `sudo chown -R www-data:www-data /var/www/tu-dominio.com`.
 
 ---
 
