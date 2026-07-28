@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Términos de Servicio y Licencia de Software - Connecting</title>
+    <meta name="description" content="Términos legales, condiciones de uso y marco de licencia de Connecting Remote Desktop.">
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .terms-container {
+            max-width: 950px;
+            margin: 90px auto 50px;
+            padding: 0 16px;
+            width: 100%;
+        }
+        .terms-card {
+            background: #ffffff;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 36px;
+            box-shadow: var(--shadow-md);
+            width: 100%;
+        }
+        .terms-header {
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 20px;
+            margin-bottom: 28px;
+        }
+        .terms-title {
+            font-family: var(--font-heading);
+            font-size: clamp(1.8rem, 4vw, 2.4rem);
+            font-weight: 800;
+            color: var(--text-primary);
+            margin-bottom: 6px;
+        }
+        .terms-date {
+            font-size: 0.85rem;
+            color: var(--text-light);
+            font-weight: 600;
+        }
+        .terms-clause-title {
+            font-family: var(--font-heading);
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin: 28px 0 12px;
+        }
+        .terms-p {
+            color: var(--text-muted);
+            font-size: 0.92rem;
+            line-height: 1.65;
+            margin-bottom: 14px;
+        }
+        .terms-list {
+            margin-left: 20px;
+            margin-bottom: 16px;
+            color: var(--text-muted);
+            font-size: 0.92rem;
+        }
+        .terms-list li {
+            margin-bottom: 8px;
+            line-height: 1.55;
+        }
+        .legal-notice-box {
+            background: #f8fafc;
+            border: 1px solid #cbd5e1;
+            border-left: 4px solid var(--text-primary);
+            padding: 16px;
+            border-radius: 6px;
+            margin: 18px 0;
+            font-size: 0.88rem;
+            color: var(--text-primary);
+            line-height: 1.55;
+        }
+        .contact-small-footer {
+            margin-top: 30px;
+            padding-top: 16px;
+            border-top: 1px solid var(--border-color);
+            font-size: 0.8rem;
+            color: var(--text-light);
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- BARRA DE NAVEGACIÓN -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="logo-brand">
+                <div class="logo-icon">
+                    <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+                </div>
+                Connecting Legal
+            </a>
+            <div class="nav-right">
+                <a href="index.html" class="nav-link">Inicio</a>
+                <a href="docs.html" class="nav-link">Documentacion</a>
+                <select id="langSelector" class="lang-select" onchange="changeLanguage(this.value)">
+                    <option value="es">Español</option>
+                    <option value="en">English</option>
+                </select>
+            </div>
+        </div>
+    </nav>
+
+    <!-- CONTENIDO LEGAL -->
+    <div class="terms-container">
+        <div class="terms-card">
+            <div class="terms-header">
+                <h1 class="terms-title">Términos de Servicio y Licencia de Software — Connecting</h1>
+                <p class="terms-date">Última actualización: Julio de 2026 | Estado actual: Software 100% Open Source Software (OSS) bajo Licencia GNU GPLv3.</p>
+            </div>
+
+            <h2 class="terms-clause-title">Preámbulo</h2>
+            <p class="terms-p">
+                El presente documento constituye un acuerdo relativo al uso, distribución y despliegue del software de escritorio remoto denominado <strong>Connecting</strong> (en adelante, "el Software"), desarrollado por <strong>@jh4n3r</strong>. Al descargar, ejecutar o desplegar cualquier componente del Software, el usuario o entidad (en adelante, "el Usuario") acepta los términos establecidos bajo la Licencia Pública General de GNU v3.0 (GPLv3).
+            </p>
+
+            <h2 class="terms-clause-title">CLÁUSULA PRIMERA: Naturaleza Jurídica y Licencia Open Source (GNU GPLv3)</h2>
+            <p class="terms-p">
+                El Software es <strong>100% Open Source Software (OSS)</strong> y se distribuye bajo la licencia <strong>GNU General Public License v3.0 (GPLv3)</strong>.
+            </p>
+            <ul class="terms-list">
+                <li><strong>Código Fuente Completo Liberado:</strong> El código fuente íntegro del cliente Windows C# (`ConectingApp.cs`), el servidor de relevo Node.js (`connecting-relay-server/server.js`) y los scripts de configuración se encuentran publicados y accesibles públicamente en el repositorio oficial: <a href="https://github.com/jh4n3r/connecting" target="_blank" style="color:var(--cyan-dark); font-weight:700;">https://github.com/jh4n3r/connecting</a>.</li>
+                <li><strong>Libertades de la GPLv3:</strong> Se garantiza a todo usuario el derecho de ejecutar, inspeccionar, modificar, estudiar y redistribuir el código fuente o sus binarios compilados de conformidad con los términos de la GPLv3.</li>
+            </ul>
+
+            <h2 class="terms-clause-title">CLÁUSULA SEGUNDA: Régimen Copyleft (GNU GPLv3)</h2>
+            <p class="terms-p">
+                De conformidad con la Licencia GPLv3:
+            </p>
+            <ul class="terms-list">
+                <li>Cualquier modificación o versión derivada que sea redistribuida a terceros deberá liberar su código fuente bajo la misma licencia GNU GPLv3.</li>
+                <li>Se concede acceso libre e irrestricto al código fuente a través del repositorio oficial de GitHub.</li>
+            </ul>
+
+            <h2 class="terms-clause-title">CLÁUSULA TERCERA: Despliegue Privado (Servidor de Relevo On-Premise)</h2>
+            <p class="terms-p">
+                Se reconoce el derecho del Usuario corporativo de desplegar instancias privadas del Servidor de Relevo (Node.js) dentro de su propia infraestructura.
+            </p>
+            <ul class="terms-list">
+                <li><strong>Aislamiento de tráfico:</strong> Las instancias desplegadas por el Usuario en su propia infraestructura no envían datos a servidores del desarrollador.</li>
+                <li><strong>Responsabilidad del despliegue:</strong> La seguridad, configuración y mantenimiento del servidor de relevo (incluyendo certificados SSL, firewall y accesos) es responsabilidad exclusiva del Usuario que lo despliega.</li>
+                <li><strong>Sin regalías:</strong> No se cobran licencias por asiento ni tarifas por uso de infraestructura propia.</li>
+            </ul>
+
+            <h2 class="terms-clause-title">CLÁUSULA CUARTA: Naturaleza del Software y Advertencia de Uso Autorizado</h2>
+            <p class="terms-p">
+                Dado que el Software permite <strong>control remoto de equipos, inyección de eventos de teclado/mouse y acceso desatendido mediante clave persistente</strong>, el Usuario reconoce y acepta que:
+            </p>
+            <div class="legal-notice-box">
+                <strong>USO AUTORIZADO Y CONSENTIMIENTO:</strong> Es responsabilidad del Usuario obtener el consentimiento expreso del propietario u operador de cualquier equipo antes de instalar el Software o configurar acceso desatendido sobre él. El uso del Software para acceder a equipos sin autorización previa puede constituir un delito bajo las leyes aplicables de acceso no autorizado a sistemas informáticos, y es responsabilidad exclusiva del Usuario, no del desarrollador. La clave de acceso desatendido (PSK) se almacena localmente en el equipo remoto; es responsabilidad del Usuario protegerla y no compartirla con terceros no autorizados.
+            </div>
+
+            <h2 class="terms-clause-title">CLÁUSULA QUINTA: Exclusión de Garantías</h2>
+            <p class="terms-p">
+                EL SOFTWARE SE SUMINISTRA "TAL CUAL", SIN GARANTÍA DE NINGÚN TIPO, EXPRESA O IMPLÍCITA, INCLUYENDO SIN LIMITACIÓN LAS GARANTÍAS DE COMERCIABILIDAD, IDONEIDAD PARA UN PROPÓSITO PARTICULAR O NO INFRACCIÓN.
+            </p>
+
+            <h2 class="terms-clause-title">CLÁUSULA SEXTA: Limitación de Responsabilidad</h2>
+            <p class="terms-p">
+                EN NINGÚN CASO EL AUTOR SERÁ RESPONSABLE POR DAÑOS DIRECTOS, INDIRECTOS, INCIDENTALES O CONSECUENTES DERIVADOS DEL USO, IMPOSIBILIDAD DE USO, O INTERACCIÓN DEL SOFTWARE CON OTROS SISTEMAS, INCLUYENDO PÉRDIDA DE DATOS, ACCESOS NO AUTORIZADOS DE TERCEROS, O FALLAS DE SEGURIDAD EN EL SERVIDOR DE RELEVO DESPLEGADO POR EL USUARIO.
+            </p>
+
+            <h2 class="terms-clause-title">CLÁUSULA SÉPTIMA: Marcas de Terceros</h2>
+            <p class="terms-p">
+                Las referencias a productos de terceros (AnyDesk, TeamViewer, RustDesk, DeskIn, u otros) en material comparativo o publicitario se realizan únicamente con fines de comparación informativa. Dichas marcas son propiedad de sus respectivos titulares. Connecting no está afiliado, patrocinado ni respaldado por ninguna de estas empresas.
+            </p>
+
+            <h2 class="terms-clause-title">CLÁUSULA OCTAVA: Modificaciones a estos Términos</h2>
+            <p class="terms-p">
+                El desarrollador podrá actualizar estos términos en cualquier momento, particularmente al momento de la publicación del código fuente bajo licencia Open Source. Se recomienda al Usuario revisar periódicamente esta página.
+            </p>
+
+            <h2 class="terms-clause-title">CLÁUSULA NOVENA: Jurisdicción y Ley Aplicable</h2>
+            <p class="terms-p">
+                Este acuerdo se rige por las leyes aplicables en la jurisdicción de residencia del desarrollador. Cualquier controversia derivada de este acuerdo será sometida a los tribunales competentes en dicha jurisdicción.
+            </p>
+
+            <div class="contact-small-footer">
+                Desarrollador: @jh4n3r | Correo de contacto: jh4n3r@outlook.com | Repositorio GitHub: <a href="https://github.com/jh4n3r/connecting" target="_blank" style="color:var(--cyan-dark); font-weight:700;">https://github.com/jh4n3r/connecting</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2026 Connecting Remote Desktop v1.0.1 • Desarrollado por <strong>@jh4n3r</strong></p>
+        </div>
+    </footer>
+</body>
+</html>
