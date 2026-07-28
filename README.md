@@ -127,6 +127,6 @@ nohup node server.js > relay.log 2>&1 &
 - **Desarrollador Principal**: @jh4n3r
 - **Repositorio Git Oficial**: https://github.com/jh4n3r/connecting
 - **Correo Electrónico Oficial**: jh4n3r@outlook.com
-- **Sitio Web Oficial**: https://connecting.abrdns.com
-- **Documentación Técnica**: https://connecting.abrdns.com/docs.html
-- **Términos Legales Completos**: https://connecting.abrdns.com/terms.html
+- **Sitio Web Oficial**: https://jh4n3r.github.io/connecting/
+- **Documentación Técnica**: https://jh4n3r.github.io/connecting/docs.html
+- **Términos Legales Completos**: https://jh4n3r.github.io/connecting/terms.html

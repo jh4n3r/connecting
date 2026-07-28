@@ -1,6 +1,6 @@
 User-agent: *
 Allow: /
-Sitemap: https://connecting.abrdns.com/sitemap.xml
+Sitemap: https://jh4n3r.github.io/connecting/sitemap.xml
 
 # AI & Search Spiders Optimization
 User-agent: Googlebot

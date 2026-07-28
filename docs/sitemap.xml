@@ -2,27 +2,27 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
         xmlns:xhtml="http://www.w3.org/1999/xhtml">
     <url>
-        <loc>https://connecting.abrdns.com/</loc>
+        <loc>https://jh4n3r.github.io/connecting/</loc>
         <lastmod>2026-07-28</lastmod>
         <changefreq>daily</changefreq>
         <priority>1.0</priority>
-        <xhtml:link rel="alternate" hreflang="es" href="https://connecting.abrdns.com/" />
-        <xhtml:link rel="alternate" hreflang="en" href="https://connecting.abrdns.com/" />
+        <xhtml:link rel="alternate" hreflang="es" href="https://jh4n3r.github.io/connecting/" />
+        <xhtml:link rel="alternate" hreflang="en" href="https://jh4n3r.github.io/connecting/" />
     </url>
     <url>
-        <loc>https://connecting.abrdns.com/docs.html</loc>
+        <loc>https://jh4n3r.github.io/connecting/docs.html</loc>
         <lastmod>2026-07-28</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.9</priority>
     </url>
     <url>
-        <loc>https://connecting.abrdns.com/Connecting.exe</loc>
+        <loc>https://jh4n3r.github.io/connecting/Connecting.exe</loc>
         <lastmod>2026-07-28</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
-        <loc>https://connecting.abrdns.com/terms.html</loc>
+        <loc>https://jh4n3r.github.io/connecting/terms.html</loc>
         <lastmod>2026-07-28</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.7</priority>
