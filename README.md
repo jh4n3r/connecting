@@ -6,10 +6,10 @@
 
 ## Capturas de Pantalla de la Aplicación
 
-![Connecting Interfaz Principal](website/app_preview.png)
+![Connecting Interfaz Principal](app_preview.png)
 *Interfaz Principal: Panel de Puesto de Trabajo, Clave PSK Persistente e Historial de Sesiones.*
 
-![Connecting Sesión Remota](website/app_preview2.png)
+![Connecting Sesión Remota](app_preview2.png)
 *Sesión Remota en Vivo: Control remoto de ultra baja latencia con atajos del sistema y chat integrado.*
 
 ---
