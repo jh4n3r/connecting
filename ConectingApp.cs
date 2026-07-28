@@ -298,6 +298,31 @@ namespace Conecting
             catch { }
         }
 
+        public static void RemoveSession(string remoteId)
+        {
+            try
+            {
+                List<HistoryItem> history = GetRecentSessions();
+                history.RemoveAll(i => i.Id == remoteId);
+                List<string> lines = new List<string>();
+                foreach (HistoryItem h in history)
+                {
+                    lines.Add(string.Format("{0}|{1}|{2}", h.Id, h.Alias ?? "", h.Hostname ?? ""));
+                }
+                File.WriteAllLines(HistoryFile, lines.ToArray());
+            }
+            catch { }
+        }
+
+        public static void ClearAll()
+        {
+            try
+            {
+                if (File.Exists(HistoryFile)) File.Delete(HistoryFile);
+            }
+            catch { }
+        }
+
         public static List<HistoryItem> GetRecentSessions()
         {
             List<HistoryItem> list = new List<HistoryItem>();
@@ -2208,6 +2233,28 @@ namespace Conecting
                 AutoSize = true
             };
 
+            Button btnClearHist = new Button
+            {
+                Text = "Limpiar Todo",
+                Font = new Font("Segoe UI", 8.5F, FontStyle.Bold),
+                ForeColor = Color.FromArgb(225, 29, 72),
+                BackColor = Color.FromArgb(254, 242, 242),
+                Location = new Point(780, 10),
+                Size = new Size(110, 26),
+                FlatStyle = FlatStyle.Flat,
+                Cursor = Cursors.Hand
+            };
+            btnClearHist.FlatAppearance.BorderSize = 1;
+            btnClearHist.FlatAppearance.BorderColor = Color.FromArgb(254, 202, 202);
+            btnClearHist.Click += (s, e) =>
+            {
+                if (MessageBox.Show("¿Desea borrar todo el historial de conexiones recientes?", "Limpiar Historial", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+                {
+                    ConnectionHistoryManager.ClearAll();
+                    RefreshHistoryGrid();
+                }
+            };
+
             flowHistory = new FlowLayoutPanel
             {
                 Location = new Point(24, 42),
@@ -2217,6 +2264,7 @@ namespace Conecting
             };
 
             cardHistory.Controls.Add(lblHistHeader);
+            cardHistory.Controls.Add(btnClearHist);
             cardHistory.Controls.Add(flowHistory);
 
             panelContentDashboard.Controls.Add(cardLocalToken);
@@ -2264,7 +2312,7 @@ namespace Conecting
                     Font = new Font("Segoe UI", 9.5F, FontStyle.Bold),
                     ForeColor = ColorTextDark,
                     Location = new Point(8, 8),
-                    Size = new Size(160, 22),
+                    Size = new Size(135, 22),
                     AutoEllipsis = true
                 };
 
@@ -2280,21 +2328,44 @@ namespace Conecting
                 Button btnEditAlias = new Button
                 {
                     Text = "✏️",
-                    Location = new Point(174, 6),
-                    Size = new Size(28, 24),
+                    Location = new Point(148, 6),
+                    Size = new Size(26, 24),
                     FlatStyle = FlatStyle.Flat,
                     Cursor = Cursors.Hand,
                     Font = new Font("Segoe UI", 7.5F)
                 };
                 btnEditAlias.FlatAppearance.BorderSize = 0;
+
+                Button btnDelete = new Button
+                {
+                    Text = "✕",
+                    Location = new Point(176, 6),
+                    Size = new Size(26, 24),
+                    FlatStyle = FlatStyle.Flat,
+                    Cursor = Cursors.Hand,
+                    Font = new Font("Segoe UI", 8F, FontStyle.Bold),
+                    ForeColor = Color.FromArgb(225, 29, 72)
+                };
+                btnDelete.FlatAppearance.BorderSize = 0;
+
                 string currentTargetId = item.Id;
                 string currentAlias = item.Alias;
+
                 btnEditAlias.Click += (s, e) =>
                 {
                     string input = PromptInput("Asignar Alias o Nombre Personalizado", string.Format("Introduzca un nombre o alias para el puesto ID ({0}):", currentTargetId), currentAlias);
                     if (input != null)
                     {
                         ConnectionHistoryManager.UpdateAlias(currentTargetId, input);
+                        RefreshHistoryGrid();
+                    }
+                };
+
+                btnDelete.Click += (s, e) =>
+                {
+                    if (MessageBox.Show(string.Format("¿Desea eliminar el puesto ID ({0}) del historial?", currentTargetId), "Eliminar Puesto", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+                    {
+                        ConnectionHistoryManager.RemoveSession(currentTargetId);
                         RefreshHistoryGrid();
                     }
                 };
@@ -2317,6 +2388,7 @@ namespace Conecting
                 card.Controls.Add(lblAliasHost);
                 card.Controls.Add(lblId);
                 card.Controls.Add(btnEditAlias);
+                card.Controls.Add(btnDelete);
                 card.Controls.Add(btnQuickConn);
                 flowHistory.Controls.Add(card);
             }
