@@ -95,14 +95,15 @@ nohup node server.js > relay.log 2>&1 &
 
 ---
 
-## Términos Legales y Estado de Licencia de Software
+## Términos Legales y Licencia Open Source (GNU GPLv3)
 
-**Estado de licencia actual:** Software distribuido en formato binario compilado (.EXE) de código cerrado, con intención declarada de publicarlo como Open Source bajo GPLv3 en el futuro en [https://github.com/jh4n3r/connecting](https://github.com/jh4n3r/connecting).
+**Estado de licencia actual:** Proyecto 100% Open Source Software (OSS) publicado bajo **Licencia Pública General de GNU v3.0 (GPLv3)** en [https://github.com/jh4n3r/connecting](https://github.com/jh4n3r/connecting).
 
+- **Código Fuente Completo:** El código fuente íntegro del cliente Windows C# (`ConectingApp.cs`), el servidor de relevo Node.js (`connecting-relay-server/server.js`) y los scripts de despliegue On-Premise (`setup-nginx-ssl.sh`) están disponibles de forma abierta y transparente bajo los términos de la GPLv3.
 - **Uso Autorizado y Consentimiento:** Es responsabilidad del Usuario obtener el consentimiento expreso del propietario u operador de cualquier equipo antes de instalar el Software o configurar acceso desatendido sobre él.
 - **Responsabilidad del Despliegue On-Premise:** La seguridad, configuración y mantenimiento del servidor de relevo es responsabilidad exclusiva del Usuario que lo despliega.
 - **Marcas de Terceros:** Las referencias a productos de terceros (AnyDesk, TeamViewer, RustDesk, DeskIn) se realizan únicamente con fines de comparación informativa. Dichas marcas son propiedad de sus respectivos titulares. Connecting no está afiliado, patrocinado ni respaldado por ninguna de estas empresas.
-- **Exclusión de Garantías y Limitación de Responsabilidad:** EL SOFTWARE SE PROPORCIONA "TAL CUAL", SIN GARANTÍA DE NINGÚN TIPO. EN NINGÚN CASO EL AUTOR (@jh4n3r) SERÁ RESPONSABLE DE NINGUNA RECLAMACIÓN, DAÑO DIRECTO, INDIRECTO O PÉRDIDA DE DATOS QUE SURJA DEL USO DEL SOFTWARE.
+- **Exclusión de Garantías y Limitación de Responsabilidad:** EL SOFTWARE SE PROPORCIONA "TAL CUAL" Y SIN GARANTÍAS DE NINGÚN TIPO, SEGÚN LO ESTABLECIDO EN LOS ARTÍCULOS 15 Y 16 DE LA LICENCIA GNU GPLv3.
 
 ---
 
