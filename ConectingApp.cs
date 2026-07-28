@@ -208,7 +208,7 @@ namespace Conecting
                         if (encoder != null)
                         {
                             EncoderParameters encoderParams = new EncoderParameters(1);
-                            encoderParams.Param[0] = new EncoderParameter(System.Drawing.Imaging.Encoder.Quality, 80L);
+                            encoderParams.Param[0] = new EncoderParameter(System.Drawing.Imaging.Encoder.Quality, 60L);
                             bitmap.Save(ms, encoder, encoderParams);
                         }
                         else
@@ -1523,6 +1523,10 @@ namespace Conecting
             return new PointF(normX, normY);
         }
 
+        private long _lastMouseMoveTick = 0;
+        private int _lastMouseX = -1;
+        private int _lastMouseY = -1;
+
         private void PicRemoteDesktop_MouseDown(object sender, MouseEventArgs e)
         {
             byte evtType = (e.Button == MouseButtons.Right) ? (byte)0x04 : (byte)0x02;
@@ -1531,6 +1535,12 @@ namespace Conecting
 
         private void PicRemoteDesktop_MouseMove(object sender, MouseEventArgs e)
         {
+            long now = Environment.TickCount;
+            if (now - _lastMouseMoveTick < 15 && Math.Abs(e.X - _lastMouseX) < 3 && Math.Abs(e.Y - _lastMouseY) < 3) return;
+            _lastMouseMoveTick = now;
+            _lastMouseX = e.X;
+            _lastMouseY = e.Y;
+
             SendRemoteInput(e.X, e.Y, 0x01);
         }
 
