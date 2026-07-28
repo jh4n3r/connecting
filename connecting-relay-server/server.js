@@ -21,6 +21,14 @@ const server = net.createServer((socket) => {
         try {
             if (!isHandshakeComplete) {
                 headerBuffer += chunk.toString('utf8');
+
+                // Soporte para pings HTTP (Keep-Alive de mantenimiento desde Oracle Cloud / Uptime Robot)
+                if (headerBuffer.startsWith('GET /') || headerBuffer.startsWith('HEAD /')) {
+                    socket.write("HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nConnection: close\r\n\r\nOK Connecting Relay Server Active\n");
+                    socket.destroy();
+                    return;
+                }
+
                 const lineEnd = headerBuffer.indexOf('\n');
                 if (lineEnd !== -1) {
                     const line = headerBuffer.substring(0, lineEnd).trim();
