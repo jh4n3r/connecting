@@ -30,6 +30,21 @@ Diseñada especialmente para equipos de **Soporte de TI, Administradores de Sist
 
 ---
 
+## Compilación desde el Código Fuente (Build from Source)
+
+El ejecutable `Connecting.exe` se genera de forma directa, transparente y determinista a partir del archivo de código fuente abierto `ConectingApp.cs` sin librerías ni binarios propietarios de terceros.
+
+### Comando de Compilación (Windows PowerShell / CMD):
+```powershell
+C:\Windows\Microsoft.NET\Framework64\v4.0.30319\csc.exe /target:winexe /out:Connecting.exe /win32icon:icon.ico /r:System.dll,System.Drawing.dll,System.Windows.Forms.dll ConectingApp.cs
+```
+
+### Garantía de Integridad y Licencia GPLv3:
+- **Cero Dependencias Privativas**: Todo el motor de interfaz (Windows Forms nativo), captura de pantalla (GDI+), inyección de eventos (Win32 API) y comunicación por sockets TCP se encuentra implementado íntegramente dentro de `ConectingApp.cs`.
+- **Correspondencia 1:1**: El binario `Connecting.exe` distribuido en las Releases corresponde exactamente a la compilación de `ConectingApp.cs` incluida en este repositorio.
+
+---
+
 ## Características Principales
 
 1. **Portabilidad Extrema**: Un único archivo ejecutable de 65 KB. No requiere servicios en segundo plano ni permisos de administrador para ejecutarse.
