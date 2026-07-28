@@ -207,7 +207,7 @@ namespace Conecting
         public static bool HasScreenChanged(Bitmap bitmap)
         {
             long now = Environment.TickCount;
-            if (now - _lastForceSendTick > 500)
+            if (now - _lastForceSendTick > 200)
             {
                 _lastForceSendTick = now;
                 return true;
@@ -224,13 +224,13 @@ namespace Conecting
                 {
                     byte* ptr = (byte*)data.Scan0.ToPointer();
                     int stride = data.Stride;
-                    int stepY = Math.Max(1, h / 8);
-                    int stepX = Math.Max(1, w / 8);
+                    int stepY = Math.Max(1, h / 6);
+                    int stepX = Math.Max(1, w / 6);
 
-                    for (int y = 0; y < 8; y++)
+                    for (int y = 0; y < 6; y++)
                     {
                         byte* row = ptr + (y * stepY * stride);
-                        for (int x = 0; x < 8; x++)
+                        for (int x = 0; x < 6; x++)
                         {
                             int offset = x * stepX * 3;
                             uint val = (uint)(row[offset] | (row[offset + 1] << 8) | (row[offset + 2] << 16));
@@ -266,106 +266,69 @@ namespace Conecting
         {
             try
             {
-                int width = 0;
-                int height = 0;
+                Rectangle bounds = Screen.PrimaryScreen.Bounds;
+                int srcW = bounds.Width;
+                int srcH = bounds.Height;
 
-                try
+                if (srcW <= 0 || srcH <= 0)
                 {
-                    Rectangle bounds = Screen.PrimaryScreen.Bounds;
-                    width = bounds.Width;
-                    height = bounds.Height;
-                }
-                catch { }
-
-                if (width <= 0 || height <= 0)
-                {
-                    width = GetSystemMetrics(SM_CXVIRTUALSCREEN);
-                    height = GetSystemMetrics(SM_CYVIRTUALSCREEN);
+                    srcW = GetSystemMetrics(SM_CXVIRTUALSCREEN);
+                    srcH = GetSystemMetrics(SM_CYVIRTUALSCREEN);
                 }
 
-                if (width <= 0 || height <= 0)
+                if (srcW <= 0 || srcH <= 0)
                 {
-                    width = GetSystemMetrics(SM_CXSCREEN);
-                    height = GetSystemMetrics(SM_CYSCREEN);
+                    srcW = GetSystemMetrics(SM_CXSCREEN);
+                    srcH = GetSystemMetrics(SM_CYSCREEN);
                 }
 
-                if (width <= 0) width = 1920;
-                if (height <= 0) height = 1080;
+                if (srcW <= 0) srcW = 1920;
+                if (srcH <= 0) srcH = 1080;
 
-                using (Bitmap bitmap = new Bitmap(width, height, PixelFormat.Format24bppRgb))
+                int targetW = srcW;
+                int targetH = srcH;
+                if (targetW > 1280)
                 {
-                    bool isBlackScreen = false;
-                    try
-                    {
-                        using (Graphics g = Graphics.FromImage(bitmap))
-                        {
-                            g.CopyFromScreen(Point.Empty, Point.Empty, new Size(width, height), CopyPixelOperation.SourceCopy);
-                        }
-                    }
-                    catch
-                    {
-                        isBlackScreen = true;
-                    }
+                    float scale = 1280f / targetW;
+                    targetW = 1280;
+                    targetH = (int)(srcH * scale);
+                }
 
-                    // Detección de Pantalla Negra en equipos sin monitor (Headless PC)
-                    if (!isBlackScreen)
+                using (Bitmap rawBmp = new Bitmap(srcW, srcH, PixelFormat.Format24bppRgb))
+                {
+                    using (Graphics g = Graphics.FromImage(rawBmp))
                     {
-                        Color cornerSample = bitmap.GetPixel(width / 2, height / 2);
-                        if (cornerSample.R == 0 && cornerSample.G == 0 && cornerSample.B == 0)
-                        {
-                            Color sample2 = bitmap.GetPixel(width / 4, height / 4);
-                            if (sample2.R == 0 && sample2.G == 0 && sample2.B == 0)
-                            {
-                                isBlackScreen = true;
-                            }
-                        }
+                        g.CopyFromScreen(Point.Empty, Point.Empty, new Size(srcW, srcH), CopyPixelOperation.SourceCopy);
                     }
 
-                    // Generación de Pantalla Virtual HD para Servidores/PCs sin Monitor Físico
-                    if (isBlackScreen)
+                    using (Bitmap scaledBmp = (targetW == srcW && targetH == srcH) ? (Bitmap)rawBmp.Clone() : new Bitmap(targetW, targetH, PixelFormat.Format24bppRgb))
                     {
-                        using (Graphics gVirt = Graphics.FromImage(bitmap))
+                        if (targetW != srcW || targetH != srcH)
                         {
-                            gVirt.SmoothingMode = SmoothingMode.AntiAlias;
-                            using (LinearGradientBrush bgBrush = new LinearGradientBrush(new Rectangle(0, 0, width, height), Color.FromArgb(15, 23, 42), Color.FromArgb(30, 41, 59), 45f))
+                            using (Graphics gScale = Graphics.FromImage(scaledBmp))
                             {
-                                gVirt.FillRectangle(bgBrush, 0, 0, width, height);
-                            }
-
-                            using (Pen gridPen = new Pen(Color.FromArgb(51, 65, 85), 1f))
-                            {
-                                for (int x = 0; x < width; x += 60) gVirt.DrawLine(gridPen, x, 0, x, height);
-                                for (int y = 0; y < height; y += 60) gVirt.DrawLine(gridPen, 0, y, width, y);
-                            }
-
-                            string pcName = Environment.MachineName;
-                            string statusText = string.Format("Connecting Virtual HD Display\nPuesto Remoto: {0}\n[Equipo sin Monitor Físico Conectado - Pantalla Virtual Activa]", pcName);
-
-                            using (Font fTitle = new Font("Segoe UI", 24F, FontStyle.Bold))
-                            using (SolidBrush textBrush = new SolidBrush(Color.FromArgb(241, 245, 249)))
-                            {
-                                StringFormat sf = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
-                                gVirt.DrawString(statusText, fTitle, textBrush, new RectangleF(0, 0, width, height), sf);
+                                gScale.InterpolationMode = InterpolationMode.Low;
+                                gScale.DrawImage(rawBmp, 0, 0, targetW, targetH);
                             }
                         }
-                    }
 
-                    if (!HasScreenChanged(bitmap)) return null;
+                        if (!HasScreenChanged(scaledBmp)) return null;
 
-                    using (MemoryStream ms = new MemoryStream())
-                    {
-                        ImageCodecInfo encoder = GetEncoderInfo("image/jpeg");
-                        if (encoder != null)
+                        using (MemoryStream ms = new MemoryStream())
                         {
-                            EncoderParameters encoderParams = new EncoderParameters(1);
-                            encoderParams.Param[0] = new EncoderParameter(System.Drawing.Imaging.Encoder.Quality, 80L);
-                            bitmap.Save(ms, encoder, encoderParams);
+                            ImageCodecInfo encoder = GetEncoderInfo("image/jpeg");
+                            if (encoder != null)
+                            {
+                                EncoderParameters encoderParams = new EncoderParameters(1);
+                                encoderParams.Param[0] = new EncoderParameter(System.Drawing.Imaging.Encoder.Quality, 55L);
+                                scaledBmp.Save(ms, encoder, encoderParams);
+                            }
+                            else
+                            {
+                                scaledBmp.Save(ms, ImageFormat.Jpeg);
+                            }
+                            return ms.ToArray();
                         }
-                        else
-                        {
-                            bitmap.Save(ms, ImageFormat.Jpeg);
-                        }
-                        return ms.ToArray();
                     }
                 }
             }
@@ -550,6 +513,24 @@ namespace Conecting
             path.AddArc(rect.X, rect.Bottom - r, r, r, 90, 90);
             path.CloseFigure();
             return path;
+        }
+    }
+
+    public class SmoothPictureBox : PictureBox
+    {
+        public InterpolationMode InterpolationMode { get; set; }
+
+        public SmoothPictureBox()
+        {
+            this.InterpolationMode = InterpolationMode.HighQualityBilinear;
+        }
+
+        protected override void OnPaint(PaintEventArgs pe)
+        {
+            pe.Graphics.InterpolationMode = this.InterpolationMode;
+            pe.Graphics.PixelOffsetMode = PixelOffsetMode.HighSpeed;
+            pe.Graphics.SmoothingMode = SmoothingMode.HighSpeed;
+            base.OnPaint(pe);
         }
     }
 
@@ -1412,7 +1393,7 @@ namespace Conecting
             };
             overlayReconnecting.Controls.Add(lblReconnectingText);
 
-            picRemoteDesktop = new PictureBox
+            picRemoteDesktop = new SmoothPictureBox
             {
                 Dock = DockStyle.Fill,
                 SizeMode = PictureBoxSizeMode.StretchImage,
