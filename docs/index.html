@@ -263,13 +263,13 @@
         </div>
     </section>
 
-    <!-- FOOTER LIMPIO -->
+    <!-- FOOTER -->
     <footer class="footer">
         <div class="container">
-            <p>&copy; 2026 Connecting Remote Desktop v1.0.1 • Desarrollado por <strong>@jh4n3r</strong></p>
+            <p id="footer-copy">&copy; 2026 Connecting Remote Desktop • Desarrollado por <strong>@jh4n3r</strong></p>
             <p style="margin-top:8px; font-size:0.85rem;">
-                <a href="docs" class="nav-link">Ver Documentacion Tecnica Completa</a> |
-                <a href="terms" class="nav-link">Terminos Legales de Licencia y Contacto</a>
+                <a href="docs" class="nav-link" id="footer-docs">Ver Documentación Técnica Completa</a> |
+                <a href="terms" class="nav-link" id="footer-terms">Términos Legales de Licencia y Contacto</a>
             </p>
         </div>
     </footer>
@@ -321,7 +321,9 @@
                     ["Clave PSK Persistente", "Persistencia Guardada", "Limitada", "Si", "Aleatoria"],
                     ["Hostname + Alias en Historial", "Asignación Visual de 1 Clic", "Si", "Solo ID", "Solo ID"]
                 ],
-                footerText: "Connecting Remote Desktop • Desarrollado por @jh4n3r"
+                footerText: "© 2026 Connecting Remote Desktop • Desarrollado por <strong>@jh4n3r</strong>",
+                footerDocs: "Ver Documentación Técnica Completa",
+                footerTerms: "Términos Legales de Licencia y Contacto"
             },
             en: {
                 navDocs: "Documentation",
@@ -368,7 +370,9 @@
                     ["Persistent PSK Key", "Saved Persistence", "Limited", "Yes", "Random"],
                     ["Hostname + History Alias", "1-Click Visual Assignment", "Yes", "ID Only", "ID Only"]
                 ],
-                footerText: "Connecting Remote Desktop • Developed by @jh4n3r"
+                footerText: "© 2026 Connecting Remote Desktop • Developed by <strong>@jh4n3r</strong>",
+                footerDocs: "View Full Technical Documentation",
+                footerTerms: "Legal License Terms & Contact"
             }
         };
 
@@ -456,7 +460,10 @@
                 if (sub) sub.innerText = t.compSubtitle;
                 if (title) title.innerText = t.compTitle;
                 if (desc) desc.innerText = t.compDesc;
-            }
+                if (document.getElementById('footer-copy')) document.getElementById('footer-copy').innerHTML = t.footerText;
+            if (document.getElementById('footer-docs')) document.getElementById('footer-docs').innerText = t.footerDocs;
+            if (document.getElementById('footer-terms')) document.getElementById('footer-terms').innerText = t.footerTerms;
+        }
 
             const ths = document.querySelectorAll('.comparison-table th');
             if (ths.length >= 5) {

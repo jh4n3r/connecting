@@ -5,9 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Términos de Servicio y Licencia de Software - Connecting</title>
     <meta name="description" content="Términos legales, condiciones de uso y marco de licencia de Connecting Remote Desktop.">
-    <link rel="icon" href="../favicon.ico" type="image/x-icon">
-    <link rel="shortcut icon" href="../favicon.ico" type="image/x-icon">
-    <link rel="stylesheet" href="../styles.css">
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="styles.css">
     <style>
         .terms-container {
             max-width: 950px;
@@ -89,8 +89,8 @@
     <!-- BARRA DE NAVEGACIÓN -->
     <nav class="navbar">
         <div class="nav-container">
-            <a href="../" class="logo-brand">
-                <img src="../favicon.ico" alt="Connecting Logo" class="logo-img" />
+            <a href="./" class="logo-brand">
+                <img src="favicon.ico" alt="Connecting Logo" class="logo-img" />
                 Connecting Legal
             </a>
             <div class="nav-right">
@@ -205,22 +205,39 @@
                 preambleP: "El presente documento constituye un acuerdo relativo al uso, distribución y despliegue del software de escritorio remoto denominado <strong>Connecting</strong> (en adelante, \"el Software\"), desarrollado por <strong>@jh4n3r</strong>. Al descargar, ejecutar o desplegar cualquier componente del Software, el usuario o entidad (en adelante, \"el Usuario\") acepta los términos establecidos bajo la Licencia Pública General de GNU v3.0 (GPLv3).",
                 c1H: "CLÁUSULA PRIMERA: Naturaleza Jurídica y Licencia Open Source (GNU GPLv3)",
                 c1P: "El Software es <strong>100% Open Source Software (OSS)</strong> y se distribuye bajo la licencia <strong>GNU General Public License v3.0 (GPLv3)</strong>.",
+                c1List: [
+                    "<strong>Código Fuente Completo Liberado:</strong> El código fuente íntegro del cliente Windows C# (`ConectingApp.cs`), el servidor de relevo Node.js (`connecting-relay-server/server.js`) y los scripts de configuración se encuentran publicados y accesibles públicamente en el repositorio oficial: <a href=\"https://github.com/jh4n3r/connecting\" target=\"_blank\" style=\"color:var(--cyan-dark); font-weight:700;\">https://github.com/jh4n3r/connecting</a>.",
+                    "<strong>Libertades de la GPLv3:</strong> Se garantiza a todo usuario el derecho de ejecutar, inspeccionar, modificar, estudiar y redistribuir el código fuente o sus binarios compilados de conformidad con los términos de la GPLv3."
+                ],
                 c2H: "CLÁUSULA SEGUNDA: Régimen Copyleft (GNU GPLv3)",
-                c2P: "De conformidad con la Licencia GPLv3: Cualquiera modificación o versión derivada que sea redistribuida a terceros deberá liberar su código fuente bajo la misma licencia GNU GPLv3.",
+                c2P: "De conformidad con la Licencia GPLv3:",
+                c2List: [
+                    "Cualquier modificación o versión derivada que sea redistribuida a terceros deberá liberar su código fuente bajo la misma licencia GNU GPLv3.",
+                    "Se concede acceso libre e irrestricto al código fuente a través del repositorio oficial de GitHub."
+                ],
                 c3H: "CLÁUSULA TERCERA: Despliegue Privado (Servidor de Relevo On-Premise)",
                 c3P: "Se reconoce el derecho del Usuario corporativo de desplegar instancias privadas del Servidor de Relevo (Node.js) dentro de su propia infraestructura.",
+                c3List: [
+                    "<strong>Aislamiento de tráfico:</strong> Las instancias desplegadas por el Usuario en su propia infraestructura no envían datos a servidores del desarrollador.",
+                    "<strong>Responsabilidad del despliegue:</strong> La seguridad, configuración y mantenimiento del servidor de relevo (incluyendo certificados SSL, firewall y accesos) es responsabilidad exclusiva del Usuario que lo despliega.",
+                    "<strong>Sin regalías:</strong> No se cobran licencias por asiento ni tarifas por uso de infraestructura propia."
+                ],
                 c4H: "CLÁUSULA CUARTA: Naturaleza del Software y Advertencia de Uso Autorizado",
-                c4P: "Dado que el Software permite control remoto de equipos, inyección de eventos de teclado/mouse, acceso desatendido mediante clave persistente y auto-elevación a permisos de Administrador (UAC), el Usuario reconoce y acepta obtener el consentimiento expreso del propietario del equipo.",
+                c4P: "Dado que el Software permite <strong>control remoto de equipos, inyección de eventos de teclado/mouse, acceso desatendido mediante clave persistente y auto-elevación a permisos de Administrador (UAC)</strong>, el Usuario reconoce y acepta que:",
+                c4Notice1: "<strong>USO AUTORIZADO Y CONSENTIMIENTO:</strong> Es responsabilidad del Usuario obtener el consentimiento expreso del propietario u operador de cualquier equipo antes de instalar el Software o configurar acceso desatendido sobre él. El uso del Software para acceder a equipos sin autorización previa puede constituir un delito bajo las leyes aplicables de acceso no autorizado a sistemas informáticos, y es responsabilidad exclusiva del Usuario, no del desarrollador. La clave de acceso desatendido (PSK) se almacena localmente en el equipo remoto; es responsabilidad del Usuario protegerla y no compartirla con terceros no autorizados.",
+                c4Notice2: "<strong>AUTO-ELEVACIÓN A ADMINISTRADOR:</strong> El Software solicita automáticamente permisos de Administrador (UAC) al iniciar para poder inyectar eventos de teclado y mouse en todas las ventanas del sistema operativo, incluyendo ventanas ejecutadas con privilegios elevados. Esta funcionalidad es necesaria para el correcto funcionamiento del control remoto. El Usuario acepta que la concesión de dichos permisos es bajo su exclusiva responsabilidad.",
                 c5H: "CLÁUSULA QUINTA: Exclusión de Garantías",
                 c5P: "EL SOFTWARE SE SUMINISTRA \"TAL CUAL\", SIN GARANTÍA DE NINGÚN TIPO, EXPRESA O IMPLÍCITA, INCLUYENDO SIN LIMITACIÓN LAS GARANTÍAS DE COMERCIABILIDAD, IDONEIDAD PARA UN PROPÓSITO PARTICULAR O NO INFRACCIÓN.",
                 c6H: "CLÁUSULA SEXTA: Limitación de Responsabilidad",
-                c6P: "EN NINGÚN CASO EL AUTOR SERÁ RESPONSABLE POR DAÑOS DIRECTOS, INDIRECTOS, INCIDENTALES O CONSECUENTES DERIVADOS DEL USO, IMPOSIBILIDAD DE USO, O INTERACCIÓN DEL SOFTWARE CON OTROS SISTEMAS.",
+                c6P: "EN NINGÚN CASO EL AUTOR SERÁ RESPONSABLE POR DAÑOS DIRECTOS, INDIRECTOS, INCIDENTALES O CONSECUENTES DERIVADOS DEL USO, IMPOSIBILIDAD DE USO, O INTERACCIÓN DEL SOFTWARE CON OTROS SISTEMAS, INCLUYENDO PÉRDIDA DE DATOS, ACCESOS NO AUTORIZADOS DE TERCEROS, O FALLAS DE SEGURIDAD EN EL SERVIDOR DE RELEVO DESPLEGADO POR EL USUARIO.",
                 c7H: "CLÁUSULA SÉPTIMA: Marcas de Terceros",
-                c7P: "Cualquier referencia a productos, software o servicios de terceros en material informativo o comparativo se realiza únicamente con fines descriptivos e ilustrativos. Dichas marcas son propiedad exclusiva de sus respectivos titulares.",
+                c7P: "Cualquier referencia a productos, software o servicios de terceros en material informativo o comparativo se realiza únicamente con fines descriptivos e ilustrativos. Dichas marcas y nombres comerciales son propiedad exclusiva de sus respectivos titulares. Connecting no está afiliado, patrocinado, asociado ni respaldado por ninguna de dichas entidades de terceros.",
                 c8H: "CLÁUSULA OCTAVA: Modificaciones a estos Términos",
-                c8P: "El desarrollador podrá actualizar estos términos en cualquier momento, particularmente al momento de la publicación del código fuente bajo licencia Open Source.",
+                c8P: "El desarrollador podrá actualizar estos términos en cualquier momento, particularmente al momento de la publicación del código fuente bajo licencia Open Source. Se recomienda al Usuario revisar periódicamente esta página.",
                 c9H: "CLÁUSULA NOVENA: Jurisdicción y Ley Aplicable",
-                c9P: "Este acuerdo se rige por las leyes aplicables en la jurisdicción de residencia del desarrollador."
+                c9P: "Este acuerdo se rige por las leyes aplicables en la jurisdicción de residencia del desarrollador. Cualquier controversia derivada de este acuerdo será sometida a los tribunales competentes en dicha jurisdicción.",
+                contactFooter: "Desarrollador: @jh4n3r | Correo de contacto: jh4n3r@outlook.com | Repositorio GitHub: <a href=\"https://github.com/jh4n3r/connecting\" target=\"_blank\" style=\"color:var(--cyan-dark); font-weight:700;\">https://github.com/jh4n3r/connecting</a>",
+                footerCopy: "&copy; 2026 Connecting Remote Desktop • Desarrollado por <strong>@jh4n3r</strong>"
             },
             en: {
                 home: "Home",
@@ -231,12 +248,27 @@
                 preambleP: "This document constitutes an agreement regarding the use, distribution, and deployment of the remote desktop software named <strong>Connecting</strong> (hereinafter, 'the Software'), developed by <strong>@jh4n3r</strong>. By downloading, running, or deploying any component of the Software, the user or entity (hereinafter, 'the User') accepts the terms set forth under the GNU General Public License v3.0 (GPLv3).",
                 c1H: "CLAUSE 1: Legal Nature and Open Source License (GNU GPLv3)",
                 c1P: "The Software is <strong>100% Open Source Software (OSS)</strong> distributed under the <strong>GNU General Public License v3.0 (GPLv3)</strong>.",
+                c1List: [
+                    "<strong>Full Source Code Released:</strong> The complete source code of the Windows C# client (`ConectingApp.cs`), Node.js relay server (`connecting-relay-server/server.js`), and setup scripts are publicly available on GitHub: <a href=\"https://github.com/jh4n3r/connecting\" target=\"_blank\" style=\"color:var(--cyan-dark); font-weight:700;\">https://github.com/jh4n3r/connecting</a>.",
+                    "<strong>GPLv3 Freedoms:</strong> Every user is granted the right to run, inspect, modify, study, and redistribute the source code or compiled binaries under GPLv3 terms."
+                ],
                 c2H: "CLAUSE 2: Copyleft Framework (GNU GPLv3)",
-                c2P: "In accordance with the GPLv3 License: Any modification or derivative work redistributed to third parties must release its full source code under the same GNU GPLv3 license.",
+                c2P: "In accordance with the GPLv3 License:",
+                c2List: [
+                    "Any modification or derivative work redistributed to third parties must release its full source code under the same GNU GPLv3 license.",
+                    "Free and unrestricted access to the source code is granted through the official GitHub repository."
+                ],
                 c3H: "CLAUSE 3: Private Deployment (On-Premise Relay Server)",
                 c3P: "The right of enterprise users to deploy private instances of the Relay Server (Node.js) within their own infrastructure is fully recognized.",
+                c3List: [
+                    "<strong>Traffic Isolation:</strong> Server instances deployed by the User on private infrastructure do not send data to developer servers.",
+                    "<strong>Deployment Responsibility:</strong> Security, configuration, and maintenance of the relay server (including SSL certs, firewall, and access) are the sole responsibility of the deploying User.",
+                    "<strong>No Royalties:</strong> No per-seat licenses or fees are charged for using self-hosted infrastructure."
+                ],
                 c4H: "CLAUSE 4: Nature of Software & Authorized Use Warning",
-                c4P: "Since the Software enables remote machine control, mouse/keyboard event injection, unattended access, and UAC elevation, the User acknowledges and agrees to obtain explicit consent from the device owner prior to installation.",
+                c4P: "Since the Software enables <strong>remote machine control, keyboard/mouse event injection, unattended access via persistent key, and administrator elevation (UAC)</strong>, the User acknowledges and agrees that:",
+                c4Notice1: "<strong>AUTHORIZED USE & CONSENT:</strong> It is the User's sole responsibility to obtain explicit consent from the device owner or operator before installing the Software or configuring unattended access. Accessing machines without authorization may constitute a crime under applicable laws. The unattended access key (PSK) is stored locally on the remote machine; it is the User's responsibility to protect it.",
+                c4Notice2: "<strong>ADMINISTRATOR ELEVATION:</strong> The Software automatically requests Administrator permissions (UAC) upon startup to inject keyboard and mouse events into elevated system windows. The User accepts that granting such permissions is under their sole responsibility.",
                 c5H: "CLAUSE 5: Disclaimer of Warranties",
                 c5P: "THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE OR NON-INFRINGEMENT.",
                 c6H: "CLAUSE 6: Limitation of Liability",
@@ -246,7 +278,9 @@
                 c8H: "CLAUSE 8: Amendments to Terms",
                 c8P: "The developer reserves the right to update these terms at any time. Users are advised to review this page periodically.",
                 c9H: "CLAUSE 9: Jurisdiction & Governing Law",
-                c9P: "This agreement shall be governed by the laws applicable in the jurisdiction of residence of the developer."
+                c9P: "This agreement shall be governed by the laws applicable in the jurisdiction of residence of the developer.",
+                contactFooter: "Developer: @jh4n3r | Contact Email: jh4n3r@outlook.com | GitHub Repository: <a href=\"https://github.com/jh4n3r/connecting\" target=\"_blank\" style=\"color:var(--cyan-dark); font-weight:700;\">https://github.com/jh4n3r/connecting</a>",
+                footerCopy: "&copy; 2026 Connecting Remote Desktop • Developed by <strong>@jh4n3r</strong>"
             }
         };
 
@@ -286,15 +320,34 @@
             if (clauseParas.length >= 10) {
                 clauseParas[0].innerHTML = t.preambleP;
                 clauseParas[1].innerHTML = t.c1P;
-                clauseParas[2].innerText = t.c2P;
-                clauseParas[3].innerText = t.c3P;
-                clauseParas[4].innerText = t.c4P;
-                clauseParas[5].innerText = t.c5P;
-                clauseParas[6].innerText = t.c6P;
-                clauseParas[7].innerText = t.c7P;
-                clauseParas[8].innerText = t.c8P;
-                clauseParas[9].innerText = t.c9P;
+                clauseParas[2].innerHTML = t.c2P;
+                clauseParas[3].innerHTML = t.c3P;
+                clauseParas[4].innerHTML = t.c4P;
+                clauseParas[5].innerHTML = t.c5P;
+                clauseParas[6].innerHTML = t.c6P;
+                clauseParas[7].innerHTML = t.c7P;
+                clauseParas[8].innerHTML = t.c8P;
+                clauseParas[9].innerHTML = t.c9P;
             }
+
+            const lists = document.querySelectorAll('.terms-list');
+            if (lists.length >= 3) {
+                if (t.c1List) lists[0].innerHTML = t.c1List.map(item => `<li>${item}</li>`).join('');
+                if (t.c2List) lists[1].innerHTML = t.c2List.map(item => `<li>${item}</li>`).join('');
+                if (t.c3List) lists[2].innerHTML = t.c3List.map(item => `<li>${item}</li>`).join('');
+            }
+
+            const notices = document.querySelectorAll('.legal-notice-box');
+            if (notices.length >= 2) {
+                notices[0].innerHTML = t.c4Notice1;
+                notices[1].innerHTML = t.c4Notice2;
+            }
+
+            const contactFoot = document.querySelector('.contact-small-footer');
+            if (contactFoot) contactFoot.innerHTML = t.contactFooter;
+
+            const mainFoot = document.querySelector('.footer p');
+            if (mainFoot) mainFoot.innerHTML = t.footerCopy;
         }
 
         document.addEventListener('DOMContentLoaded', () => {

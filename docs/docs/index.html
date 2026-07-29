@@ -9,8 +9,8 @@
     <meta name="robots" content="index, follow">
     <link rel="canonical" href="https://connecting.abrdns.com/docs">
     
-    <link rel="icon" href="../favicon.ico" type="image/x-icon">
-    <link rel="stylesheet" href="../styles.css">
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="styles.css">
     
     <style>
         .docs-layout {
@@ -189,8 +189,8 @@
     <!-- BARRA DE NAVEGACIÓN -->
     <nav class="navbar">
         <div class="nav-container">
-            <a href="../" class="logo-brand">
-                <img src="../favicon.ico" alt="Connecting Logo" class="logo-img" />
+            <a href="./" class="logo-brand">
+                <img src="favicon.ico" alt="Connecting Logo" class="logo-img" />
                 Connecting Docs
             </a>
             <div class="nav-right">
@@ -421,25 +421,75 @@ nohup node server.js > relay.log 2>&1 &
                 calloutEnterprise: "<strong>¿Por qué Connecting Enterprise?</strong> Permite desplegar tu propio servidor Relay privado <strong>On-Premise</strong> dentro de tu infraestructura de TI con Nginx + SSL, garantizando el aislamiento total de datos en redes corporativas sin enviar información a servidores externos.",
                 h2Tech: "Stack Tecnológico Oficial",
                 pTechDesc: "Connecting ha sido diseñado enfocándose en el rendimiento y cero dependencia de librerías de terceros pesadas:",
+                techList: [
+                    "<span class=\"badge-tech\">Cliente Windows</span> <strong>C# (.NET Framework 4.8)</strong>: Compilado con csc.exe a un ejecutable portátil nativo de ~65 KB. No requiere instalador ni servicios de fondo.",
+                    "<span class=\"badge-tech\">Motor de Entrada</span> <strong>Win32 Native API (SendInput + MapVirtualKey)</strong>: Inyección nativa de ratón (coordenadas absolutas 0 a 65535) y mapeo de códigos de escaneo físico de teclado para interactuar con herramientas elevadas como Administrador de Tareas, CMD, PowerShell y UAC.",
+                    "<span class=\"badge-tech\">Servidor Relay</span> <strong>Node.js (TCP Socket Server Nativo)</strong>: Enrutador de paquetes binarios de alta velocidad sin dependencias externas ejecutado en servidor Linux o servidor privado On-Premise."
+                ],
                 h2OnPrem: "Guía de Despliegue On-Premise (Servidor Privado)",
                 pOnPremDesc: "Para empresas y departamentos de TI que requieren gestionar conexiones remotas dentro de una red privada aislada (VPN Corporativa o Red Local) utilizando el asistente de despliegue `setup-nginx-ssl.sh`:",
                 h3Req: "1. Requisitos del Servidor",
-                h3Script: "2. Automatización con setup-nginx-ssl.sh",
-                h3Relay: "3. Ejecución del Servidor Relay en Segundo Plano",
-                h3Errors: "4. Diagnóstico y Errores Comunes",
-                h2Manual: "Manual de Usuario del Cliente Portátil (.EXE)",
-                h3Conn: "1. Conexión e Identificadores de 9 Dógicos",
-                h3Psk: "2. Acceso Desatendido y Clave PSK Persistente",
+                reqList: [
+                    "<strong>Sistema Operativo</strong>: Linux (Ubuntu Server 20.04/22.04 LTS o Debian).",
+                    "<strong>Entorno de Ejecución</strong>: Node.js v16.0.0 o superior.",
+                    "<strong>Servidor Web & SSL</strong>: Nginx y Certbot (instalados automáticamente por el asistente).",
+                    "<strong>Puertos Abiertos</strong>: Puerto HTTP 80, HTTPS 443 y puerto de Relevo TCP 8443."
+                ],
+                h3Script: "2. Configuración Automatizada con setup-nginx-ssl.sh",
+                pScriptDesc: "Ejecuta el asistente de configuración Dual (Landing Web + Proxy WebSocket de Relevo):",
+                scriptPrompt: "El script solicitará interactiva o automáticamente:",
+                scriptList: [
+                    "<strong>Dominio o Subdominio</strong>: Dirección pública o interna del servidor (ej: `tu-dominio.com`).",
+                    "<strong>Directorio Raíz Web</strong>: Ubicación de los archivos de la Landing Page (`/var/www/tu-dominio.com`).",
+                    "<strong>Puerto Interno de Relevo</strong>: Puerto TCP de comunicación (`8443`)."
+                ],
+                pCertDesc: "El script generará automáticamente el bloque de configuración Nginx Dual en `/etc/nginx/sites-available/` y creará el certificado SSL con Certbot (Let's Encrypt):",
+                h3Relay: "3. Ejecución del Servidor de Relevo",
+                pRelayDesc: "Inicia el servidor de sockets TCP en Node.js dentro de la carpeta `connecting-relay-server`:",
+                h3Errors: "4. Errores Comunes y Revisiones de Diagnóstico",
+                errList: [
+                    "<strong>Error de Sintaxis en Nginx</strong>: Verifica la sintaxis del archivo ejecutando `sudo nginx -t`.",
+                    "<strong>Puerto 8443 Ocupado o Bloqueado</strong>: Comprueba si el puerto está escuchando ejecutando `ss -tlnp | grep 8443` o `netstat -tlpn`.",
+                    "<strong>Renovación de Certificado SSL</strong>: Para probar la renovación automática de Certbot ejecuta `sudo certbot renew --dry-run`.",
+                    "<strong>Permisos de Archivos Web</strong>: Asegura los permisos del directorio web ejecutando `sudo chown -R www-data:www-data /var/www/connecting.abrdns.com`."
+                ],
+                h2Manual: "Manual del Cliente Remoto (.EXE)",
+                h3Conn: "1. Acceso Desatendido y Clave PSK Persistente",
+                pConnDesc: "Para conectar de forma automática sin necesidad de confirmación manual:",
+                pskSteps: [
+                    "Abre <strong>Connecting.exe</strong> en el puesto remoto.",
+                    "Ve a la pestaña <strong>Configuración & Seguridad</strong>.",
+                    "Activa la opción <em>\"Permitir Acceso Desatendido directo con Clave PSK\"</em>.",
+                    "Introduce tu contraseña en <em>\"Clave de Acceso Desatendido Personalizada\"</em>.",
+                    "Esta clave se guarda automáticamente en `%APPDATA%\\ConnectingNodes\\custom_psk.dat`."
+                ],
+                h3Psk: "2. Hostname Automático y Alias Personalizados",
+                pAliasDesc: "Al conectarte a un equipo remoto, Connecting obtiene automáticamente su nombre de sistema (ej: DESKTOP-FINANZAS). En la pantalla principal, cada tarjeta del historial incluye la opción de asignar un nombre amigable como john-administracion.",
                 h3Shortcuts: "3. Atajos de Teclado y Control Nativo",
                 pShortcuts: "Desde el menú superior <strong>\"Atajos & Acciones\"</strong> dentro de la sesión remota, puedes enviar combinaciones directas de sistema como Win+R, Win+E, Ctrl+Alt+Supr y Ctrl+Shift+Esc.",
                 h2Smartscreen: "Firma de Código y Advertencia Windows SmartScreen",
-                smartscreenCallout: "<strong>Aviso sobre la firma digital del ejecutable Connecting.exe:</strong><br>Al ser una herramienta portátil desarrollada de manera independiente, <strong>Connecting.exe</strong> no cuenta aún con un certificado comercial de firma de código de pago (como Sectigo, DigiCert o Azure Trusted Signing para desarrolladores indie).<br><br>Debido a esto, el filtro <strong>Windows SmartScreen</strong> puede mostrar una ventana de alerta al ejecutar la aplicación por primera vez indicando <em>\"Editor desconocido\"</em> o <em>\"Windows protegió su PC\"</em>. Esto ocurre en ejecutables independientes que no han adquirido un certificado de firma digital de pago.<br><br><strong>Cómo continuar de forma segura:</strong> Haz clic en el enlace <u>\"Más información\"</u> dentro de la ventana de advertencia de Windows y presiona el botón <u>\"Ejecutar de todas formas\"</u>. La aplicación es portátil, no requiere instalación ni modifica el registro de tu sistema.",
+                smartscreenCallout: "<strong>Aviso sobre la firma digital del ejecutable Connecting.exe:</strong><br>Al ser una herramienta portátil desarrollada de manera independiente, <strong>Connecting.exe</strong> no cuenta aún con un certificado comercial de firma de código de pago (como Sectigo, DigiCert o Azure Trusted Signing para desarrolladores independientes).<br><br>Debido a esto, el filtro <strong>Windows SmartScreen</strong> puede mostrar una ventana de alerta al ejecutar la aplicación por primera vez indicando <em>\"Editor desconocido\"</em> o <em>\"Windows protegió su PC\"</em>. Esto ocurre en ejecutables independientes que no han adquirido un certificado de firma digital de pago.<br><br><strong>Cómo continuar de forma segura:</strong> Haz clic en el enlace <u>\"Más información\"</u> dentro de la ventana de advertencia de Windows y presiona el botón <u>\"Ejecutar de todas formas\"</u>. La aplicación es portátil, no requiere instalación ni modifica el registro de tu sistema.",
                 h2Scope: "Capacidades y Alcance de esta Versión (Release v1.0.1)",
                 h3Allows: "Lo que SI permite esta versión:",
+                allowsList: [
+                    "Control remoto fluido con transmisión de fotogramas de alta definición.",
+                    "Portapapeles bidireccional en tiempo real para copiar y pegar texto entre local y remoto.",
+                    "Chat interactivo en vivo integrado en la barra lateral.",
+                    "Acceso desatendido persistente protegido mediante contraseña PSK única.",
+                    "Aislamiento nativo de teclado impidiendo interferencias en el equipo local.",
+                    "Widget flotante de sesión en el host para monitorear y finalizar la sesión en 1 clic.",
+                    "Desconexión segura instantánea al cerrar la ventana o finalizar el soporte."
+                ],
                 h3Disallows: "Lo que NO permite esta versión:",
+                disallowsList: [
+                    "Transmisión de audio remoto en tiempo real (enfoque exclusivo en control gráfico y texto).",
+                    "Transferencia masiva de archivos por arrastrar y soltar.",
+                    "Cambio entre múltiples monitores en pestañas dentro de una misma ventana (se pueden abrir múltiples instancias ejecutables independientes)."
+                ],
                 h2Contact: "Contacto y Soporte Técnico Oficial",
                 pContact1: "El código fuente oficial del proyecto se encuentra publicado en GitHub: <a href=\"https://github.com/jh4n3r/connecting\" target=\"_blank\" style=\"color:var(--cyan-dark); font-weight:700;\">https://github.com/jh4n3r/connecting</a>.",
-                pContact2: "Para más información o consultas sobre el acuerdo de uso, consulta nuestros <a href=\"terms.html\" style=\"color:var(--cyan-dark); font-weight:700;\">Términos Legales de Licencia y Servicio</a>."
+                pContact2: "Para más información o consultas sobre el acuerdo de uso, consulta nuestros <a href=\"terms.html\" style=\"color:var(--cyan-dark); font-weight:700;\">Términos Legales de Licencia y Servicio</a>.",
+                footerCopy: "&copy; 2026 Connecting Remote Desktop • Desarrollado por <strong>@jh4n3r</strong>"
             },
             en: {
                 home: "Home",
@@ -467,25 +517,75 @@ nohup node server.js > relay.log 2>&1 &
                 calloutEnterprise: "<strong>Why Connecting Enterprise?</strong> Deploy your own private <strong>On-Premise</strong> Relay server inside your IT infrastructure with Nginx + SSL, ensuring total data isolation in corporate networks without sending info to third-party servers.",
                 h2Tech: "Official Tech Stack",
                 pTechDesc: "Connecting was engineered focusing on pure performance and zero heavy third-party dependencies:",
+                techList: [
+                    "<span class=\"badge-tech\">Windows Client</span> <strong>C# (.NET Framework 4.8)</strong>: Compiled natively with csc.exe into a portable ~80 KB binary. No installer or background services.",
+                    "<span class=\"badge-tech\">Input Engine</span> <strong>Win32 Native API (SendInput + MapVirtualKey)</strong>: Native mouse injection (absolute coordinates 0-65535) and physical scan code mapping for elevated system windows like Task Manager, CMD, PowerShell, and UAC.",
+                    "<span class=\"badge-tech\">Relay Server</span> <strong>Node.js (Native TCP Socket Server)</strong>: High-speed binary packet router with zero third-party dependencies running on Linux or On-Premise private server."
+                ],
                 h2OnPrem: "On-Premise Deployment Guide (Private Server)",
                 pOnPremDesc: "For corporate environments and IT departments requiring isolated remote management within a private network (VPN or Local LAN) using the deployment wizard `setup-nginx-ssl.sh`:",
                 h3Req: "1. Server Requirements",
-                h3Script: "2. Automation with setup-nginx-ssl.sh",
-                h3Relay: "3. Running Relay Server in Background",
-                h3Errors: "4. Troubleshooting & Common Fixes",
+                reqList: [
+                    "<strong>Operating System</strong>: Linux (Ubuntu Server 20.04/22.04 LTS or Debian).",
+                    "<strong>Runtime Environment</strong>: Node.js v16.0.0 or higher.",
+                    "<strong>Web Server & SSL</strong>: Nginx and Certbot (installed automatically by wizard).",
+                    "<strong>Open Ports</strong>: HTTP Port 80, HTTPS Port 443, and TCP Relay Port 8443."
+                ],
+                h3Script: "2. Automated Configuration with setup-nginx-ssl.sh",
+                pScriptDesc: "Run the Dual setup wizard (Landing Web + Relay WebSocket Proxy):",
+                scriptPrompt: "The script will interactively or automatically prompt for:",
+                scriptList: [
+                    "<strong>Domain or Subdomain</strong>: Public or internal server address (e.g., `your-domain.com`).",
+                    "<strong>Web Root Directory</strong>: Location of Landing Page files (`/var/www/your-domain.com`).",
+                    "<strong>Internal Relay Port</strong>: TCP communication port (`8443`)."
+                ],
+                pCertDesc: "The script automatically generates the Dual Nginx server block under `/etc/nginx/sites-available/` and issues the SSL certificate via Certbot (Let's Encrypt):",
+                h3Relay: "3. Running the Relay Server",
+                pRelayDesc: "Start the Node.js TCP socket server inside the `connecting-relay-server` folder:",
+                h3Errors: "4. Troubleshooting & Common Diagnostics",
+                errList: [
+                    "<strong>Nginx Syntax Error</strong>: Test configuration syntax by running `sudo nginx -t`.",
+                    "<strong>Port 8443 Busy or Blocked</strong>: Check if the port is listening by running `ss -tlnp | grep 8443` or `netstat -tlpn`.",
+                    "<strong>SSL Certificate Renewal</strong>: Test Certbot auto-renewal by running `sudo certbot renew --dry-run`.",
+                    "<strong>Web File Permissions</strong>: Secure web directory ownership by running `sudo chown -R www-data:www-data /var/www/connecting.abrdns.com`."
+                ],
                 h2Manual: "Portable Client User Manual (.EXE)",
-                h3Conn: "1. Connection & 9-Digit IDs",
-                h3Psk: "2. Unattended Access & Persistent PSK Key",
+                h3Conn: "1. Unattended Access & Persistent PSK Key",
+                pConnDesc: "To connect automatically without manual confirmation on target host:",
+                pskSteps: [
+                    "Open <strong>Connecting.exe</strong> on the remote workstation.",
+                    "Navigate to <strong>Settings & Security</strong> tab.",
+                    "Enable <em>'Allow Unattended Access with PSK Key'</em>.",
+                    "Set your password under <em>'Custom Unattended Access Key'</em>.",
+                    "This password is automatically saved in `%APPDATA%\\ConnectingNodes\\custom_psk.dat`."
+                ],
+                h3Psk: "2. Automatic Hostname & Custom Aliases",
+                pAliasDesc: "When connecting to a remote device, Connecting automatically retrieves its system machine name (e.g., DESKTOP-FINANCE). On the main dashboard, each history card allows assigning a custom friendly alias like john-admin.",
                 h3Shortcuts: "3. Keyboard Shortcuts & Native Control",
                 pShortcuts: "From the top menu <strong>\"Shortcuts & Actions\"</strong> during a remote session, you can send direct system key combinations like Win+R, Win+E, Ctrl+Alt+Del, and Ctrl+Shift+Esc.",
                 h2Smartscreen: "Code Signing & Windows SmartScreen Warning",
                 smartscreenCallout: "<strong>Notice regarding Connecting.exe digital signature:</strong><br>As an independently developed portable tool, <strong>Connecting.exe</strong> does not currently have a paid commercial Code Signing Certificate (such as Sectigo, DigiCert, or Azure Trusted Signing for indie developers).<br><br>Because of this, <strong>Windows SmartScreen</strong> may display an alert window upon running the application for the first time stating <em>'Unknown Publisher'</em> or <em>'Windows protected your PC'</em>. This is expected behavior for indie executables without a paid digital signature certificate.<br><br><strong>How to proceed safely:</strong> Click <u>'More info'</u> inside the Windows warning prompt and then press the <u>'Run anyway'</u> button. The application is completely portable, requires no installation, and makes no registry modifications.",
                 h2Scope: "Capabilities & Scope of this Release (v1.0.1)",
                 h3Allows: "Supported in this release:",
+                allowsList: [
+                    "Smooth real-time remote control with high-definition frame streaming.",
+                    "Real-time bidirectional text clipboard between local and remote.",
+                    "Live interactive messaging chat in sidebar.",
+                    "Persistent unattended access protected with a unique PSK password.",
+                    "Native keyboard isolation preventing local machine interference.",
+                    "Floating host session widget to monitor and terminate sessions in 1 click.",
+                    "Instant secure disconnect upon closing window or ending support."
+                ],
                 h3Disallows: "Not supported in this release:",
+                disallowsList: [
+                    "Real-time remote audio streaming (exclusive focus on high-speed graphics and text).",
+                    "Massive drag-and-drop file transfer.",
+                    "Multi-monitor tab switching inside a single window (multiple independent executable instances can be opened)."
+                ],
                 h2Contact: "Contact & Official Technical Support",
                 pContact1: "The official project source code is hosted on GitHub: <a href=\"https://github.com/jh4n3r/connecting\" target=\"_blank\" style=\"color:var(--cyan-dark); font-weight:700;\">https://github.com/jh4n3r/connecting</a>.",
-                pContact2: "For more details on licensing and compliance, visit our <a href=\"terms.html\" style=\"color:var(--cyan-dark); font-weight:700;\">Legal Terms of Service</a>."
+                pContact2: "For more details on licensing and compliance, visit our <a href=\"terms.html\" style=\"color:var(--cyan-dark); font-weight:700;\">Legal Terms of Service</a>.",
+                footerCopy: "&copy; 2026 Connecting Remote Desktop • Developed by <strong>@jh4n3r</strong>"
             }
         };
 
@@ -539,7 +639,7 @@ nohup node server.js > relay.log 2>&1 &
                 callouts[1].innerHTML = t.smartscreenCallout;
             }
 
-            // Headings H2
+            // Headings H2 & H3
             const h2s = document.querySelectorAll('.docs-content h2');
             if (h2s.length >= 6) {
                 h2s[0].innerText = t.h2Tech;
@@ -549,6 +649,38 @@ nohup node server.js > relay.log 2>&1 &
                 h2s[4].innerText = t.h2Scope;
                 h2s[5].innerText = t.h2Contact;
             }
+
+            const h3s = document.querySelectorAll('.docs-content h3');
+            if (h3s.length >= 11) {
+                h3s[0].innerText = t.h3Req;
+                h3s[1].innerText = t.h3Script;
+                h3s[2].innerText = t.h3Relay;
+                h3s[3].innerText = t.h3Errors;
+                h3s[4].innerText = t.h3Conn;
+                h3s[5].innerText = t.h3Psk;
+                h3s[6].innerText = t.h3Shortcuts;
+                h3s[7].innerText = t.h3Allows;
+                h3s[8].innerText = t.h3Disallows;
+            }
+
+            // Lists
+            const lists = document.querySelectorAll('.docs-content ul');
+            if (lists.length >= 7) {
+                if (t.techList) lists[0].innerHTML = t.techList.map(item => `<li>${item}</li>`).join('');
+                if (t.reqList) lists[1].innerHTML = t.reqList.map(item => `<li>${item}</li>`).join('');
+                if (t.scriptList) lists[2].innerHTML = t.scriptList.map(item => `<li>${item}</li>`).join('');
+                if (t.errList) lists[3].innerHTML = t.errList.map(item => `<li>${item}</li>`).join('');
+                if (t.allowsList) lists[4].innerHTML = t.allowsList.map(item => `<li>${item}</li>`).join('');
+                if (t.disallowsList) lists[5].innerHTML = t.disallowsList.map(item => `<li>${item}</li>`).join('');
+            }
+
+            const ols = document.querySelectorAll('.docs-content ol');
+            if (ols.length >= 1 && t.pskSteps) {
+                ols[0].innerHTML = t.pskSteps.map(item => `<li>${item}</li>`).join('');
+            }
+
+            const footP = document.querySelector('.footer p');
+            if (footP) footP.innerHTML = t.footerCopy;
         }
 
         document.addEventListener('DOMContentLoaded', () => {
