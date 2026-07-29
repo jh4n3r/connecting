@@ -36,12 +36,13 @@ Designed for **IT Support Engineers, System Administrators, and Enterprise IT De
 
 ## Building from Source
 
-`Connecting.exe` is built directly and deterministically from `ConectingApp.cs` without proprietary libraries or external binaries.
+`Connecting.exe` is built directly and deterministically from `build/windows/ConnectingApp.cs` without proprietary libraries or external binaries.
 
-### Compilation Command (Windows PowerShell / CMD):
+### Compilation & Code Signing (Windows PowerShell):
 
 ```powershell
-C:\Windows\Microsoft.NET\Framework64\v4.0.30319\csc.exe /target:winexe /out:Connecting.exe /win32icon:icon.ico /r:System.dll,System.Drawing.dll,System.Windows.Forms.dll ConectingApp.cs
+cd build/windows
+.\build.ps1
 ```
 
 ---
@@ -61,6 +62,7 @@ For enterprise environments requiring a private, self-hosted relay server:
 ### 1. Run the Automated Nginx + SSL Wizard
 
 ```bash
+cd build/server
 chmod +x setup-nginx-ssl.sh
 sudo ./setup-nginx-ssl.sh
 ```
@@ -68,7 +70,7 @@ sudo ./setup-nginx-ssl.sh
 ### 2. Run the Node.js Relay Server
 
 ```bash
-cd connecting-relay-server
+cd build/server
 nohup node server.js > relay.log 2>&1 &
 ```
 
@@ -89,7 +91,7 @@ nohup node server.js > relay.log 2>&1 &
 
 This project is 100% Open Source Software licensed under the **[GNU General Public License v3.0 (GPLv3)](LICENSE)**.
 
-- **Full Source Code**: The entire source code of the Windows C# client (`ConectingApp.cs`), Node.js relay server (`connecting-relay-server/server.js`), and deployment scripts (`setup-nginx-ssl.sh`) are publicly available.
+- **Full Source Code**: The entire source code of the Windows C# client (`build/windows/ConnectingApp.cs`), Linux C# client (`build/linux/ConnectingApp.cs`), Node.js relay server (`build/server/server.js`), and deployment scripts (`build/server/setup-nginx-ssl.sh`) are publicly available.
 - **Trademarks**: Product names referenced (AnyDesk, TeamViewer, RustDesk) are used solely for descriptive comparison. All trademarks belong to their respective owners. Connecting is not affiliated with or endorsed by these entities.
 
 ---
