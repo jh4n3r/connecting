@@ -4,13 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
-    <title>Documentación Oficial - Connecting Remote Desktop Enterprise v1.0.1</title>
+    <title>Documentación Oficial - Connecting Remote Desktop Enterprise</title>
     <meta name="description" content="Guía completa de instalación, despliegue On-Premise con setup-nginx-ssl.sh, configuración de acceso desatendido y manual de usuario para Connecting Remote Desktop.">
     <meta name="robots" content="index, follow">
     <link rel="canonical" href="https://connecting.abrdns.com/docs">
     
     <link rel="icon" href="../favicon.ico" type="image/x-icon">
-    <link rel="shortcut icon" href="../favicon.ico" type="image/x-icon">
     <link rel="stylesheet" href="../styles.css">
     
     <style>
@@ -195,8 +194,8 @@
                 Connecting Docs
             </a>
             <div class="nav-right">
-                <a href="./" class="nav-link">Inicio</a>
-                <a href="terms" class="nav-link">Terminos Legal</a>
+                <a href="./" class="nav-link" id="nav-home">Inicio</a>
+                <a href="terms" class="nav-link" id="nav-terms">Terminos Legal</a>
                 <select id="langSelector" class="lang-select" onchange="changeLanguage(this.value)">
                     <option value="es">Español</option>
                     <option value="en">English</option>
@@ -217,16 +216,16 @@
             <h4>Despliegue On-Premise</h4>
             <ul>
                 <li><a href="#requisitos-server">Requisitos del Servidor</a></li>
-                <li><a href="#instalacion-script">Script setup-nginx-ssl.sh</a></li>
+                <li><a href="#script-setup">Script setup-nginx-ssl.sh</a></li>
                 <li><a href="#ejecucion-relay">Ejecución del Servidor Relay</a></li>
                 <li><a href="#errores-comunes">Errores Comunes y Revisiones</a></li>
             </ul>
 
             <h4>Manual del Cliente (.EXE)</h4>
             <ul>
-                <li><a href="#uso-cliente">Conexión e Identificadores</a></li>
-                <li><a href="#psk-desatendido">Acceso Desatendido y PSK</a></li>
-                <li><a href="#alias-historial">Hostname y Alias en Historial</a></li>
+                <li><a href="#conexion-ids">Conexión e Identificadores</a></li>
+                <li><a href="#acceso-desatendido">Acceso Desatendido y PSK</a></li>
+                <li><a href="#historial-alias">Hostname y Alias en Historial</a></li>
                 <li><a href="#atajos-teclado">Atajos e Inyección Nativa</a></li>
             </ul>
 
@@ -244,8 +243,8 @@
 
         <!-- MAIN DOCUMENTATION CONTENT -->
         <main class="docs-content">
-            <h1>Documentación Técnica Oficial - Connecting v1.0.1</h1>
-            <p><strong>Connecting Remote Desktop v1.0.1</strong> es una plataforma ligera, portátil y cifrada de asistencia y escritorio remoto en tiempo real desarrollada en C# (.NET Framework 4.8) con servidor de relevo de sockets TCP nativo en Node.js.</p>
+            <h1 id="doc-title">Documentación Técnica Oficial - Connecting</h1>
+            <p id="doc-desc"><strong>Connecting Remote Desktop</strong> es una plataforma ligera, portátil y cifrada de asistencia y escritorio remoto en tiempo real desarrollada en C# (.NET Framework 4.8) con servidor de relevo de sockets TCP nativo en Node.js.</p>
 
             <div class="callout-info">
                 <strong>¿Por qué Connecting Enterprise?</strong> Permite desplegar tu propio servidor Relay privado <strong>On-Premise</strong> dentro de tu infraestructura de TI con Nginx + SSL, garantizando el aislamiento total de datos en redes corporativas sin enviar información a servidores externos.
@@ -382,7 +381,48 @@ nohup node server.js > relay.log 2>&1 &
 
     <!-- FOOTER -->
     <footer class="footer">
-        <p>&copy; 2026 Connecting Remote Desktop v1.0.1 • Desarrollado por <strong>@jh4n3r</strong></p>
+        <p>&copy; 2026 Connecting Remote Desktop • Desarrollado por <strong>@jh4n3r</strong></p>
     </footer>
+
+    <script>
+        const docsTranslations = {
+            es: {
+                home: "Inicio",
+                terms: "Terminos Legal",
+                docTitle: "Documentación Técnica Oficial - Connecting",
+                docDesc: "Connecting Remote Desktop es una plataforma ligera, portátil y cifrada de asistencia y escritorio remoto en tiempo real desarrollada en C# (.NET Framework 4.8) con servidor de relevo de sockets TCP nativo en Node.js."
+            },
+            en: {
+                home: "Home",
+                terms: "Legal Terms",
+                docTitle: "Official Technical Documentation - Connecting",
+                docDesc: "Connecting Remote Desktop is a lightweight, portable, and encrypted real-time remote desktop and assistance platform built in C# (.NET Framework 4.8) with a native Node.js TCP socket relay server."
+            }
+        };
+
+        function getInitialLanguage() {
+            const saved = localStorage.getItem('connecting_lang');
+            if (saved) return saved;
+            const browserLang = (navigator.language || navigator.userLanguage || 'es').toLowerCase();
+            return browserLang.startsWith('en') ? 'en' : 'es';
+        }
+
+        function changeLanguage(lang) {
+            localStorage.setItem('connecting_lang', lang);
+            const selector = document.getElementById('langSelector');
+            if (selector) selector.value = lang;
+            if (docsTranslations[lang]) {
+                const t = docsTranslations[lang];
+                document.getElementById('nav-home').innerText = t.home;
+                document.getElementById('nav-terms').innerText = t.terms;
+                document.getElementById('doc-title').innerText = t.docTitle;
+                document.getElementById('doc-desc').innerHTML = `<strong>Connecting Remote Desktop</strong> ${t.docDesc.replace("Connecting Remote Desktop ", "")}`;
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            changeLanguage(getInitialLanguage());
+        });
+    </script>
 </body>
 </html>

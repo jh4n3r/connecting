@@ -94,8 +94,8 @@
                 Connecting Legal
             </a>
             <div class="nav-right">
-                <a href="./" class="nav-link">Inicio</a>
-                <a href="docs" class="nav-link">Documentacion</a>
+                <a href="./" class="nav-link" id="nav-home">Inicio</a>
+                <a href="docs" class="nav-link" id="nav-docs">Documentacion</a>
                 <select id="langSelector" class="lang-select" onchange="changeLanguage(this.value)">
                     <option value="es">Español</option>
                     <option value="en">English</option>
@@ -190,8 +190,43 @@
     <!-- FOOTER -->
     <footer class="footer">
         <div class="container">
-            <p>&copy; 2026 Connecting Remote Desktop v1.0.1 • Desarrollado por <strong>@jh4n3r</strong></p>
+            <p>&copy; 2026 Connecting Remote Desktop • Desarrollado por <strong>@jh4n3r</strong></p>
         </div>
     </footer>
+
+    <script>
+        const termsTranslations = {
+            es: {
+                home: "Inicio",
+                docs: "Documentación"
+            },
+            en: {
+                home: "Home",
+                docs: "Documentation"
+            }
+        };
+
+        function getInitialLanguage() {
+            const saved = localStorage.getItem('connecting_lang');
+            if (saved) return saved;
+            const browserLang = (navigator.language || navigator.userLanguage || 'es').toLowerCase();
+            return browserLang.startsWith('en') ? 'en' : 'es';
+        }
+
+        function changeLanguage(lang) {
+            localStorage.setItem('connecting_lang', lang);
+            const selector = document.getElementById('langSelector');
+            if (selector) selector.value = lang;
+            if (termsTranslations[lang]) {
+                const t = termsTranslations[lang];
+                document.getElementById('nav-home').innerText = t.home;
+                document.getElementById('nav-docs').innerText = t.docs;
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            changeLanguage(getInitialLanguage());
+        });
+    </script>
 </body>
 </html>
