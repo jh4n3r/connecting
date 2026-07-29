@@ -83,10 +83,10 @@
                     <span>Descargar Connecting</span>
                 </a>
                 <div class="hero-note" id="hero-note">
-                    Ejecutable Portatil (~80 KB) • Windows 10 y 11 • Funciona al Instante
+                    Ejecutable Portátil (~80 KB) • Windows 10 y 11 • Servidor valida con CA firmado
                 </div>
-                <div class="smartscreen-notice" id="smartscreen-notice" style="margin-top:16px; background: #fffbebf5; border: 1px solid #fcd34d; padding: 10px 14px; border-radius: 8px; font-size: 0.83rem; color: #92400e; max-width: 540px; margin-left: auto; margin-right: auto; text-align: left; line-height: 1.4;">
-                    <strong>⚠️ Nota sobre Windows SmartScreen:</strong> Al ser un proyecto independiente sin un certificado de firma de código de pago (Sectigo/DigiCert o Azure Trusted Signing), Windows SmartScreen puede mostrar la advertencia <em>"Editor desconocido"</em>. Puedes ejecutar la app con total seguridad haciendo clic en <strong>"Más información" → "Ejecutar de todas formas"</strong>.
+                <div class="hero-discreet-note" id="hero-discreet-note" style="margin-top: 4px; font-size: 0.75rem; color: #94a3b8;">
+                    * Ejecutable sin firma comercial (SmartScreen: <em>Más información → Ejecutar de todas formas</em>)
                 </div>
             </div>
 
@@ -284,8 +284,8 @@
                 title: "Escritorio Remoto Ultra Rápido y Portátil",
                 subtitle: "Acceso y asistencia remota cifrada de ultra baja latencia. Descarga Connecting y conéctate inmediatamente a cualquier equipo, o despliega opcionalmente un servidor propio para uso interno de tu organización.",
                 btnDownload: "Descargar Connecting",
-                heroNote: "Ejecutable Portatil (~80 KB) • Windows 10 y 11 • Funciona al Instante",
-                smartscreenNotice: "<strong>⚠️ Nota sobre Windows SmartScreen:</strong> Al ser un proyecto independiente sin un certificado de firma de código de pago (Sectigo/DigiCert o Azure Trusted Signing), Windows SmartScreen puede mostrar la advertencia <em>\"Editor desconocido\"</em>. Puedes ejecutar la app con total seguridad haciendo clic en <strong>\"Más información\" → \"Ejecutar de todas formas\"</strong>.",
+                heroNote: "Ejecutable Portátil (~80 KB) • Windows 10 y 11 • Servidor valida con CA firmado",
+                discreetNote: "* Ejecutable sin firma comercial (SmartScreen: <em>Más información → Ejecutar de todas formas</em>)",
                 mockup1: "Connecting • Interfaz Principal",
                 mockup2: "Connecting • Sesion de Control Remoto",
                 sec1Subtitle: "Flexible para Soporte Directo e Infraestructura de TI",
@@ -323,8 +323,8 @@
                 title: "Ultra Fast & Portable Remote Desktop",
                 subtitle: "Encrypted remote assistance with ultra-low latency. Download Connecting and connect immediately to any device, or optionally deploy your own private relay server for internal organizational use.",
                 btnDownload: "Download Connecting",
-                heroNote: "Portable Executable (~80 KB) • Windows 10 & 11 • Works Instantly",
-                smartscreenNotice: "<strong>⚠️ Note on Windows SmartScreen:</strong> As an indie open project currently without a paid Code Signing Certificate (Sectigo/DigiCert or Azure Trusted Signing), Windows SmartScreen may show an <em>'Unknown Publisher'</em> warning. You can safely run the app by clicking <strong>'More info' → 'Run anyway'</strong>.",
+                heroNote: "Portable Executable (~80 KB) • Windows 10 & 11 • Server validates with signed CA",
+                discreetNote: "* Executable without commercial signature (SmartScreen: <em>More info → Run anyway</em>)",
                 mockup1: "Connecting • Main Dashboard Interface",
                 mockup2: "Connecting • Live Remote Control Session",
                 sec1Subtitle: "Flexible for Direct Support and Enterprise IT Infrastructure",
@@ -382,7 +382,7 @@
             const btnSpan = document.getElementById('hero-btn') ? document.getElementById('hero-btn').querySelector('span') : null;
             if (btnSpan) btnSpan.innerText = t.btnDownload;
             if (document.getElementById('hero-note')) document.getElementById('hero-note').innerText = t.heroNote;
-            if (document.getElementById('smartscreen-notice')) document.getElementById('smartscreen-notice').innerHTML = t.smartscreenNotice;
+            if (document.getElementById('hero-discreet-note')) document.getElementById('hero-discreet-note').innerHTML = t.discreetNote;
 
             // Mockup window titles
             const mockupTitles = document.querySelectorAll('.window-title');
