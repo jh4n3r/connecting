@@ -4,7 +4,7 @@
 
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 [![Build Status](https://img.shields.io/badge/Build-Passing-brightgreen.svg)]()
-[![Code Signing](https://img.shields.io/badge/Code%20Signing-SignPath.org-purple.svg)](https://signpath.org/)
+[![Code Signing](https://img.shields.io/badge/Code%20Signing-Pending%20SignPath-yellow.svg)](https://signpath.org/)
 
 ---
 
@@ -48,9 +48,9 @@ C:\Windows\Microsoft.NET\Framework64\v4.0.30319\csc.exe /target:winexe /out:Conn
 
 ## Code Signing
 
-Code signing for **Connecting Remote Desktop** is kindly provided free of charge by the **[SignPath Foundation](https://signpath.org/)**.
+Code signing application for **Connecting Remote Desktop** is currently in progress for the **[SignPath Foundation](https://signpath.org/)** program for Open Source projects.
 
-Automated CI/CD build and signing pipeline is configured via GitHub Actions (`.github/workflows/signpath-signing.yml`).
+Automated CI/CD build and signing pipeline configuration template is provided in `.github/workflows/signpath-signing.yml`.
 
 ---
 
