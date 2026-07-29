@@ -198,11 +198,55 @@
         const termsTranslations = {
             es: {
                 home: "Inicio",
-                docs: "Documentación"
+                docs: "Documentación",
+                title: "Términos de Servicio y Licencia de Software — Connecting",
+                date: "Última actualización: Julio de 2026 | Estado actual: Software 100% Open Source Software (OSS) bajo Licencia GNU GPLv3.",
+                preambleH: "Preámbulo",
+                preambleP: "El presente documento constituye un acuerdo relativo al uso, distribución y despliegue del software de escritorio remoto denominado <strong>Connecting</strong> (en adelante, \"el Software\"), desarrollado por <strong>@jh4n3r</strong>. Al descargar, ejecutar o desplegar cualquier componente del Software, el usuario o entidad (en adelante, \"el Usuario\") acepta los términos establecidos bajo la Licencia Pública General de GNU v3.0 (GPLv3).",
+                c1H: "CLÁUSULA PRIMERA: Naturaleza Jurídica y Licencia Open Source (GNU GPLv3)",
+                c1P: "El Software es <strong>100% Open Source Software (OSS)</strong> y se distribuye bajo la licencia <strong>GNU General Public License v3.0 (GPLv3)</strong>.",
+                c2H: "CLÁUSULA SEGUNDA: Régimen Copyleft (GNU GPLv3)",
+                c2P: "De conformidad con la Licencia GPLv3: Cualquiera modificación o versión derivada que sea redistribuida a terceros deberá liberar su código fuente bajo la misma licencia GNU GPLv3.",
+                c3H: "CLÁUSULA TERCERA: Despliegue Privado (Servidor de Relevo On-Premise)",
+                c3P: "Se reconoce el derecho del Usuario corporativo de desplegar instancias privadas del Servidor de Relevo (Node.js) dentro de su propia infraestructura.",
+                c4H: "CLÁUSULA CUARTA: Naturaleza del Software y Advertencia de Uso Autorizado",
+                c4P: "Dado que el Software permite control remoto de equipos, inyección de eventos de teclado/mouse, acceso desatendido mediante clave persistente y auto-elevación a permisos de Administrador (UAC), el Usuario reconoce y acepta obtener el consentimiento expreso del propietario del equipo.",
+                c5H: "CLÁUSULA QUINTA: Exclusión de Garantías",
+                c5P: "EL SOFTWARE SE SUMINISTRA \"TAL CUAL\", SIN GARANTÍA DE NINGÚN TIPO, EXPRESA O IMPLÍCITA, INCLUYENDO SIN LIMITACIÓN LAS GARANTÍAS DE COMERCIABILIDAD, IDONEIDAD PARA UN PROPÓSITO PARTICULAR O NO INFRACCIÓN.",
+                c6H: "CLÁUSULA SEXTA: Limitación de Responsabilidad",
+                c6P: "EN NINGÚN CASO EL AUTOR SERÁ RESPONSABLE POR DAÑOS DIRECTOS, INDIRECTOS, INCIDENTALES O CONSECUENTES DERIVADOS DEL USO, IMPOSIBILIDAD DE USO, O INTERACCIÓN DEL SOFTWARE CON OTROS SISTEMAS.",
+                c7H: "CLÁUSULA SÉPTIMA: Marcas de Terceros",
+                c7P: "Cualquier referencia a productos, software o servicios de terceros en material informativo o comparativo se realiza únicamente con fines descriptivos e ilustrativos. Dichas marcas son propiedad exclusiva de sus respectivos titulares.",
+                c8H: "CLÁUSULA OCTAVA: Modificaciones a estos Términos",
+                c8P: "El desarrollador podrá actualizar estos términos en cualquier momento, particularmente al momento de la publicación del código fuente bajo licencia Open Source.",
+                c9H: "CLÁUSULA NOVENA: Jurisdicción y Ley Aplicable",
+                c9P: "Este acuerdo se rige por las leyes aplicables en la jurisdicción de residencia del desarrollador."
             },
             en: {
                 home: "Home",
-                docs: "Documentation"
+                docs: "Documentation",
+                title: "Terms of Service & Software License — Connecting",
+                date: "Last updated: July 2026 | Current status: 100% Open Source Software (OSS) under GNU GPLv3 License.",
+                preambleH: "Preamble",
+                preambleP: "This document constitutes an agreement regarding the use, distribution, and deployment of the remote desktop software named <strong>Connecting</strong> (hereinafter, 'the Software'), developed by <strong>@jh4n3r</strong>. By downloading, running, or deploying any component of the Software, the user or entity (hereinafter, 'the User') accepts the terms set forth under the GNU General Public License v3.0 (GPLv3).",
+                c1H: "CLAUSE 1: Legal Nature and Open Source License (GNU GPLv3)",
+                c1P: "The Software is <strong>100% Open Source Software (OSS)</strong> distributed under the <strong>GNU General Public License v3.0 (GPLv3)</strong>.",
+                c2H: "CLAUSE 2: Copyleft Framework (GNU GPLv3)",
+                c2P: "In accordance with the GPLv3 License: Any modification or derivative work redistributed to third parties must release its full source code under the same GNU GPLv3 license.",
+                c3H: "CLAUSE 3: Private Deployment (On-Premise Relay Server)",
+                c3P: "The right of enterprise users to deploy private instances of the Relay Server (Node.js) within their own infrastructure is fully recognized.",
+                c4H: "CLAUSE 4: Nature of Software & Authorized Use Warning",
+                c4P: "Since the Software enables remote machine control, mouse/keyboard event injection, unattended access, and UAC elevation, the User acknowledges and agrees to obtain explicit consent from the device owner prior to installation.",
+                c5H: "CLAUSE 5: Disclaimer of Warranties",
+                c5P: "THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE OR NON-INFRINGEMENT.",
+                c6H: "CLAUSE 6: Limitation of Liability",
+                c6P: "IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING OUT OF THE USE, INABILITY TO USE, OR INTERACTION OF THE SOFTWARE WITH OTHER SYSTEMS.",
+                c7H: "CLAUSE 7: Third-Party Trademarks",
+                c7P: "Any reference to third-party products, software, or services in comparative materials is strictly for descriptive and educational purposes. All trademarks belong to their respective owners.",
+                c8H: "CLAUSE 8: Amendments to Terms",
+                c8P: "The developer reserves the right to update these terms at any time. Users are advised to review this page periodically.",
+                c9H: "CLAUSE 9: Jurisdiction & Governing Law",
+                c9P: "This agreement shall be governed by the laws applicable in the jurisdiction of residence of the developer."
             }
         };
 
@@ -217,10 +261,41 @@
             localStorage.setItem('connecting_lang', lang);
             const selector = document.getElementById('langSelector');
             if (selector) selector.value = lang;
-            if (termsTranslations[lang]) {
-                const t = termsTranslations[lang];
-                document.getElementById('nav-home').innerText = t.home;
-                document.getElementById('nav-docs').innerText = t.docs;
+            const t = termsTranslations[lang] || termsTranslations.es;
+
+            if (document.getElementById('nav-home')) document.getElementById('nav-home').innerText = t.home;
+            if (document.getElementById('nav-docs')) document.getElementById('nav-docs').innerText = t.docs;
+            const titleEl = document.querySelector('.terms-title');
+            if (titleEl) titleEl.innerText = t.title;
+            const dateEl = document.querySelector('.terms-date');
+            if (dateEl) dateEl.innerText = t.date;
+
+            const clauseTitles = document.querySelectorAll('.terms-clause-title');
+            if (clauseTitles.length >= 10) {
+                clauseTitles[0].innerText = t.preambleH;
+                clauseTitles[1].innerText = t.c1H;
+                clauseTitles[2].innerText = t.c2H;
+                clauseTitles[3].innerText = t.c3H;
+                clauseTitles[4].innerText = t.c4H;
+                clauseTitles[5].innerText = t.c5H;
+                clauseTitles[6].innerText = t.c6H;
+                clauseTitles[7].innerText = t.c7H;
+                clauseTitles[8].innerText = t.c8H;
+                clauseTitles[9].innerText = t.c9H;
+            }
+
+            const clauseParas = document.querySelectorAll('.terms-p');
+            if (clauseParas.length >= 10) {
+                clauseParas[0].innerHTML = t.preambleP;
+                clauseParas[1].innerHTML = t.c1P;
+                clauseParas[2].innerText = t.c2P;
+                clauseParas[3].innerText = t.c3P;
+                clauseParas[4].innerText = t.c4P;
+                clauseParas[5].innerText = t.c5P;
+                clauseParas[6].innerText = t.c6P;
+                clauseParas[7].innerText = t.c7P;
+                clauseParas[8].innerText = t.c8P;
+                clauseParas[9].innerText = t.c9P;
             }
         }
 

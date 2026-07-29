@@ -351,6 +351,15 @@ nohup node server.js > relay.log 2>&1 &
             <h3 id="atajos-teclado">3. Atajos de Teclado y Control Nativo</h3>
             <p>Desde el menú superior <strong>"Atajos & Acciones"</strong> dentro de la sesión remota, puedes enviar combinaciones directas de sistema como Win+R, Win+E, Ctrl+Alt+Supr y Ctrl+Shift+Esc.</p>
 
+            <!-- ADVERTENCIA Y FIRMA DE CÓDIGO -->
+            <h2>Firma de Código y Advertencia Windows SmartScreen</h2>
+            <div class="callout-info" style="background:#fffbeb; border-left:4px solid #f59e0b; color:#92400e;">
+                <strong>Aviso sobre la firma digital del ejecutable Connecting.exe:</strong><br>
+                Al ser una herramienta portátil desarrollada de manera independiente, <strong>Connecting.exe</strong> no cuenta aún con un certificado comercial de firma de código de pago (como Sectigo, DigiCert o Azure Trusted Signing para desarrolladores indie).<br><br>
+                Debido a esto, el filtro <strong>Windows SmartScreen</strong> puede mostrar una ventana de alerta al ejecutar la aplicación por primera vez indicando <em>"Editor desconocido"</em> o <em>"Windows protegió su PC"</em>. Esto ocurre en ejecutables independientes que no han adquirido un certificado de firma digital de pago.<br><br>
+                <strong>Cómo continuar de forma segura:</strong> Haz clic en el enlace <u>"Más información"</u> dentro de la ventana de advertencia de Windows y presiona el botón <u>"Ejecutar de todas formas"</u>. La aplicación es portátil, no requiere instalación ni modifica el registro de tu sistema.
+            </div>
+
             <!-- ALCANCE Y CAPACIDADES -->
             <h2 id="lo-que-se-puede">Capacidades y Alcance de esta Versión (Release v1.0.1)</h2>
 
@@ -389,14 +398,94 @@ nohup node server.js > relay.log 2>&1 &
             es: {
                 home: "Inicio",
                 terms: "Terminos Legal",
+                sbHeader1: "Visión General",
+                sbItem1_1: "Introducción y Arquitectura",
+                sbItem1_2: "Stack Tecnológico Oficial",
+                sbHeader2: "Despliegue On-Premise",
+                sbItem2_1: "Requisitos del Servidor",
+                sbItem2_2: "Script setup-nginx-ssl.sh",
+                sbItem2_3: "Ejecución del Servidor Relay",
+                sbItem2_4: "Errores Comunes y Revisiones",
+                sbHeader3: "Manual del Cliente (.EXE)",
+                sbItem3_1: "Conexión e Identificadores",
+                sbItem3_2: "Acceso Desatendido y PSK",
+                sbItem3_3: "Hostname y Alias en Historial",
+                sbItem3_4: "Atajos e Inyección Nativa",
+                sbHeader4: "Capacidades y Alcance",
+                sbItem4_1: "Lo que SI permite esta versión",
+                sbItem4_2: "Lo que NO permite esta versión",
+                sbHeader5: "Contacto y Soporte",
+                sbItem5_1: "Soporte Técnico Oficial",
                 docTitle: "Documentación Técnica Oficial - Connecting",
-                docDesc: "Connecting Remote Desktop es una plataforma ligera, portátil y cifrada de asistencia y escritorio remoto en tiempo real desarrollada en C# (.NET Framework 4.8) con servidor de relevo de sockets TCP nativo en Node.js."
+                docDesc: "<strong>Connecting Remote Desktop</strong> es una plataforma ligera, portátil y cifrada de asistencia y escritorio remoto en tiempo real desarrollada en C# (.NET Framework 4.8) con servidor de relevo de sockets TCP nativo en Node.js.",
+                calloutEnterprise: "<strong>¿Por qué Connecting Enterprise?</strong> Permite desplegar tu propio servidor Relay privado <strong>On-Premise</strong> dentro de tu infraestructura de TI con Nginx + SSL, garantizando el aislamiento total de datos en redes corporativas sin enviar información a servidores externos.",
+                h2Tech: "Stack Tecnológico Oficial",
+                pTechDesc: "Connecting ha sido diseñado enfocándose en el rendimiento y cero dependencia de librerías de terceros pesadas:",
+                h2OnPrem: "Guía de Despliegue On-Premise (Servidor Privado)",
+                pOnPremDesc: "Para empresas y departamentos de TI que requieren gestionar conexiones remotas dentro de una red privada aislada (VPN Corporativa o Red Local) utilizando el asistente de despliegue `setup-nginx-ssl.sh`:",
+                h3Req: "1. Requisitos del Servidor",
+                h3Script: "2. Automatización con setup-nginx-ssl.sh",
+                h3Relay: "3. Ejecución del Servidor Relay en Segundo Plano",
+                h3Errors: "4. Diagnóstico y Errores Comunes",
+                h2Manual: "Manual de Usuario del Cliente Portátil (.EXE)",
+                h3Conn: "1. Conexión e Identificadores de 9 Dógicos",
+                h3Psk: "2. Acceso Desatendido y Clave PSK Persistente",
+                h3Shortcuts: "3. Atajos de Teclado y Control Nativo",
+                pShortcuts: "Desde el menú superior <strong>\"Atajos & Acciones\"</strong> dentro de la sesión remota, puedes enviar combinaciones directas de sistema como Win+R, Win+E, Ctrl+Alt+Supr y Ctrl+Shift+Esc.",
+                h2Smartscreen: "Firma de Código y Advertencia Windows SmartScreen",
+                smartscreenCallout: "<strong>Aviso sobre la firma digital del ejecutable Connecting.exe:</strong><br>Al ser una herramienta portátil desarrollada de manera independiente, <strong>Connecting.exe</strong> no cuenta aún con un certificado comercial de firma de código de pago (como Sectigo, DigiCert o Azure Trusted Signing para desarrolladores indie).<br><br>Debido a esto, el filtro <strong>Windows SmartScreen</strong> puede mostrar una ventana de alerta al ejecutar la aplicación por primera vez indicando <em>\"Editor desconocido\"</em> o <em>\"Windows protegió su PC\"</em>. Esto ocurre en ejecutables independientes que no han adquirido un certificado de firma digital de pago.<br><br><strong>Cómo continuar de forma segura:</strong> Haz clic en el enlace <u>\"Más información\"</u> dentro de la ventana de advertencia de Windows y presiona el botón <u>\"Ejecutar de todas formas\"</u>. La aplicación es portátil, no requiere instalación ni modifica el registro de tu sistema.",
+                h2Scope: "Capacidades y Alcance de esta Versión (Release v1.0.1)",
+                h3Allows: "Lo que SI permite esta versión:",
+                h3Disallows: "Lo que NO permite esta versión:",
+                h2Contact: "Contacto y Soporte Técnico Oficial",
+                pContact1: "El código fuente oficial del proyecto se encuentra publicado en GitHub: <a href=\"https://github.com/jh4n3r/connecting\" target=\"_blank\" style=\"color:var(--cyan-dark); font-weight:700;\">https://github.com/jh4n3r/connecting</a>.",
+                pContact2: "Para más información o consultas sobre el acuerdo de uso, consulta nuestros <a href=\"terms.html\" style=\"color:var(--cyan-dark); font-weight:700;\">Términos Legales de Licencia y Servicio</a>."
             },
             en: {
                 home: "Home",
                 terms: "Legal Terms",
+                sbHeader1: "Overview",
+                sbItem1_1: "Introduction & Architecture",
+                sbItem1_2: "Official Tech Stack",
+                sbHeader2: "On-Premise Deployment",
+                sbItem2_1: "Server Requirements",
+                sbItem2_2: "Script setup-nginx-ssl.sh",
+                sbItem2_3: "Relay Server Execution",
+                sbItem2_4: "Common Errors & Troubleshooting",
+                sbHeader3: "Client Manual (.EXE)",
+                sbItem3_1: "Connection & 9-Digit IDs",
+                sbItem3_2: "Unattended Access & PSK",
+                sbItem3_3: "Hostname & Alias History",
+                sbItem3_4: "Shortcuts & Native Injection",
+                sbHeader4: "Capabilities & Scope",
+                sbItem4_1: "Supported in this release",
+                sbItem4_2: "Not supported in this release",
+                sbHeader5: "Contact & Support",
+                sbItem5_1: "Official Technical Support",
                 docTitle: "Official Technical Documentation - Connecting",
-                docDesc: "Connecting Remote Desktop is a lightweight, portable, and encrypted real-time remote desktop and assistance platform built in C# (.NET Framework 4.8) with a native Node.js TCP socket relay server."
+                docDesc: "<strong>Connecting Remote Desktop</strong> is a lightweight, portable, and encrypted real-time remote desktop and assistance platform built in C# (.NET Framework 4.8) with a native Node.js TCP socket relay server.",
+                calloutEnterprise: "<strong>Why Connecting Enterprise?</strong> Deploy your own private <strong>On-Premise</strong> Relay server inside your IT infrastructure with Nginx + SSL, ensuring total data isolation in corporate networks without sending info to third-party servers.",
+                h2Tech: "Official Tech Stack",
+                pTechDesc: "Connecting was engineered focusing on pure performance and zero heavy third-party dependencies:",
+                h2OnPrem: "On-Premise Deployment Guide (Private Server)",
+                pOnPremDesc: "For corporate environments and IT departments requiring isolated remote management within a private network (VPN or Local LAN) using the deployment wizard `setup-nginx-ssl.sh`:",
+                h3Req: "1. Server Requirements",
+                h3Script: "2. Automation with setup-nginx-ssl.sh",
+                h3Relay: "3. Running Relay Server in Background",
+                h3Errors: "4. Troubleshooting & Common Fixes",
+                h2Manual: "Portable Client User Manual (.EXE)",
+                h3Conn: "1. Connection & 9-Digit IDs",
+                h3Psk: "2. Unattended Access & Persistent PSK Key",
+                h3Shortcuts: "3. Keyboard Shortcuts & Native Control",
+                pShortcuts: "From the top menu <strong>\"Shortcuts & Actions\"</strong> during a remote session, you can send direct system key combinations like Win+R, Win+E, Ctrl+Alt+Del, and Ctrl+Shift+Esc.",
+                h2Smartscreen: "Code Signing & Windows SmartScreen Warning",
+                smartscreenCallout: "<strong>Notice regarding Connecting.exe digital signature:</strong><br>As an independently developed portable tool, <strong>Connecting.exe</strong> does not currently have a paid commercial Code Signing Certificate (such as Sectigo, DigiCert, or Azure Trusted Signing for indie developers).<br><br>Because of this, <strong>Windows SmartScreen</strong> may display an alert window upon running the application for the first time stating <em>'Unknown Publisher'</em> or <em>'Windows protected your PC'</em>. This is expected behavior for indie executables without a paid digital signature certificate.<br><br><strong>How to proceed safely:</strong> Click <u>'More info'</u> inside the Windows warning prompt and then press the <u>'Run anyway'</u> button. The application is completely portable, requires no installation, and makes no registry modifications.",
+                h2Scope: "Capabilities & Scope of this Release (v1.0.1)",
+                h3Allows: "Supported in this release:",
+                h3Disallows: "Not supported in this release:",
+                h2Contact: "Contact & Official Technical Support",
+                pContact1: "The official project source code is hosted on GitHub: <a href=\"https://github.com/jh4n3r/connecting\" target=\"_blank\" style=\"color:var(--cyan-dark); font-weight:700;\">https://github.com/jh4n3r/connecting</a>.",
+                pContact2: "For more details on licensing and compliance, visit our <a href=\"terms.html\" style=\"color:var(--cyan-dark); font-weight:700;\">Legal Terms of Service</a>."
             }
         };
 
@@ -411,12 +500,56 @@ nohup node server.js > relay.log 2>&1 &
             localStorage.setItem('connecting_lang', lang);
             const selector = document.getElementById('langSelector');
             if (selector) selector.value = lang;
-            if (docsTranslations[lang]) {
-                const t = docsTranslations[lang];
-                document.getElementById('nav-home').innerText = t.home;
-                document.getElementById('nav-terms').innerText = t.terms;
-                document.getElementById('doc-title').innerText = t.docTitle;
-                document.getElementById('doc-desc').innerHTML = `<strong>Connecting Remote Desktop</strong> ${t.docDesc.replace("Connecting Remote Desktop ", "")}`;
+            const t = docsTranslations[lang] || docsTranslations.es;
+
+            if (document.getElementById('nav-home')) document.getElementById('nav-home').innerText = t.home;
+            if (document.getElementById('nav-terms')) document.getElementById('nav-terms').innerText = t.terms;
+            if (document.getElementById('doc-title')) document.getElementById('doc-title').innerText = t.docTitle;
+            if (document.getElementById('doc-desc')) document.getElementById('doc-desc').innerHTML = t.docDesc;
+
+            // Sidebar Headers
+            const sbHeaders = document.querySelectorAll('.docs-sidebar h4');
+            if (sbHeaders.length >= 5) {
+                sbHeaders[0].innerText = t.sbHeader1;
+                sbHeaders[1].innerText = t.sbHeader2;
+                sbHeaders[2].innerText = t.sbHeader3;
+                sbHeaders[3].innerText = t.sbHeader4;
+                sbHeaders[4].innerText = t.sbHeader5;
+            }
+
+            // Sidebar Links
+            const sbLinks = document.querySelectorAll('.docs-sidebar a');
+            if (sbLinks.length >= 12) {
+                sbLinks[0].innerText = t.sbItem1_1;
+                sbLinks[1].innerText = t.sbItem1_2;
+                sbLinks[2].innerText = t.sbItem2_1;
+                sbLinks[3].innerText = t.sbItem2_2;
+                sbLinks[4].innerText = t.sbItem2_3;
+                sbLinks[5].innerText = t.sbItem2_4;
+                sbLinks[6].innerText = t.sbItem3_1;
+                sbLinks[7].innerText = t.sbItem3_2;
+                sbLinks[8].innerText = t.sbItem3_3;
+                sbLinks[9].innerText = t.sbItem3_4;
+                sbLinks[10].innerText = t.sbItem4_1;
+                sbLinks[11].innerText = t.sbItem4_2;
+            }
+
+            // Callouts
+            const callouts = document.querySelectorAll('.callout-info');
+            if (callouts.length >= 2) {
+                callouts[0].innerHTML = t.calloutEnterprise;
+                callouts[1].innerHTML = t.smartscreenCallout;
+            }
+
+            // Headings H2
+            const h2s = document.querySelectorAll('.docs-content h2');
+            if (h2s.length >= 6) {
+                h2s[0].innerText = t.h2Tech;
+                h2s[1].innerText = t.h2OnPrem;
+                h2s[2].innerText = t.h2Manual;
+                h2s[3].innerText = t.h2Smartscreen;
+                h2s[4].innerText = t.h2Scope;
+                h2s[5].innerText = t.h2Contact;
             }
         }
 
