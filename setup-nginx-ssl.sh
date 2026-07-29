@@ -1,6 +1,7 @@
 #!/bin/bash
 # ============================================================
-#  VitryApp - Wizard de Configuración Nginx + SSL (Certbot)
+#  Connecting Remote Desktop - Enterprise Setup Wizard v1.0.1
+#  Servidor Relay On-Premise (Nginx + SSL / OpenSSL + Systemd)
 # ============================================================
 
 set -e
@@ -12,6 +13,7 @@ WEB_ROOT=""
 CONF_NAME=""
 NGINX_CONF=""
 NGINX_LINK=""
+SSL_MODE="1" # 1 = Let's Encrypt (Dominio Público), 2 = OpenSSL (Red Privada / IP)
 
 # Colores
 GREEN='\033[0;32m'
@@ -22,14 +24,14 @@ NC='\033[0m' # Sin color
 
 banner() {
   echo ""
-  echo -e "${CYAN}╔══════════════════════════════════════════════════╗${NC}"
-  echo -e "${CYAN}║   🚀 VitryApp - Setup Nginx + SSL Wizard      ║${NC}"
+  echo -e "${CYAN}╔══════════════════════════════════════════════════════╗${NC}"
+  echo -e "${CYAN}║   🚀 Connecting Remote Desktop - Enterprise Wizard   ║${NC}"
   if [ -n "$DOMAIN" ]; then
-    echo -e "${CYAN}║   Dominio actual: ${YELLOW}$DOMAIN${CYAN}     ║${NC}"
+    echo -e "${CYAN}║   Dominio / IP: ${YELLOW}$DOMAIN${CYAN}                     ║${NC}"
   else
-    echo -e "${CYAN}║   Dominio actual: ${YELLOW}(No configurado)${CYAN}       ║${NC}"
+    echo -e "${CYAN}║   Dominio / IP: ${YELLOW}(No configurado)${CYAN}                 ║${NC}"
   fi
-  echo -e "${CYAN}╚══════════════════════════════════════════════════╝${NC}"
+  echo -e "${CYAN}╚══════════════════════════════════════════════════════╝${NC}"
   echo ""
 }
 
@@ -238,11 +240,30 @@ NGINX_EOF
 }
 
 # ─────────────────────────────────────────────────
-# 3. Instalar / Renovar Certificado SSL
+# 3. Instalar / Renovar Certificado SSL (Let's Encrypt u OpenSSL)
 # ─────────────────────────────────────────────────
 instalar_ssl() {
-  echo -e "${CYAN}━━━ 🔒 CERTIFICADO SSL (Let's Encrypt) ━━━${NC}"
+  echo -e "${CYAN}━━━ 🔒 CERTIFICADO SSL (Enterprise / Let's Encrypt) ━━━${NC}"
   preguntar_datos
+
+  echo -e "  Selecciona el tipo de certificado:"
+  echo -e "  ${YELLOW}1)${NC} Let's Encrypt (Dominio Público con Certbot)"
+  echo -e "  ${YELLOW}2)${NC} OpenSSL CA Auto-firmada (Red Privada / IP Local On-Premise)"
+  read -p "  Elige modo [1-2] (predeterminado 1): " SSL_MODE
+  SSL_MODE=${SSL_MODE:-1}
+
+  if [ "$SSL_MODE" == "2" ]; then
+    echo -e "  ${CYAN}🔐 Generando Autoridad Certificadora (CA) y Certificado SSL con OpenSSL...${NC}"
+    mkdir -p /etc/ssl/connecting
+    openssl req -x509 -nodes -days 3650 -newkey rsa:2048 \
+      -keyout /etc/ssl/connecting/server.key \
+      -out /etc/ssl/connecting/server.crt \
+      -subj "/C=ES/ST=Local/L=Enterprise/O=Connecting/CN=$DOMAIN"
+    chmod 600 /etc/ssl/connecting/server.key
+    echo -e "  ${GREEN}✅ Certificado SSL generado en /etc/ssl/connecting/server.crt${NC}"
+    systemctl restart nginx
+    return
+  fi
 
   if ! command -v certbot &> /dev/null; then
     echo -e "${YELLOW}  Certbot no encontrado. Instalando...${NC}"
@@ -280,6 +301,37 @@ instalar_ssl() {
 }
 
 # ─────────────────────────────────────────────────
+# 4. Instalar Servicio Systemd (connecting-relay.service)
+# ─────────────────────────────────────────────────
+instalar_servicio_relay() {
+  echo -e "${CYAN}━━━ ⚙️ INSTALANDO SERVICIO SYSTEMD RELAY ━━━${NC}"
+  preguntar_datos
+
+  cat > /etc/systemd/system/connecting-relay.service << SERVICE_EOF
+[Unit]
+Description=Connecting Remote Desktop - Relay Server
+After=network.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/opt/connecting-relay-server
+ExecStart=/usr/bin/node /opt/connecting-relay-server/server.js
+Restart=always
+RestartSec=5
+Environment=PORT=$RELAY_PORT
+
+[Install]
+WantedBy=multi-user.target
+SERVICE_EOF
+
+  systemctl daemon-reload
+  systemctl enable connecting-relay.service
+  systemctl restart connecting-relay.service 2>/dev/null || true
+  echo -e "  ${GREEN}✅ Servicio connecting-relay.service instalado y habilitado.${NC}"
+}
+
+# ─────────────────────────────────────────────────
 # Menú Principal
 # ─────────────────────────────────────────────────
 menu() {
@@ -287,16 +339,18 @@ menu() {
     banner
     echo -e "  ${YELLOW}1)${NC} 🔍 Diagnóstico (ver estado actual)"
     echo -e "  ${YELLOW}2)${NC} 🔧 Configurar Nginx (Web + WebSocket Proxy)"
-    echo -e "  ${YELLOW}3)${NC} 🔒 Instalar / Renovar Certificado SSL"
-    echo -e "  ${YELLOW}4)${NC} 🚪 Salir"
+    echo -e "  ${YELLOW}3)${NC} 🔒 Instalar Certificado SSL (Let's Encrypt / OpenSSL)"
+    echo -e "  ${YELLOW}4)${NC} ⚙️ Instalar Servicio Systemd (connecting-relay)"
+    echo -e "  ${YELLOW}5)${NC} 🚪 Salir"
     echo ""
-    read -p "  Elige una opción [1-4]: " opcion
+    read -p "  Elige una opción [1-5]: " opcion
 
     case $opcion in
       1) diagnostico ;;
       2) configurar_nginx ;;
       3) instalar_ssl ;;
-      4) echo -e "${GREEN}👋 ¡Hasta luego!${NC}"; exit 0 ;;
+      4) instalar_servicio_relay ;;
+      5) echo -e "${GREEN}👋 ¡Hasta luego!${NC}"; exit 0 ;;
       *) echo -e "${RED}Opción inválida. Intenta de nuevo.${NC}" ;;
     esac
 

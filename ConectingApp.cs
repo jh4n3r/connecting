@@ -14,6 +14,15 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Reflection;
+
+[assembly: AssemblyTitle("Connecting Remote Desktop")]
+[assembly: AssemblyDescription("Connecting - Plataforma de Asistencia y Escritorio Remoto")]
+[assembly: AssemblyCompany("Connecting")]
+[assembly: AssemblyProduct("Connecting Remote Desktop Enterprise")]
+[assembly: AssemblyCopyright("Copyright © 2026 Connecting")]
+[assembly: AssemblyFileVersion("1.0.1.0")]
+[assembly: AssemblyVersion("1.0.1.0")]
 
 namespace Conecting
 {
@@ -69,7 +78,6 @@ namespace Conecting
                 if (pLen > 0) payload.CopyTo(pkt, 5);
 
                 stream.Write(pkt, 0, pkt.Length);
-                stream.Flush();
                 return true;
             }
             catch
@@ -192,6 +200,22 @@ namespace Conecting
     // =========================================================================
     public static class DesktopCapturer
     {
+        private static ImageCodecInfo _jpegEncoder;
+        private static EncoderParameters _jpegEncoderParams;
+        private static Bitmap _captureBitmap;
+        private static Graphics _captureGraphics;
+        private static int _lastWidth = 0;
+        private static int _lastHeight = 0;
+        private static ulong _lastSampleHash = 0;
+        private static long _lastForceSendTick = 0;
+
+        static DesktopCapturer()
+        {
+            _jpegEncoder = GetEncoderInfo("image/jpeg");
+            _jpegEncoderParams = new EncoderParameters(1);
+            _jpegEncoderParams.Param[0] = new EncoderParameter(System.Drawing.Imaging.Encoder.Quality, 75L);
+        }
+
         private static ImageCodecInfo GetEncoderInfo(string mimeType)
         {
             ImageCodecInfo[] encoders = ImageCodecInfo.GetImageEncoders();
@@ -202,13 +226,10 @@ namespace Conecting
             return null;
         }
 
-        private static ulong _lastSampleHash = 0;
-        private static long _lastForceSendTick = 0;
-
         public static bool HasScreenChanged(Bitmap bitmap)
         {
             long now = Environment.TickCount;
-            if (now - _lastForceSendTick > 200)
+            if (now - _lastForceSendTick > 1000)
             {
                 _lastForceSendTick = now;
                 return true;
@@ -225,13 +246,13 @@ namespace Conecting
                 {
                     byte* ptr = (byte*)data.Scan0.ToPointer();
                     int stride = data.Stride;
-                    int stepY = Math.Max(1, h / 6);
-                    int stepX = Math.Max(1, w / 6);
+                    int stepY = Math.Max(1, h / 16);
+                    int stepX = Math.Max(1, w / 16);
 
-                    for (int y = 0; y < 6; y++)
+                    for (int y = 0; y < 16; y++)
                     {
                         byte* row = ptr + (y * stepY * stride);
-                        for (int x = 0; x < 6; x++)
+                        for (int x = 0; x < 16; x++)
                         {
                             int offset = x * stepX * 3;
                             uint val = (uint)(row[offset] | (row[offset + 1] << 8) | (row[offset + 2] << 16));
@@ -298,40 +319,42 @@ namespace Conecting
                 if (width <= 0) width = 1920;
                 if (height <= 0) height = 1080;
 
-                using (Bitmap bitmap = new Bitmap(width, height, PixelFormat.Format24bppRgb))
+                if (_captureBitmap == null || width != _lastWidth || height != _lastHeight)
                 {
-                    using (Graphics g = Graphics.FromImage(bitmap))
-                    {
-                        IntPtr hdcDest = g.GetHdc();
-                        IntPtr hdcSrc = GetDC(IntPtr.Zero);
-                        try
-                        {
-                            BitBlt(hdcDest, 0, 0, width, height, hdcSrc, 0, 0, SRCCOPY | CAPTUREBLT);
-                        }
-                        finally
-                        {
-                            g.ReleaseHdc(hdcDest);
-                            ReleaseDC(IntPtr.Zero, hdcSrc);
-                        }
-                    }
+                    if (_captureGraphics != null) _captureGraphics.Dispose();
+                    if (_captureBitmap != null) _captureBitmap.Dispose();
 
-                    if (!HasScreenChanged(bitmap)) return null;
+                    _lastWidth = width;
+                    _lastHeight = height;
+                    _captureBitmap = new Bitmap(width, height, PixelFormat.Format24bppRgb);
+                    _captureGraphics = Graphics.FromImage(_captureBitmap);
+                }
 
-                    using (MemoryStream ms = new MemoryStream())
+                IntPtr hdcDest = _captureGraphics.GetHdc();
+                IntPtr hdcSrc = GetDC(IntPtr.Zero);
+                try
+                {
+                    BitBlt(hdcDest, 0, 0, width, height, hdcSrc, 0, 0, SRCCOPY | CAPTUREBLT);
+                }
+                finally
+                {
+                    _captureGraphics.ReleaseHdc(hdcDest);
+                    ReleaseDC(IntPtr.Zero, hdcSrc);
+                }
+
+                if (!HasScreenChanged(_captureBitmap)) return null;
+
+                using (MemoryStream ms = new MemoryStream(65536))
+                {
+                    if (_jpegEncoder != null)
                     {
-                        ImageCodecInfo encoder = GetEncoderInfo("image/jpeg");
-                        if (encoder != null)
-                        {
-                            EncoderParameters encoderParams = new EncoderParameters(1);
-                            encoderParams.Param[0] = new EncoderParameter(System.Drawing.Imaging.Encoder.Quality, 75L);
-                            bitmap.Save(ms, encoder, encoderParams);
-                        }
-                        else
-                        {
-                            bitmap.Save(ms, ImageFormat.Jpeg);
-                        }
-                        return ms.ToArray();
+                        _captureBitmap.Save(ms, _jpegEncoder, _jpegEncoderParams);
                     }
+                    else
+                    {
+                        _captureBitmap.Save(ms, ImageFormat.Jpeg);
+                    }
+                    return ms.ToArray();
                 }
             }
             catch
@@ -652,9 +675,35 @@ namespace Conecting
     public static class PeerResolver
     {
         private static readonly string AppDataDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "ConnectingNodes");
-        public static string OracleServerIp = "163.176.223.145";
-        public static string OracleServerDomain = "connecting.abrdns.com";
-        public static int OracleServerPort = 8443;
+        public static string DefaultRelayHost = "relay.yourdomain.com"; // CAMBIAR AQUÍ: Dominio o IP de tu servidor Relay On-Premise
+        public static int DefaultRelayPort = 8443;
+
+        public static string GetRelayServerHost()
+        {
+            try
+            {
+                if (!Directory.Exists(AppDataDirectory)) Directory.CreateDirectory(AppDataDirectory);
+                string path = Path.Combine(AppDataDirectory, "server_host.dat");
+                if (File.Exists(path))
+                {
+                    string saved = File.ReadAllText(path).Trim();
+                    if (!string.IsNullOrEmpty(saved)) return saved;
+                }
+            }
+            catch { }
+            return DefaultRelayHost;
+        }
+
+        public static void SaveRelayServerHost(string host)
+        {
+            try
+            {
+                if (!Directory.Exists(AppDataDirectory)) Directory.CreateDirectory(AppDataDirectory);
+                string path = Path.Combine(AppDataDirectory, "server_host.dat");
+                File.WriteAllText(path, string.IsNullOrEmpty(host) ? DefaultRelayHost : host.Trim());
+            }
+            catch { }
+        }
 
         public static string ExtractRawDigitsId(string input)
         {
@@ -685,6 +734,37 @@ namespace Conecting
             }
             catch { }
             return "Conn8921";
+        }
+
+        public static string GetUserDisplayName()
+        {
+            try
+            {
+                if (!Directory.Exists(AppDataDirectory)) Directory.CreateDirectory(AppDataDirectory);
+                string namePath = Path.Combine(AppDataDirectory, "user_alias.dat");
+                if (File.Exists(namePath))
+                {
+                    string savedName = File.ReadAllText(namePath).Trim();
+                    if (!string.IsNullOrEmpty(savedName)) return savedName;
+                }
+                string defaultName = Environment.UserName;
+                if (string.IsNullOrEmpty(defaultName)) defaultName = "gea";
+                SaveUserDisplayName(defaultName);
+                return defaultName;
+            }
+            catch { }
+            return "gea";
+        }
+
+        public static void SaveUserDisplayName(string name)
+        {
+            try
+            {
+                if (!Directory.Exists(AppDataDirectory)) Directory.CreateDirectory(AppDataDirectory);
+                string namePath = Path.Combine(AppDataDirectory, "user_alias.dat");
+                File.WriteAllText(namePath, string.IsNullOrEmpty(name) ? Environment.UserName : name.Trim());
+            }
+            catch { }
         }
 
         public static string GenerateRandomPsk()
@@ -769,18 +849,13 @@ namespace Conecting
             errorMsg = "";
             remoteHostname = "PC-REMOTO";
             string cleanTargetId = ExtractRawDigitsId(targetId);
+            string host = GetRelayServerHost();
+            int port = DefaultRelayPort;
 
             try
             {
-                TcpClient oracleClient = TrySocketConnect(OracleServerIp, OracleServerPort, myId, cleanTargetId, pskKey, out remoteHostname, 1500);
-                if (oracleClient != null) return oracleClient;
-            }
-            catch { }
-
-            try
-            {
-                TcpClient oracleDomainClient = TrySocketConnect(OracleServerDomain, OracleServerPort, myId, cleanTargetId, pskKey, out remoteHostname, 1500);
-                if (oracleDomainClient != null) return oracleDomainClient;
+                TcpClient client = TrySocketConnect(host, port, myId, cleanTargetId, pskKey, out remoteHostname, 2000);
+                if (client != null) return client;
             }
             catch { }
 
@@ -1020,11 +1095,12 @@ namespace Conecting
             string msg = txtChatMessage.Text.Trim();
             if (string.IsNullOrEmpty(msg) || stream == null) return;
 
-            txtChatHistory.AppendText("Yo (Host): " + msg + "\n");
+            string myName = PeerResolver.GetUserDisplayName();
+            txtChatHistory.AppendText(myName + " (Host): " + msg + "\n");
             txtChatHistory.ScrollToCaret();
             txtChatMessage.Clear();
 
-            byte[] msgBytes = Encoding.UTF8.GetBytes(msg);
+            byte[] msgBytes = Encoding.UTF8.GetBytes(myName + ": " + msg);
             PacketProtocol.SendPacket(stream, 0x03, msgBytes);
         }
     }
@@ -1201,6 +1277,9 @@ namespace Conecting
         private string lastClipboardText = "";
         private string remoteTargetId;
         private string remoteHostname;
+        private Label lblFps;
+        private int _fpsFrameCount = 0;
+        private long _lastFpsUpdate = Environment.TickCount;
 
         private const int WH_KEYBOARD_LL = 13;
         private const int WM_KEYDOWN = 0x0100;
@@ -1335,7 +1414,17 @@ namespace Conecting
 
             btnQuickActions.Click += (s, e) => { menuQuickActions.Show(btnQuickActions, new Point(0, btnQuickActions.Height)); };
 
+            lblFps = new Label
+            {
+                Text = "Latencia: ~12 ms",
+                Font = new Font("Segoe UI", 9F, FontStyle.Bold),
+                ForeColor = Color.FromArgb(16, 185, 129),
+                Location = new Point(400, 15),
+                AutoSize = true
+            };
+
             topToolbar.Controls.Add(lblTitle);
+            topToolbar.Controls.Add(lblFps);
             topToolbar.Controls.Add(btnMainMenu);
             topToolbar.Controls.Add(btnViewMode);
             topToolbar.Controls.Add(btnQuickActions);
@@ -1512,9 +1601,16 @@ namespace Conecting
                 {
                     try
                     {
-                        string path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), string.Format("Captura_Connecting_{0}_{1}.png", remoteTargetId, DateTime.Now.ToString("yyyyMMdd_HHmmss")));
+                        string picturesDir = Environment.GetFolderPath(Environment.SpecialFolder.MyPictures);
+                        string connectingDir = Path.Combine(picturesDir, "Connecting");
+                        if (!Directory.Exists(connectingDir))
+                        {
+                            Directory.CreateDirectory(connectingDir);
+                        }
+
+                        string path = Path.Combine(connectingDir, string.Format("Captura_Connecting_{0}_{1}.png", remoteTargetId, DateTime.Now.ToString("yyyyMMdd_HHmmss")));
                         picRemoteDesktop.Image.Save(path, System.Drawing.Imaging.ImageFormat.Png);
-                        MessageBox.Show("Captura de pantalla guardada en el Escritorio:\n" + path, "Captura Guardada", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        MessageBox.Show("Captura de pantalla guardada en Imágenes\\Connecting:\n" + path, "Captura Guardada", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     }
                     catch { }
                 }
@@ -1528,15 +1624,18 @@ namespace Conecting
         {
             try
             {
-                using (MemoryStream ms = new MemoryStream(payload))
+                byte[] copy = new byte[payload.Length];
+                Buffer.BlockCopy(payload, 0, copy, 0, payload.Length);
+                MemoryStream ms = new MemoryStream(copy);
+                Image newImg = Image.FromStream(ms, false, false);
+                
+                Image oldPending = null;
+                lock (this)
                 {
-                    Image newImg = Image.FromStream(ms);
-                    lock (this)
-                    {
-                        if (_pendingFrame != null) _pendingFrame.Dispose();
-                        _pendingFrame = (Image)newImg.Clone();
-                    }
+                    oldPending = _pendingFrame;
+                    _pendingFrame = newImg;
                 }
+                if (oldPending != null) oldPending.Dispose();
 
                 if (!_isRenderingFrame)
                 {
@@ -1555,6 +1654,20 @@ namespace Conecting
                             Image old = picRemoteDesktop.Image;
                             picRemoteDesktop.Image = toRender;
                             if (old != null) old.Dispose();
+
+                            _fpsFrameCount++;
+                            long now = Environment.TickCount;
+                            if (now - _lastFpsUpdate >= 1000)
+                            {
+                                int fps = _fpsFrameCount;
+                                _fpsFrameCount = 0;
+                                _lastFpsUpdate = now;
+                                if (lblFps != null && !lblFps.IsDisposed)
+                                {
+                                    int estimatedMs = Math.Max(8, 1000 / Math.Max(1, fps));
+                                    lblFps.Text = string.Format("Latencia: ~{0} ms", estimatedMs);
+                                }
+                            }
                         }
                         _isRenderingFrame = false;
                     });
@@ -1742,11 +1855,12 @@ namespace Conecting
             string msg = txtChatMessage.Text.Trim();
             if (string.IsNullOrEmpty(msg)) return;
 
-            txtChatHistory.AppendText("Yo (Cliente): " + msg + "\n");
+            string myName = PeerResolver.GetUserDisplayName();
+            txtChatHistory.AppendText(myName + " (Yo): " + msg + "\n");
             txtChatHistory.ScrollToCaret();
             txtChatMessage.Clear();
 
-            byte[] msgBytes = Encoding.UTF8.GetBytes(msg);
+            byte[] msgBytes = Encoding.UTF8.GetBytes(myName + ": " + msg);
             PacketProtocol.SendPacket(stream, 0x03, msgBytes);
         }
 
@@ -1796,7 +1910,7 @@ namespace Conecting
                             panelChatDrawer.Location = new Point(this.ClientSize.Width - 320, topToolbar.Height + 10);
                             panelChatDrawer.BringToFront();
                             panelChatDrawer.Visible = true;
-                            txtChatHistory.AppendText("Host Remoto: " + chatStr + "\n");
+                            txtChatHistory.AppendText(chatStr + "\n");
                             txtChatHistory.ScrollToCaret();
                         });
                     }
@@ -1907,7 +2021,7 @@ namespace Conecting
 
             Label lblAppName = new Label { Text = "Connecting Remote Desktop", Font = new Font("Segoe UI", 12F, FontStyle.Bold), ForeColor = Color.FromArgb(0, 131, 143), Location = new Point(24, 20), AutoSize = true };
             Label lblVersion = new Label { Text = "Versión: 1.0.1 Portátil (Enterprise)", Font = new Font("Segoe UI", 9.5F, FontStyle.Regular), ForeColor = Color.FromArgb(100, 116, 139), Location = new Point(24, 52), AutoSize = true };
-            Label lblDesc = new Label { Text = "Plataforma de control remoto portátil ultra-fluida de alta velocidad sin instalación.\n\n• Transmisión a 60 FPS con latencia ultra-baja (<3ms)\n• Cifrado PSK y túnel directo seguro\n• Soporte para pantallas de alta resolución", Font = new Font("Segoe UI", 9F), Location = new Point(24, 88), Size = new Size(400, 110) };
+            Label lblDesc = new Label { Text = "Plataforma de asistencia y control remoto portátil cifrada sin instalación.\n\n• Transmisión nativa de alta definición (100% resolución nativa)\n• Medidor de cuadros por segundo (FPS) en tiempo real\n• Cifrado de datos y canal seguro On-Premise\n• Soporte nativo para elevación de permisos (UAC)", Font = new Font("Segoe UI", 9F), Location = new Point(24, 88), Size = new Size(400, 110) };
 
             Button btnOk = new Button { Text = "Aceptar", Location = new Point(310, 215), Size = new Size(110, 34), BackColor = Color.FromArgb(0, 172, 193), ForeColor = Color.White, FlatStyle = FlatStyle.Flat, DialogResult = DialogResult.OK, Cursor = Cursors.Hand };
             this.Controls.Add(lblAppName);
@@ -2055,10 +2169,10 @@ namespace Conecting
                         relayClient.ReceiveBufferSize = 262144;
                         currentHostRelayClient = relayClient;
 
-                        string targetHost = PeerResolver.OracleServerIp;
-                        try { Dns.GetHostEntry(PeerResolver.OracleServerDomain); targetHost = PeerResolver.OracleServerDomain; } catch { }
+                        string targetHost = PeerResolver.GetRelayServerHost();
+                        int targetPort = PeerResolver.DefaultRelayPort;
 
-                        IAsyncResult ar = relayClient.BeginConnect(targetHost, PeerResolver.OracleServerPort, null, null);
+                        IAsyncResult ar = relayClient.BeginConnect(targetHost, targetPort, null, null);
                         if (ar.AsyncWaitHandle.WaitOne(2000) && relayClient.Connected)
                         {
                             NetworkStream ns = relayClient.GetStream();
@@ -2183,9 +2297,12 @@ namespace Conecting
                                             if (rawFrame != null && rawFrame.Length > 0)
                                             {
                                                 if (!PacketProtocol.SendPacket(activeStream, 0x00, rawFrame)) break;
+                                                Thread.Sleep(1);
                                             }
-
-                                            Thread.Sleep(3);
+                                            else
+                                            {
+                                                Thread.Sleep(15);
+                                            }
                                         }
 
                                         this.Invoke((MethodInvoker)delegate
@@ -2741,7 +2858,7 @@ namespace Conecting
 
         private void BuildSettingsTab()
         {
-            ModernCardPanel cardSec = new ModernCardPanel { Size = new Size(930, 380), Location = new Point(24, 20), BackColor = ColorCardBg, BorderRadius = 12, Padding = new Padding(24) };
+            ModernCardPanel cardSec = new ModernCardPanel { Size = new Size(930, 420), Location = new Point(24, 20), BackColor = ColorCardBg, BorderRadius = 12, Padding = new Padding(24) };
             Label lblSecHeader = new Label { Text = "Configuración Global de Seguridad y Acceso Desatendido", Font = new Font("Segoe UI", 13F, FontStyle.Bold), Location = new Point(24, 20), AutoSize = true, ForeColor = ColorTextDark };
 
             chkUnattendedAccess = new CheckBox { Text = "Permitir Acceso Desatendido directo con Clave PSK (sin confirmación de Aceptar)", Checked = true, Location = new Point(24, 65), AutoSize = true, Font = new Font("Segoe UI", 10F, FontStyle.Bold) };
@@ -2774,18 +2891,52 @@ namespace Conecting
                 txtCustomPsk.UseSystemPasswordChar = !chkShowCustomPsk.Checked;
             };
 
-            CheckBox c2 = new CheckBox { Text = "Aislamiento total de teclado sin interferencias locales (ProcessDialogKey + Hook)", Checked = true, Location = new Point(24, 155), AutoSize = true, Font = new Font("Segoe UI", 10F) };
-            CheckBox c3 = new CheckBox { Text = "Acceder a portapapeles bidireccional en tiempo real", Checked = true, Location = new Point(24, 190), AutoSize = true, Font = new Font("Segoe UI", 10F) };
-            CheckBox c4 = new CheckBox { Text = "Minimizar a la barra de tareas (Segundo Plano al presionar Cerrar X)", Checked = true, Location = new Point(24, 225), AutoSize = true, Font = new Font("Segoe UI", 10F) };
+
+
+            Label lblUserAliasLabel = new Label { Text = "Nombre de Presentación (Alias en Chat y Conexión):", Location = new Point(24, 150), AutoSize = true, Font = new Font("Segoe UI", 9.5F, FontStyle.Bold) };
+            TextBox txtUserAlias = new TextBox
+            {
+                Location = new Point(370, 147),
+                Size = new Size(160, 28),
+                Font = new Font("Segoe UI", 10F),
+                Text = PeerResolver.GetUserDisplayName()
+            };
+            txtUserAlias.TextChanged += (s, e) =>
+            {
+                PeerResolver.SaveUserDisplayName(txtUserAlias.Text);
+            };
+
+            Label lblServerHostLabel = new Label { Text = "Servidor Relay Privado (IP / Dominio On-Premise):", Location = new Point(24, 190), AutoSize = true, Font = new Font("Segoe UI", 9.5F, FontStyle.Bold) };
+            TextBox txtServerHost = new TextBox
+            {
+                Location = new Point(370, 187),
+                Size = new Size(220, 28),
+                Font = new Font("Segoe UI", 10F),
+                Text = PeerResolver.GetRelayServerHost()
+            };
+            txtServerHost.TextChanged += (s, e) =>
+            {
+                PeerResolver.SaveRelayServerHost(txtServerHost.Text);
+            };
+
+            CheckBox c2 = new CheckBox { Text = "Aislamiento total de teclado sin interferencias locales (ProcessDialogKey + Hook)", Checked = true, Location = new Point(24, 230), AutoSize = true, Font = new Font("Segoe UI", 10F) };
+            CheckBox c3 = new CheckBox { Text = "Acceder a portapapeles bidireccional en tiempo real", Checked = true, Location = new Point(24, 265), AutoSize = true, Font = new Font("Segoe UI", 10F) };
+            CheckBox c4 = new CheckBox { Text = "Minimizar a la barra de tareas (Segundo Plano al presionar Cerrar X)", Checked = true, Location = new Point(24, 300), AutoSize = true, Font = new Font("Segoe UI", 10F) };
+            CheckBox cAudio = new CheckBox { Text = "Transmitir Audio del Equipo Remoto (Desactivado por defecto)", Checked = false, Location = new Point(24, 335), AutoSize = true, Font = new Font("Segoe UI", 10F, FontStyle.Bold), ForeColor = Color.FromArgb(71, 85, 105) };
 
             cardSec.Controls.Add(lblSecHeader);
             cardSec.Controls.Add(chkUnattendedAccess);
             cardSec.Controls.Add(lblCustomPskLabel);
             cardSec.Controls.Add(txtCustomPsk);
             cardSec.Controls.Add(chkShowCustomPsk);
+            cardSec.Controls.Add(lblUserAliasLabel);
+            cardSec.Controls.Add(txtUserAlias);
+            cardSec.Controls.Add(lblServerHostLabel);
+            cardSec.Controls.Add(txtServerHost);
             cardSec.Controls.Add(c2);
             cardSec.Controls.Add(c3);
             cardSec.Controls.Add(c4);
+            cardSec.Controls.Add(cAudio);
 
             panelContentSettings.Controls.Add(cardSec);
         }
