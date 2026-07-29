@@ -99,6 +99,13 @@ html, body {
     flex-shrink: 0;
 }
 
+.logo-img {
+    width: 28px;
+    height: 28px;
+    object-fit: contain;
+    flex-shrink: 0;
+}
+
 .logo-icon svg {
     width: 18px;
     height: 18px;
