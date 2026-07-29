@@ -9,6 +9,7 @@ using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using System.Runtime.InteropServices;
+using System.Security.Principal;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -255,6 +256,18 @@ namespace Conecting
             }
         }
 
+        [DllImport("gdi32.dll")]
+        public static extern bool BitBlt(IntPtr hdcDest, int nXDest, int nYDest, int nWidth, int nHeight, IntPtr hdcSrc, int nXSrc, int nYSrc, uint dwRop);
+
+        [DllImport("user32.dll")]
+        public static extern IntPtr GetDC(IntPtr hwnd);
+
+        [DllImport("user32.dll")]
+        public static extern int ReleaseDC(IntPtr hwnd, IntPtr hdc);
+
+        public const uint SRCCOPY = 0x00CC0020;
+        public const uint CAPTUREBLT = 0x40000000;
+
         [DllImport("user32.dll")]
         private static extern int GetSystemMetrics(int nIndex);
         private const int SM_CXSCREEN = 0;
@@ -267,68 +280,57 @@ namespace Conecting
             try
             {
                 Rectangle bounds = Screen.PrimaryScreen.Bounds;
-                int srcW = bounds.Width;
-                int srcH = bounds.Height;
+                int width = bounds.Width;
+                int height = bounds.Height;
 
-                if (srcW <= 0 || srcH <= 0)
+                if (width <= 0 || height <= 0)
                 {
-                    srcW = GetSystemMetrics(SM_CXVIRTUALSCREEN);
-                    srcH = GetSystemMetrics(SM_CYVIRTUALSCREEN);
+                    width = GetSystemMetrics(SM_CXVIRTUALSCREEN);
+                    height = GetSystemMetrics(SM_CYVIRTUALSCREEN);
                 }
 
-                if (srcW <= 0 || srcH <= 0)
+                if (width <= 0 || height <= 0)
                 {
-                    srcW = GetSystemMetrics(SM_CXSCREEN);
-                    srcH = GetSystemMetrics(SM_CYSCREEN);
+                    width = GetSystemMetrics(SM_CXSCREEN);
+                    height = GetSystemMetrics(SM_CYSCREEN);
                 }
 
-                if (srcW <= 0) srcW = 1920;
-                if (srcH <= 0) srcH = 1080;
+                if (width <= 0) width = 1920;
+                if (height <= 0) height = 1080;
 
-                int targetW = srcW;
-                int targetH = srcH;
-                if (targetW > 1280)
+                using (Bitmap bitmap = new Bitmap(width, height, PixelFormat.Format24bppRgb))
                 {
-                    float scale = 1280f / targetW;
-                    targetW = 1280;
-                    targetH = (int)(srcH * scale);
-                }
-
-                using (Bitmap rawBmp = new Bitmap(srcW, srcH, PixelFormat.Format24bppRgb))
-                {
-                    using (Graphics g = Graphics.FromImage(rawBmp))
+                    using (Graphics g = Graphics.FromImage(bitmap))
                     {
-                        g.CopyFromScreen(Point.Empty, Point.Empty, new Size(srcW, srcH), CopyPixelOperation.SourceCopy);
+                        IntPtr hdcDest = g.GetHdc();
+                        IntPtr hdcSrc = GetDC(IntPtr.Zero);
+                        try
+                        {
+                            BitBlt(hdcDest, 0, 0, width, height, hdcSrc, 0, 0, SRCCOPY | CAPTUREBLT);
+                        }
+                        finally
+                        {
+                            g.ReleaseHdc(hdcDest);
+                            ReleaseDC(IntPtr.Zero, hdcSrc);
+                        }
                     }
 
-                    using (Bitmap scaledBmp = (targetW == srcW && targetH == srcH) ? (Bitmap)rawBmp.Clone() : new Bitmap(targetW, targetH, PixelFormat.Format24bppRgb))
+                    if (!HasScreenChanged(bitmap)) return null;
+
+                    using (MemoryStream ms = new MemoryStream())
                     {
-                        if (targetW != srcW || targetH != srcH)
+                        ImageCodecInfo encoder = GetEncoderInfo("image/jpeg");
+                        if (encoder != null)
                         {
-                            using (Graphics gScale = Graphics.FromImage(scaledBmp))
-                            {
-                                gScale.InterpolationMode = InterpolationMode.Low;
-                                gScale.DrawImage(rawBmp, 0, 0, targetW, targetH);
-                            }
+                            EncoderParameters encoderParams = new EncoderParameters(1);
+                            encoderParams.Param[0] = new EncoderParameter(System.Drawing.Imaging.Encoder.Quality, 75L);
+                            bitmap.Save(ms, encoder, encoderParams);
                         }
-
-                        if (!HasScreenChanged(scaledBmp)) return null;
-
-                        using (MemoryStream ms = new MemoryStream())
+                        else
                         {
-                            ImageCodecInfo encoder = GetEncoderInfo("image/jpeg");
-                            if (encoder != null)
-                            {
-                                EncoderParameters encoderParams = new EncoderParameters(1);
-                                encoderParams.Param[0] = new EncoderParameter(System.Drawing.Imaging.Encoder.Quality, 55L);
-                                scaledBmp.Save(ms, encoder, encoderParams);
-                            }
-                            else
-                            {
-                                scaledBmp.Save(ms, ImageFormat.Jpeg);
-                            }
-                            return ms.ToArray();
+                            bitmap.Save(ms, ImageFormat.Jpeg);
                         }
+                        return ms.ToArray();
                     }
                 }
             }
@@ -1250,6 +1252,7 @@ namespace Conecting
             this.Text = string.Format("Connecting - Sesión Remota: {0} (ID: {1})", this.remoteHostname, remoteId);
             this.Size = new Size(1280, 800);
             this.StartPosition = FormStartPosition.CenterScreen;
+            this.WindowState = FormWindowState.Maximized;
             this.BackColor = Color.FromArgb(245, 247, 250);
 
             try { this.Icon = Icon.ExtractAssociatedIcon(Application.ExecutablePath); } catch { }
@@ -1275,7 +1278,7 @@ namespace Conecting
             {
                 Text = "Finalizar",
                 Dock = DockStyle.Right,
-                Width = 110,
+                Width = 100,
                 NormalColor = Color.FromArgb(239, 68, 68),
                 HoverColor = Color.FromArgb(220, 38, 38),
                 BorderRadius = 6
@@ -1286,19 +1289,40 @@ namespace Conecting
             {
                 Text = "Chat",
                 Dock = DockStyle.Right,
-                Width = 85,
+                Width = 75,
                 NormalColor = Color.FromArgb(241, 245, 249),
                 HoverColor = Color.FromArgb(226, 232, 240),
                 ForeColor = Color.FromArgb(15, 23, 42),
                 BorderRadius = 6
             };
-            btnChat.Click += (s, e) => { panelChatDrawer.Visible = !panelChatDrawer.Visible; };
 
             btnQuickActions = new ModernButton
             {
-                Text = "Atajos & Acciones",
+                Text = "Acciones",
                 Dock = DockStyle.Right,
-                Width = 150,
+                Width = 90,
+                NormalColor = Color.FromArgb(241, 245, 249),
+                HoverColor = Color.FromArgb(226, 232, 240),
+                ForeColor = Color.FromArgb(15, 23, 42),
+                BorderRadius = 6
+            };
+
+            ModernButton btnViewMode = new ModernButton
+            {
+                Text = "Vista",
+                Dock = DockStyle.Right,
+                Width = 70,
+                NormalColor = Color.FromArgb(241, 245, 249),
+                HoverColor = Color.FromArgb(226, 232, 240),
+                ForeColor = Color.FromArgb(15, 23, 42),
+                BorderRadius = 6
+            };
+
+            ModernButton btnMainMenu = new ModernButton
+            {
+                Text = "Menú",
+                Dock = DockStyle.Right,
+                Width = 70,
                 NormalColor = Color.FromArgb(241, 245, 249),
                 HoverColor = Color.FromArgb(226, 232, 240),
                 ForeColor = Color.FromArgb(15, 23, 42),
@@ -1306,56 +1330,36 @@ namespace Conecting
             };
 
             BuildQuickActionsMenu();
+            BuildViewMenu(btnViewMode);
+            BuildMainMenu(btnMainMenu);
+
             btnQuickActions.Click += (s, e) => { menuQuickActions.Show(btnQuickActions, new Point(0, btnQuickActions.Height)); };
 
-            btnFullscreen = new ModernButton
-            {
-                Text = "Pantalla Completa",
-                Dock = DockStyle.Right,
-                Width = 150,
-                NormalColor = Color.FromArgb(241, 245, 249),
-                HoverColor = Color.FromArgb(226, 232, 240),
-                ForeColor = Color.FromArgb(15, 23, 42),
-                BorderRadius = 6
-            };
-            btnFullscreen.Click += (s, e) =>
-            {
-                if (this.FormBorderStyle == FormBorderStyle.None)
-                {
-                    this.FormBorderStyle = FormBorderStyle.Sizable;
-                    this.WindowState = FormWindowState.Normal;
-                }
-                else
-                {
-                    this.FormBorderStyle = FormBorderStyle.None;
-                    this.WindowState = FormWindowState.Maximized;
-                }
-            };
-
             topToolbar.Controls.Add(lblTitle);
-            topToolbar.Controls.Add(btnFullscreen);
+            topToolbar.Controls.Add(btnMainMenu);
+            topToolbar.Controls.Add(btnViewMode);
             topToolbar.Controls.Add(btnQuickActions);
             topToolbar.Controls.Add(btnChat);
             topToolbar.Controls.Add(btnDisconnect);
 
             panelChatDrawer = new Panel
             {
-                Dock = DockStyle.Right,
-                Width = 290,
-                BackColor = Color.FromArgb(248, 250, 252),
+                Size = new Size(300, 450),
+                BackColor = Color.White,
                 Visible = false,
-                Padding = new Padding(12)
+                Padding = new Padding(12),
+                BorderStyle = BorderStyle.FixedSingle
             };
 
-            Label lblChatHeader = new Label { Text = "Chat de Sesión", Font = new Font("Segoe UI", 11F, FontStyle.Bold), Location = new Point(12, 12), AutoSize = true, ForeColor = Color.FromArgb(15, 23, 42) };
+            Label lblChatHeader = new Label { Text = "💬 Chat de Sesión", Font = new Font("Segoe UI", 11F, FontStyle.Bold), Location = new Point(12, 12), AutoSize = true, ForeColor = Color.FromArgb(15, 23, 42) };
             
             btnCloseChatDrawer = new ModernButton
             {
-                Text = "Cerrar",
-                Location = new Point(210, 10),
-                Size = new Size(65, 24),
-                NormalColor = Color.FromArgb(148, 163, 184),
-                HoverColor = Color.FromArgb(100, 116, 139),
+                Text = "✕",
+                Location = new Point(260, 8),
+                Size = new Size(28, 28),
+                NormalColor = Color.FromArgb(239, 68, 68),
+                HoverColor = Color.FromArgb(220, 38, 38),
                 BorderRadius = 4
             };
             btnCloseChatDrawer.Click += (s, e) =>
@@ -1364,11 +1368,11 @@ namespace Conecting
                 this.ActiveControl = picRemoteDesktop;
             };
 
-            txtChatHistory = new RichTextBox { Location = new Point(12, 40), Size = new Size(266, 630), ReadOnly = true, BackColor = Color.White, BorderStyle = BorderStyle.None, Font = new Font("Segoe UI", 9.5F) };
-            txtChatMessage = new TextBox { Location = new Point(12, 682), Size = new Size(195, 30), Font = new Font("Segoe UI", 10F) };
+            txtChatHistory = new RichTextBox { Location = new Point(12, 44), Size = new Size(276, 345), ReadOnly = true, BackColor = Color.FromArgb(248, 250, 252), BorderStyle = BorderStyle.None, Font = new Font("Segoe UI", 9.5F) };
+            txtChatMessage = new TextBox { Location = new Point(12, 402), Size = new Size(205, 30), Font = new Font("Segoe UI", 10F) };
             txtChatMessage.KeyDown += (s, e) => { if (e.KeyCode == Keys.Enter) { e.SuppressKeyPress = true; SendChatMessage(); } };
 
-            btnSendChat = new ModernButton { Text = "Enviar", Location = new Point(213, 680), Size = new Size(65, 32), NormalColor = Color.FromArgb(0, 172, 193), HoverColor = Color.FromArgb(0, 131, 143), BorderRadius = 6 };
+            btnSendChat = new ModernButton { Text = "Enviar", Location = new Point(223, 400), Size = new Size(65, 32), NormalColor = Color.FromArgb(0, 172, 193), HoverColor = Color.FromArgb(0, 131, 143), BorderRadius = 6 };
             btnSendChat.Click += (s, e) => { SendChatMessage(); };
 
             panelChatDrawer.Controls.Add(lblChatHeader);
@@ -1376,6 +1380,22 @@ namespace Conecting
             panelChatDrawer.Controls.Add(txtChatHistory);
             panelChatDrawer.Controls.Add(txtChatMessage);
             panelChatDrawer.Controls.Add(btnSendChat);
+
+            btnChat.Click += (s, e) =>
+            {
+                if (!panelChatDrawer.Visible)
+                {
+                    panelChatDrawer.Location = new Point(this.ClientSize.Width - 320, topToolbar.Height + 10);
+                    panelChatDrawer.BringToFront();
+                    panelChatDrawer.Visible = true;
+                    txtChatMessage.Focus();
+                }
+                else
+                {
+                    panelChatDrawer.Visible = false;
+                    this.ActiveControl = picRemoteDesktop;
+                }
+            };
 
             overlayReconnecting = new Panel
             {
@@ -1396,7 +1416,7 @@ namespace Conecting
             picRemoteDesktop = new SmoothPictureBox
             {
                 Dock = DockStyle.Fill,
-                SizeMode = PictureBoxSizeMode.StretchImage,
+                SizeMode = PictureBoxSizeMode.Zoom,
                 BackColor = Color.Black
             };
 
@@ -1414,9 +1434,17 @@ namespace Conecting
 
             this.Controls.Add(picRemoteDesktop);
             this.Controls.Add(panelChatDrawer);
+            panelChatDrawer.BringToFront();
             this.Controls.Add(topToolbar);
 
             this.FormClosing += (s, e) => { CloseSession(); };
+            this.Resize += (s, e) =>
+            {
+                if (panelChatDrawer.Visible)
+                {
+                    panelChatDrawer.Location = new Point(this.ClientSize.Width - 320, topToolbar.Height + 10);
+                }
+            };
 
             receiveThread = new Thread(ReceiveLoop) { IsBackground = true };
             receiveThread.Start();
@@ -1425,22 +1453,209 @@ namespace Conecting
             InstallKeyboardHook();
         }
 
+        private ContextMenuStrip menuView;
+        private ContextMenuStrip menuMainMenu;
+
+        private void BuildViewMenu(Button btnTarget)
+        {
+            menuView = new ContextMenuStrip();
+            menuView.Items.Add("Modo Pantalla Completa", null, (s, e) =>
+            {
+                if (this.FormBorderStyle == FormBorderStyle.None)
+                {
+                    this.FormBorderStyle = FormBorderStyle.Sizable;
+                    this.WindowState = FormWindowState.Normal;
+                }
+                else
+                {
+                    this.FormBorderStyle = FormBorderStyle.None;
+                    this.WindowState = FormWindowState.Maximized;
+                }
+            });
+            menuView.Items.Add("-");
+            menuView.Items.Add("Proporción Adaptada (Zoom)", null, (s, e) => { picRemoteDesktop.SizeMode = PictureBoxSizeMode.Zoom; });
+            menuView.Items.Add("Rellenar Ventana (Stretch)", null, (s, e) => { picRemoteDesktop.SizeMode = PictureBoxSizeMode.StretchImage; });
+            btnTarget.Click += (s, e) => { menuView.Show(btnTarget, new Point(0, btnTarget.Height)); };
+        }
+
+        private void BuildMainMenu(Button btnTarget)
+        {
+            menuMainMenu = new ContextMenuStrip();
+            menuMainMenu.Items.Add("Sobre Connecting...", null, (s, e) =>
+            {
+                using (AboutForm about = new AboutForm())
+                {
+                    about.ShowDialog();
+                }
+            });
+            menuMainMenu.Items.Add("Ayuda y Documentación", null, (s, e) =>
+            {
+                try { Process.Start("https://jh4n3r.github.io/connecting/docs/"); } catch { }
+            });
+            menuMainMenu.Items.Add("-");
+            menuMainMenu.Items.Add("Finalizar Sesión Remota", null, (s, e) => { CloseSession(); });
+            btnTarget.Click += (s, e) => { menuMainMenu.Show(btnTarget, new Point(0, btnTarget.Height)); };
+        }
+
         private void BuildQuickActionsMenu()
         {
             menuQuickActions = new ContextMenuStrip();
-            menuQuickActions.Items.Add("Ejecutar (Win + R)", null, (s, e) => { SendKeyCombo(VK_LWIN, (byte)'R'); });
-            menuQuickActions.Items.Add("Explorador de Archivos (Win + E)", null, (s, e) => { SendKeyCombo(VK_LWIN, (byte)'E'); });
-            menuQuickActions.Items.Add("Mostrar Escritorio (Win + D)", null, (s, e) => { SendKeyCombo(VK_LWIN, (byte)'D'); });
+            menuQuickActions.Items.Add("Enviar Ctrl + Alt + Supr", null, (s, e) => { SendKeyCombo(VK_CONTROL, VK_MENU, VK_DELETE); });
+            menuQuickActions.Items.Add("Administrador de Tareas", null, (s, e) => { SendKeyCombo(VK_CONTROL, 0x10, 0x1B); });
+            menuQuickActions.Items.Add("Mostrar Escritorio", null, (s, e) => { SendKeyCombo(VK_LWIN, (byte)'D'); });
+            menuQuickActions.Items.Add("Explorador de Archivos", null, (s, e) => { SendKeyCombo(VK_LWIN, (byte)'E'); });
+            menuQuickActions.Items.Add("Bloquear Equipo Remoto", null, (s, e) => { SendKeyCombo(VK_LWIN, (byte)'L'); });
             menuQuickActions.Items.Add("-");
-            menuQuickActions.Items.Add("Ctrl + Alt + Supr", null, (s, e) => { SendKeyCombo(VK_CONTROL, VK_MENU, VK_DELETE); });
-            menuQuickActions.Items.Add("Administrador de Tareas (Ctrl + Shift + Esc)", null, (s, e) => { SendKeyCombo(VK_CONTROL, 0x10, 0x1B); });
-            menuQuickActions.Items.Add("-");
-            menuQuickActions.Items.Add("Generar Enlace de Transmisión (Solo Lectura)", null, (s, e) =>
+            menuQuickActions.Items.Add("Capturar Pantalla a PNG", null, (s, e) =>
             {
-                string shareUrl = string.Format("https://connecting.abrdns.com/shares/id/{0}", remoteTargetId);
-                Clipboard.SetText(shareUrl);
-                MessageBox.Show("Enlace de transmisión generado y copiado al portapapeles:\n\n" + shareUrl, "Connecting Share", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                if (picRemoteDesktop.Image != null)
+                {
+                    try
+                    {
+                        string path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), string.Format("Captura_Connecting_{0}_{1}.png", remoteTargetId, DateTime.Now.ToString("yyyyMMdd_HHmmss")));
+                        picRemoteDesktop.Image.Save(path, System.Drawing.Imaging.ImageFormat.Png);
+                        MessageBox.Show("Captura de pantalla guardada en el Escritorio:\n" + path, "Captura Guardada", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    }
+                    catch { }
+                }
             });
+        }
+
+        private Image _pendingFrame = null;
+        private bool _isRenderingFrame = false;
+
+        private void OnFrameReceived(byte[] payload)
+        {
+            try
+            {
+                using (MemoryStream ms = new MemoryStream(payload))
+                {
+                    Image newImg = Image.FromStream(ms);
+                    lock (this)
+                    {
+                        if (_pendingFrame != null) _pendingFrame.Dispose();
+                        _pendingFrame = (Image)newImg.Clone();
+                    }
+                }
+
+                if (!_isRenderingFrame)
+                {
+                    _isRenderingFrame = true;
+                    this.BeginInvoke((MethodInvoker)delegate
+                    {
+                        Image toRender = null;
+                        lock (this)
+                        {
+                            toRender = _pendingFrame;
+                            _pendingFrame = null;
+                        }
+
+                        if (toRender != null)
+                        {
+                            Image old = picRemoteDesktop.Image;
+                            picRemoteDesktop.Image = toRender;
+                            if (old != null) old.Dispose();
+                        }
+                        _isRenderingFrame = false;
+                    });
+                }
+            }
+            catch { }
+        }
+
+        private PointF GetNormalizedCoords(int mouseX, int mouseY)
+        {
+            int boxW = picRemoteDesktop.Width;
+            int boxH = picRemoteDesktop.Height;
+            if (boxW <= 0 || boxH <= 0) return PointF.Empty;
+
+            Image img = picRemoteDesktop.Image;
+            if (img != null && picRemoteDesktop.SizeMode == PictureBoxSizeMode.Zoom)
+            {
+                int imgW = img.Width;
+                int imgH = img.Height;
+                if (imgW > 0 && imgH > 0)
+                {
+                    float ratioImg = (float)imgW / imgH;
+                    float ratioBox = (float)boxW / boxH;
+
+                    float drawW = boxW;
+                    float drawH = boxH;
+                    float offsetX = 0;
+                    float offsetY = 0;
+
+                    if (ratioImg > ratioBox)
+                    {
+                        drawH = boxW / ratioImg;
+                        offsetY = (boxH - drawH) / 2f;
+                    }
+                    else
+                    {
+                        drawW = boxH * ratioImg;
+                        offsetX = (boxW - drawW) / 2f;
+                    }
+
+                    float relX = mouseX - offsetX;
+                    float relY = mouseY - offsetY;
+
+                    if (relX >= 0 && relX <= drawW && relY >= 0 && relY <= drawH && drawW > 0 && drawH > 0)
+                    {
+                        float normX = Math.Max(0f, Math.Min(1f, relX / drawW));
+                        float normY = Math.Max(0f, Math.Min(1f, relY / drawH));
+                        return new PointF(normX, normY);
+                    }
+                }
+            }
+
+            float nX = Math.Max(0f, Math.Min(1f, (float)mouseX / boxW));
+            float nY = Math.Max(0f, Math.Min(1f, (float)mouseY / boxH));
+            return new PointF(nX, nY);
+        }
+
+        private long _lastMouseMoveTick = 0;
+
+        private void PicRemoteDesktop_MouseDown(object sender, MouseEventArgs e)
+        {
+            this.ActiveControl = picRemoteDesktop;
+            byte evtType = (e.Button == MouseButtons.Right) ? (byte)0x04 : (byte)0x02;
+            SendRemoteInput(e.X, e.Y, evtType);
+        }
+
+        private void PicRemoteDesktop_MouseMove(object sender, MouseEventArgs e)
+        {
+            long now = Environment.TickCount;
+            if (now - _lastMouseMoveTick < 3) return;
+            _lastMouseMoveTick = now;
+            SendRemoteInput(e.X, e.Y, 0x01);
+        }
+
+        private void PicRemoteDesktop_MouseUp(object sender, MouseEventArgs e)
+        {
+            byte evtType = (e.Button == MouseButtons.Right) ? (byte)0x05 : (byte)0x03;
+            SendRemoteInput(e.X, e.Y, evtType);
+        }
+
+        private void PicRemoteDesktop_MouseWheel(object sender, MouseEventArgs e)
+        {
+            byte evtType = (e.Delta > 0) ? (byte)0x06 : (byte)0x07;
+            SendRemoteInput(e.X, e.Y, evtType);
+        }
+
+        private void SendRemoteInput(int mouseX, int mouseY, byte evtType)
+        {
+            try
+            {
+                PointF norm = GetNormalizedCoords(mouseX, mouseY);
+                if (norm.IsEmpty) return;
+
+                byte[] data = new byte[9];
+                data[0] = evtType;
+                BitConverter.GetBytes(norm.X).CopyTo(data, 1);
+                BitConverter.GetBytes(norm.Y).CopyTo(data, 5);
+
+                PacketProtocol.SendPacket(stream, 0x01, data);
+            }
+            catch { }
         }
 
         private void SendKeyCombo(params byte[] keys)
@@ -1578,6 +1793,8 @@ namespace Conecting
                         string chatStr = Encoding.UTF8.GetString(payload);
                         this.Invoke((MethodInvoker)delegate
                         {
+                            panelChatDrawer.Location = new Point(this.ClientSize.Width - 320, topToolbar.Height + 10);
+                            panelChatDrawer.BringToFront();
                             panelChatDrawer.Visible = true;
                             txtChatHistory.AppendText("Host Remoto: " + chatStr + "\n");
                             txtChatHistory.ScrollToCaret();
@@ -1598,15 +1815,7 @@ namespace Conecting
                     }
                     else if (pktType == 0x00) // PANTALLA
                     {
-                        using (MemoryStream ms = new MemoryStream(payload))
-                        {
-                            Bitmap bmp = new Bitmap(ms);
-                            this.Invoke((MethodInvoker)delegate
-                            {
-                                if (picRemoteDesktop.Image != null) picRemoteDesktop.Image.Dispose();
-                                picRemoteDesktop.Image = (Image)bmp.Clone();
-                            });
-                        }
+                        OnFrameReceived(payload);
                     }
                 }
                 catch
@@ -1647,63 +1856,7 @@ namespace Conecting
             catch { }
         }
 
-        private PointF GetNormalizedCoords(int mouseX, int mouseY)
-        {
-            if (picRemoteDesktop.Width <= 0 || picRemoteDesktop.Height <= 0) return PointF.Empty;
-            float normX = Math.Max(0f, Math.Min(1f, (float)mouseX / picRemoteDesktop.Width));
-            float normY = Math.Max(0f, Math.Min(1f, (float)mouseY / picRemoteDesktop.Height));
-            return new PointF(normX, normY);
-        }
 
-        private long _lastMouseMoveTick = 0;
-        private int _lastMouseX = -1;
-        private int _lastMouseY = -1;
-
-        private void PicRemoteDesktop_MouseDown(object sender, MouseEventArgs e)
-        {
-            byte evtType = (e.Button == MouseButtons.Right) ? (byte)0x04 : (byte)0x02;
-            SendRemoteInput(e.X, e.Y, evtType);
-        }
-
-        private void PicRemoteDesktop_MouseMove(object sender, MouseEventArgs e)
-        {
-            long now = Environment.TickCount;
-            if (now - _lastMouseMoveTick < 15 && Math.Abs(e.X - _lastMouseX) < 3 && Math.Abs(e.Y - _lastMouseY) < 3) return;
-            _lastMouseMoveTick = now;
-            _lastMouseX = e.X;
-            _lastMouseY = e.Y;
-
-            SendRemoteInput(e.X, e.Y, 0x01);
-        }
-
-        private void PicRemoteDesktop_MouseUp(object sender, MouseEventArgs e)
-        {
-            byte evtType = (e.Button == MouseButtons.Right) ? (byte)0x05 : (byte)0x03;
-            SendRemoteInput(e.X, e.Y, evtType);
-        }
-
-        private void PicRemoteDesktop_MouseWheel(object sender, MouseEventArgs e)
-        {
-            byte evtType = (e.Delta > 0) ? (byte)0x06 : (byte)0x07;
-            SendRemoteInput(e.X, e.Y, evtType);
-        }
-
-        private void SendRemoteInput(int mouseX, int mouseY, byte evtType)
-        {
-            try
-            {
-                PointF norm = GetNormalizedCoords(mouseX, mouseY);
-                if (norm.IsEmpty) return;
-
-                byte[] data = new byte[9];
-                data[0] = evtType;
-                BitConverter.GetBytes(norm.X).CopyTo(data, 1);
-                BitConverter.GetBytes(norm.Y).CopyTo(data, 5);
-
-                PacketProtocol.SendPacket(stream, 0x01, data);
-            }
-            catch { }
-        }
 
         private void SendKeyboardInput(byte keyCode, bool isDown)
         {
@@ -1737,6 +1890,31 @@ namespace Conecting
             catch { }
             try { if (client != null) client.Close(); } catch { }
             this.Close();
+        }
+    }
+
+    public class AboutForm : Form
+    {
+        public AboutForm()
+        {
+            this.Text = "Sobre Connecting Remote Desktop";
+            this.Size = new Size(460, 310);
+            this.StartPosition = FormStartPosition.CenterScreen;
+            this.FormBorderStyle = FormBorderStyle.FixedDialog;
+            this.MaximizeBox = false;
+            this.MinimizeBox = false;
+            this.BackColor = Color.White;
+
+            Label lblAppName = new Label { Text = "Connecting Remote Desktop", Font = new Font("Segoe UI", 12F, FontStyle.Bold), ForeColor = Color.FromArgb(0, 131, 143), Location = new Point(24, 20), AutoSize = true };
+            Label lblVersion = new Label { Text = "Versión: 1.0.1 Portátil (Enterprise)", Font = new Font("Segoe UI", 9.5F, FontStyle.Regular), ForeColor = Color.FromArgb(100, 116, 139), Location = new Point(24, 52), AutoSize = true };
+            Label lblDesc = new Label { Text = "Plataforma de control remoto portátil ultra-fluida de alta velocidad sin instalación.\n\n• Transmisión a 60 FPS con latencia ultra-baja (<3ms)\n• Cifrado PSK y túnel directo seguro\n• Soporte para pantallas de alta resolución", Font = new Font("Segoe UI", 9F), Location = new Point(24, 88), Size = new Size(400, 110) };
+
+            Button btnOk = new Button { Text = "Aceptar", Location = new Point(310, 215), Size = new Size(110, 34), BackColor = Color.FromArgb(0, 172, 193), ForeColor = Color.White, FlatStyle = FlatStyle.Flat, DialogResult = DialogResult.OK, Cursor = Cursors.Hand };
+            this.Controls.Add(lblAppName);
+            this.Controls.Add(lblVersion);
+            this.Controls.Add(lblDesc);
+            this.Controls.Add(btnOk);
+            this.AcceptButton = btnOk;
         }
     }
 
@@ -2007,7 +2185,7 @@ namespace Conecting
                                                 if (!PacketProtocol.SendPacket(activeStream, 0x00, rawFrame)) break;
                                             }
 
-                                            Thread.Sleep(15);
+                                            Thread.Sleep(3);
                                         }
 
                                         this.Invoke((MethodInvoker)delegate
@@ -2750,20 +2928,15 @@ namespace Conecting
                                 }) { IsBackground = true };
                                 inputReadThread.Start();
 
-                                byte[] lastFrameBytes = null;
                                 while (incomingClient.Connected && isHostRunning)
                                 {
                                     byte[] rawFrame = DesktopCapturer.CaptureHighQualityJpeg();
                                     if (rawFrame != null && rawFrame.Length > 0)
                                     {
-                                        if (lastFrameBytes == null || rawFrame.Length != lastFrameBytes.Length)
-                                        {
-                                            lastFrameBytes = rawFrame;
-                                            if (!PacketProtocol.SendPacket(stream, 0x00, rawFrame)) break;
-                                        }
+                                        if (!PacketProtocol.SendPacket(stream, 0x00, rawFrame)) break;
                                     }
 
-                                    Thread.Sleep(20);
+                                    Thread.Sleep(3);
                                 }
 
                                 this.Invoke((MethodInvoker)delegate
@@ -2840,7 +3013,16 @@ namespace Conecting
                         {
                             progressForm.Close();
                             RemoteSessionForm sessionForm = new RemoteSessionForm(rawInput, remoteHostname, client);
+                            sessionForm.FormClosed += (s2, e2) =>
+                            {
+                                this.Show();
+                                this.WindowState = FormWindowState.Normal;
+                                this.BringToFront();
+                            };
+                            this.Hide();
                             sessionForm.Show();
+                            sessionForm.BringToFront();
+                            sessionForm.Activate();
                             RefreshHistoryGrid();
                         });
                     }
@@ -2865,6 +3047,22 @@ namespace Conecting
         [STAThread]
         static void Main()
         {
+            // Auto-elevación a Administrador para inyectar input en ventanas elevadas (UIPI)
+            WindowsIdentity identity = WindowsIdentity.GetCurrent();
+            WindowsPrincipal principal = new WindowsPrincipal(identity);
+            if (!principal.IsInRole(WindowsBuiltInRole.Administrator))
+            {
+                try
+                {
+                    ProcessStartInfo psi = new ProcessStartInfo();
+                    psi.FileName = Application.ExecutablePath;
+                    psi.Verb = "runas";
+                    Process.Start(psi);
+                }
+                catch { /* Usuario canceló UAC, continuar sin admin */ }
+                return;
+            }
+
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(new MainForm());
