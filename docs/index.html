@@ -61,9 +61,9 @@
     <section class="hero">
         <div class="hero-container">
             <div class="badge-open-source">
-                <span>Listo para Usar al Instante</span>
+                <span id="badge1">Listo para Usar al Instante</span>
                 <span>|</span>
-                <span>Opción de Servidor Interno On-Premise</span>
+                <span id="badge2">Opción de Servidor Interno On-Premise</span>
             </div>
 
             <h1 class="hero-title" id="hero-title">Escritorio Remoto Ultra Rápido y Portátil</h1>
@@ -395,6 +395,8 @@
             }
 
             // Hero section
+            if (document.getElementById('badge1')) document.getElementById('badge1').innerText = t.badge1;
+            if (document.getElementById('badge2')) document.getElementById('badge2').innerText = t.badge2;
             if (document.getElementById('hero-title')) document.getElementById('hero-title').innerText = t.title;
             if (document.getElementById('hero-subtitle')) document.getElementById('hero-subtitle').innerText = t.subtitle;
             const btnSpan = document.getElementById('hero-btn') ? document.getElementById('hero-btn').querySelector('span') : null;
@@ -460,10 +462,11 @@
                 if (sub) sub.innerText = t.compSubtitle;
                 if (title) title.innerText = t.compTitle;
                 if (desc) desc.innerText = t.compDesc;
-                if (document.getElementById('footer-copy')) document.getElementById('footer-copy').innerHTML = t.footerText;
+            }
+
+            if (document.getElementById('footer-copy')) document.getElementById('footer-copy').innerHTML = t.footerText;
             if (document.getElementById('footer-docs')) document.getElementById('footer-docs').innerText = t.footerDocs;
             if (document.getElementById('footer-terms')) document.getElementById('footer-terms').innerText = t.footerTerms;
-        }
 
             const ths = document.querySelectorAll('.comparison-table th');
             if (ths.length >= 5) {
