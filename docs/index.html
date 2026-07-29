@@ -265,8 +265,8 @@
         <div class="container">
             <p>&copy; 2026 Connecting Remote Desktop v1.0.1 • Desarrollado por <strong>@jh4n3r</strong></p>
             <p style="margin-top:8px; font-size:0.85rem;">
-                <a href="docs">Ver Documentacion Tecnica Completa</a> |
-                <a href="terms">Terminos Legales de Licencia y Contacto</a>
+                <a href="docs" class="nav-link">Ver Documentacion Tecnica Completa</a> |
+                <a href="terms" class="nav-link">Terminos Legales de Licencia y Contacto</a>
             </p>
         </div>
     </footer>
@@ -274,14 +274,80 @@
     <script>
         const translations = {
             es: {
+                navDocs: "Documentacion",
+                navTerms: "Terminos Legal",
+                badge1: "Listo para Usar al Instante",
+                badge2: "Opción de Servidor Interno On-Premise",
                 title: "Escritorio Remoto Ultra Rápido y Portátil",
-                subtitle: "Acceso y asistencia remota cifrada de ultra baja latencia. Descarga Connecting.exe y conéctate inmediatamente a cualquier equipo, o despliega opcionalmente un servidor propio para uso interno de tu organización.",
-                btnDownload: "Descargar Connecting"
+                subtitle: "Acceso y asistencia remota cifrada de ultra baja latencia. Descarga Connecting y conéctate inmediatamente a cualquier equipo, o despliega opcionalmente un servidor propio para uso interno de tu organización.",
+                btnDownload: "Descargar Connecting",
+                heroNote: "Ejecutable Portatil (~80 KB) • Windows 10 y 11 • Funciona al Instante",
+                mockup1: "Connecting • Interfaz Principal",
+                mockup2: "Connecting • Sesion de Control Remoto",
+                sec1Subtitle: "Flexible para Soporte Directo e Infraestructura de TI",
+                sec1Title: "Funciona al Instante o Alojado en Tu Red Interna",
+                sec1Desc: "Utilízalo de forma inmediata para asistencia remota rápida o implementa tu propio servidor de relevo privado (connecting-relay-server) para uso interno corporativo.",
+                card1Title: "Funciona al Instante (Uso Directo)",
+                card1Desc: "Descarga el ejecutable portátil de ~80 KB y comienza a conectarte inmediatamente a cualquier equipo introduciendo su ID de 9 dígitos sin configuraciones previas.",
+                card2Title: "Servidor Privado para Uso Interno",
+                card2Desc: "Para empresas o redes aisladas de TI, aloja el enrutador de sockets TCP en tu infraestructura local. Todo el tráfico de imágenes y comandos permanece dentro de tu red interna.",
+                card3Title: "Acceso Desatendido y Gestión de Puestos",
+                card3Desc: "Configura tu propia Clave PSK Persistente en puestos clave para intervenciones rápidas y administra tu historial de conexiones con Hostname y Alias personalizados.",
+                techSubtitle: "Ingenieria & Stack de Programacion",
+                techTitle: "¿Con que tecnologia fue creado Connecting?",
+                techDesc: "Diseño enfocado en velocidad nativa pura, cero dependencias pesadas y portabilidad extrema.",
+                tech1Title: "C# (.NET Framework 4.8)",
+                tech1Desc: "Aplicacion cliente compilada de forma nativa a un solo ejecutable .EXE portatil de ~80 KB. Sin instaladores ni servicios de fondo.",
+                tech2Title: "Win32 Native API",
+                tech2Desc: "Inyeccion nativa SendInput con coordenadas absolutas de pantalla y mapeo de codigos de escaneo fisico (MapVirtualKey).",
+                tech3Title: "Node.js TCP Sockets Engine",
+                tech3Desc: "Servidor Relay privado On-Premise ligero escrito en Node.js para enrutamiento directo de sockets con cero bufer.",
+                compSubtitle: "Tabla Comparativa",
+                compTitle: "¿Por que elegir Connecting?",
+                compDesc: "Comparativa directa frente a alternativas comerciales tradicionales.",
+                thFeature: "Característica",
+                thOthers: "Otras Herramientas",
+                thTraditional: "Sistemas Tradicionales",
+                thSaas: "Servicios SaaS",
+                footerText: "Connecting Remote Desktop • Desarrollado por @jh4n3r"
             },
             en: {
+                navDocs: "Documentation",
+                navTerms: "Legal Terms",
+                badge1: "Ready to Use Instantly",
+                badge2: "On-Premise Private Server Option",
                 title: "Ultra Fast & Portable Remote Desktop",
-                subtitle: "Encrypted remote assistance with ultra-low latency. Download Connecting.exe and connect immediately to any device, or optionally deploy your own private relay server for internal organizational use.",
-                btnDownload: "Download Connecting"
+                subtitle: "Encrypted remote assistance with ultra-low latency. Download Connecting and connect immediately to any device, or optionally deploy your own private relay server for internal organizational use.",
+                btnDownload: "Download Connecting",
+                heroNote: "Portable Executable (~80 KB) • Windows 10 & 11 • Works Instantly",
+                mockup1: "Connecting • Main Dashboard Interface",
+                mockup2: "Connecting • Live Remote Control Session",
+                sec1Subtitle: "Flexible for Direct Support and Enterprise IT Infrastructure",
+                sec1Title: "Works Instantly or Hosted on Your Internal Network",
+                sec1Desc: "Use it immediately for fast remote assistance or deploy your own private relay server (connecting-relay-server) for internal corporate use.",
+                card1Title: "Works Instantly (Direct Access)",
+                card1Desc: "Download the ~80 KB portable executable and start connecting immediately to any machine by entering its 9-digit ID with zero setup.",
+                card2Title: "Private On-Premise Server",
+                card2Desc: "For corporate environments or isolated IT networks, host the TCP socket relay on your local infrastructure. All image and command traffic stays inside your internal network.",
+                card3Title: "Unattended Access & Station Management",
+                card3Desc: "Configure your own Persistent PSK Key on key machines for rapid support and manage your connection history with custom Hostnames and Aliases.",
+                techSubtitle: "Engineering & Programming Stack",
+                techTitle: "What technology was Connecting built with?",
+                techDesc: "Designed focusing on pure native speed, zero heavy dependencies, and extreme portability.",
+                tech1Title: "C# (.NET Framework 4.8)",
+                tech1Desc: "Client app compiled natively into a single ~80 KB portable .EXE file. No installer or background services required.",
+                tech2Title: "Win32 Native API",
+                tech2Desc: "Native SendInput injection with absolute screen coordinates and physical scan code mapping (MapVirtualKey).",
+                tech3Title: "Node.js TCP Sockets Engine",
+                tech3Desc: "Lightweight On-Premise private relay server written in Node.js for direct zero-buffer socket routing.",
+                compSubtitle: "Comparison Table",
+                compTitle: "Why choose Connecting?",
+                compDesc: "Direct comparison against traditional commercial alternatives.",
+                thFeature: "Feature",
+                thOthers: "Other Tools",
+                thTraditional: "Traditional Systems",
+                thSaas: "SaaS Services",
+                footerText: "Connecting Remote Desktop • Developed by @jh4n3r"
             }
         };
 
@@ -296,11 +362,88 @@
             localStorage.setItem('connecting_lang', lang);
             const selector = document.getElementById('langSelector');
             if (selector) selector.value = lang;
-            if (translations[lang]) {
-                document.getElementById('hero-title').innerText = translations[lang].title;
-                document.getElementById('hero-subtitle').innerText = translations[lang].subtitle;
-                const btnSpan = document.getElementById('hero-btn').querySelector('span');
-                if (btnSpan) btnSpan.innerText = translations[lang].btnDownload;
+            const t = translations[lang] || translations.es;
+
+            // Nav links
+            const navLinks = document.querySelectorAll('.nav-link');
+            if (navLinks.length >= 2) {
+                navLinks[0].innerText = t.navDocs;
+                navLinks[1].innerText = t.navTerms;
+            }
+
+            // Hero section
+            if (document.getElementById('hero-title')) document.getElementById('hero-title').innerText = t.title;
+            if (document.getElementById('hero-subtitle')) document.getElementById('hero-subtitle').innerText = t.subtitle;
+            const btnSpan = document.getElementById('hero-btn') ? document.getElementById('hero-btn').querySelector('span') : null;
+            if (btnSpan) btnSpan.innerText = t.btnDownload;
+            if (document.getElementById('hero-note')) document.getElementById('hero-note').innerText = t.heroNote;
+
+            // Mockup window titles
+            const mockupTitles = document.querySelectorAll('.window-title');
+            if (mockupTitles.length >= 2) {
+                mockupTitles[0].innerText = t.mockup1;
+                mockupTitles[1].innerText = t.mockup2;
+            }
+
+            // Enterprise Section
+            const enterpriseHeader = document.querySelector('.section-enterprise .section-header');
+            if (enterpriseHeader) {
+                const sub = enterpriseHeader.querySelector('.section-subtitle');
+                const title = enterpriseHeader.querySelector('.section-title');
+                const desc = enterpriseHeader.querySelector('.section-desc');
+                if (sub) sub.innerText = t.sec1Subtitle;
+                if (title) title.innerText = t.sec1Title;
+                if (desc) desc.innerText = t.sec1Desc;
+            }
+
+            const cards = document.querySelectorAll('.grid-3 .feature-card');
+            if (cards.length >= 3) {
+                cards[0].querySelector('.feature-title').innerText = t.card1Title;
+                cards[0].querySelector('.feature-desc').innerText = t.card1Desc;
+                cards[1].querySelector('.feature-title').innerText = t.card2Title;
+                cards[1].querySelector('.feature-desc').innerText = t.card2Desc;
+                cards[2].querySelector('.feature-title').innerText = t.card3Title;
+                cards[2].querySelector('.feature-desc').innerText = t.card3Desc;
+            }
+
+            // Tech section
+            const techHeader = document.querySelector('.section-tech .section-header');
+            if (techHeader) {
+                const sub = techHeader.querySelector('.section-subtitle');
+                const title = techHeader.querySelector('.section-title');
+                const desc = techHeader.querySelector('.section-desc');
+                if (sub) sub.innerText = t.techSubtitle;
+                if (title) title.innerText = t.techTitle;
+                if (desc) title.innerText = t.techDesc;
+            }
+
+            const techCards = document.querySelectorAll('.tech-card');
+            if (techCards.length >= 3) {
+                techCards[0].querySelector('h4').innerText = t.tech1Title;
+                techCards[0].querySelector('p').innerText = t.tech1Desc;
+                techCards[1].querySelector('h4').innerText = t.tech2Title;
+                techCards[1].querySelector('p').innerText = t.tech2Desc;
+                techCards[2].querySelector('h4').innerText = t.tech3Title;
+                techCards[2].querySelector('p').innerText = t.tech3Desc;
+            }
+
+            // Comparison table
+            const compHeader = document.querySelector('.section-comparison .section-header');
+            if (compHeader) {
+                const sub = compHeader.querySelector('.section-subtitle');
+                const title = compHeader.querySelector('.section-title');
+                const desc = compHeader.querySelector('.section-desc');
+                if (sub) sub.innerText = t.compSubtitle;
+                if (title) title.innerText = t.compTitle;
+                if (desc) desc.innerText = t.compDesc;
+            }
+
+            const ths = document.querySelectorAll('.comparison-table th');
+            if (ths.length >= 5) {
+                ths[0].innerText = t.thFeature;
+                ths[2].innerText = t.thOthers;
+                ths[3].innerText = t.thTraditional;
+                ths[4].innerText = t.thSaas;
             }
         }
 
