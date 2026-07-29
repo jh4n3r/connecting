@@ -252,7 +252,7 @@
 
             <!-- STACK TECNOLÓGICO -->
             <h2 id="stack-tecnologico">Stack Tecnológico Oficial</h2>
-            <p>Connecting ha sido diseñado enfocándose en el rendimiento y cero dependencia de librerías de terceros pesadas:</p>
+            <p id="p-tech-desc">Connecting ha sido diseñado enfocándose en el rendimiento y cero dependencia de librerías de terceros pesadas:</p>
             <ul>
                 <li><span class="badge-tech">Cliente Windows</span> <strong>C# (.NET Framework 4.8)</strong>: Compilado con csc.exe a un ejecutable portátil nativo de ~65 KB. No requiere instalador ni servicios de fondo.</li>
                 <li><span class="badge-tech">Motor de Entrada</span> <strong>Win32 Native API (SendInput + MapVirtualKey)</strong>: Inyección nativa de ratón (coordenadas absolutas 0 a 65535) y mapeo de códigos de escaneo físico de teclado para interactuar con herramientas elevadas como Administrador de Tareas, CMD, PowerShell y UAC.</li>
@@ -261,7 +261,7 @@
 
             <!-- DESPLIEGUE ON-PREMISE CON SETUP-NGINX-SSL.SH -->
             <h2 id="despliegue-on-premise">Guía de Despliegue On-Premise (Servidor Privado)</h2>
-            <p>Para empresas y departamentos de TI que requieren gestionar conexiones remotas dentro de una red privada aislada (VPN Corporativa o Red Local) utilizando el asistente de despliegue `setup-nginx-ssl.sh`:</p>
+            <p id="p-onprem-desc">Para empresas y departamentos de TI que requieren gestionar conexiones remotas dentro de una red privada aislada (VPN Corporativa o Red Local) utilizando el asistente de despliegue `setup-nginx-ssl.sh`:</p>
 
             <h3 id="requisitos-server">1. Requisitos del Servidor</h3>
             <ul>
@@ -272,7 +272,7 @@
             </ul>
 
             <h3 id="instalacion-script">2. Configuración Automatizada con setup-nginx-ssl.sh</h3>
-            <p>Ejecuta el asistente de configuración Dual (Landing Web + Proxy WebSocket de Relevo):</p>
+            <p id="p-script-desc">Ejecuta el asistente de configuración Dual (Landing Web + Proxy WebSocket de Relevo):</p>
 
             <div class="code-block">
 # 1. Conceder permisos de ejecución al script de asistente
@@ -282,14 +282,14 @@ chmod +x setup-nginx-ssl.sh
 sudo ./setup-nginx-ssl.sh
             </div>
 
-            <p>El script solicitará interactiva o automáticamente:</p>
+            <p id="p-script-prompt">El script solicitará interactiva o automáticamente:</p>
             <ul>
                 <li><strong>Dominio o Subdominio</strong>: Dirección pública o interna del servidor (ej: `tu-dominio.com`).</li>
                 <li><strong>Directorio Raíz Web</strong>: Ubicación de los archivos de la Landing Page (`/var/www/tu-dominio.com`).</li>
                 <li><strong>Puerto Interno de Relevo</strong>: Puerto TCP de comunicación (`8443`).</li>
             </ul>
 
-            <p>El script generará automáticamente el bloque de configuración Nginx Dual en `/etc/nginx/sites-available/` y creará el certificado SSL con Certbot (Let's Encrypt):</p>
+            <p id="p-cert-desc">El script generará automáticamente el bloque de configuración Nginx Dual en `/etc/nginx/sites-available/` y creará el certificado SSL con Certbot (Let's Encrypt):</p>
 
             <div class="code-block" id="nginx-block">
 # Bloque de configuración Nginx generado automáticamente:
@@ -316,7 +316,7 @@ server {
             </div>
 
             <h3 id="ejecucion-relay">3. Ejecución del Servidor de Relevo</h3>
-            <p>Inicia el servidor de sockets TCP en Node.js dentro de la carpeta `connecting-relay-server`:</p>
+            <p id="p-relay-desc">Inicia el servidor de sockets TCP en Node.js dentro de la carpeta `connecting-relay-server`:</p>
 
             <div class="code-block">
 # Iniciar el servidor Relay en segundo plano
@@ -336,7 +336,7 @@ nohup node server.js > relay.log 2>&1 &
             <h2 id="uso-cliente">Manual del Cliente Remoto (.EXE)</h2>
             
             <h3 id="psk-desatendido">1. Acceso Desatendido y Clave PSK Persistente</h3>
-            <p>Para conectar de forma automática sin necesidad de confirmación manual:</p>
+            <p id="p-conn-desc">Para conectar de forma automática sin necesidad de confirmación manual:</p>
             <ol>
                 <li>Abre <strong>Connecting.exe</strong> en el puesto remoto.</li>
                 <li>Ve a la pestaña <strong>Configuración & Seguridad</strong>.</li>
@@ -346,10 +346,10 @@ nohup node server.js > relay.log 2>&1 &
             </ol>
 
             <h3 id="alias-historial">2. Hostname Automático y Alias Personalizados</h3>
-            <p>Al conectarte a un equipo remoto, Connecting obtiene automáticamente su nombre de sistema (ej: DESKTOP-FINANZAS). En la pantalla principal, cada tarjeta del historial incluye la opción de asignar un nombre amigable como john-administracion.</p>
+            <p id="p-alias-desc">Al conectarte a un equipo remoto, Connecting obtiene automáticamente su nombre de sistema (ej: DESKTOP-FINANZAS). En la pantalla principal, cada tarjeta del historial incluye la opción de asignar un nombre amigable como john-administracion.</p>
 
             <h3 id="atajos-teclado">3. Atajos de Teclado y Control Nativo</h3>
-            <p>Desde el menú superior <strong>"Atajos & Acciones"</strong> dentro de la sesión remota, puedes enviar combinaciones directas de sistema como Win+R, Win+E, Ctrl+Alt+Supr y Ctrl+Shift+Esc.</p>
+            <p id="p-shortcuts">Desde el menú superior <strong>"Atajos & Acciones"</strong> dentro de la sesión remota, puedes enviar combinaciones directas de sistema como Win+R, Win+E, Ctrl+Alt+Supr y Ctrl+Shift+Esc.</p>
 
             <!-- ADVERTENCIA Y FIRMA DE CÓDIGO -->
             <h2>Firma de Código y Advertencia Windows SmartScreen</h2>
@@ -383,8 +383,8 @@ nohup node server.js > relay.log 2>&1 &
 
             <!-- CONTACTO Y SOPORTE -->
             <h2 id="contacto-soporte">Contacto y Soporte Técnico Oficial</h2>
-            <p>El código fuente oficial del proyecto se encuentra publicado en GitHub: <a href="https://github.com/jh4n3r/connecting" target="_blank" style="color:var(--cyan-dark); font-weight:700;">https://github.com/jh4n3r/connecting</a>.</p>
-            <p>Para más información o consultas sobre el acuerdo de uso, consulta nuestros <a href="terms.html" style="color:var(--cyan-dark); font-weight:700;">Términos Legales de Licencia y Servicio</a>.</p>
+            <p id="p-contact1">El código fuente oficial del proyecto se encuentra publicado en GitHub: <a href="https://github.com/jh4n3r/connecting" target="_blank" style="color:var(--cyan-dark); font-weight:700;">https://github.com/jh4n3r/connecting</a>.</p>
+            <p id="p-contact2">Para más información o consultas sobre el acuerdo de uso, consulta nuestros <a href="terms.html" style="color:var(--cyan-dark); font-weight:700;">Términos Legales de Licencia y Servicio</a>.</p>
         </main>
     </div>
 
@@ -651,7 +651,7 @@ nohup node server.js > relay.log 2>&1 &
             }
 
             const h3s = document.querySelectorAll('.docs-content h3');
-            if (h3s.length >= 11) {
+            if (h3s.length >= 9) {
                 h3s[0].innerText = t.h3Req;
                 h3s[1].innerText = t.h3Script;
                 h3s[2].innerText = t.h3Relay;
@@ -663,9 +663,22 @@ nohup node server.js > relay.log 2>&1 &
                 h3s[8].innerText = t.h3Disallows;
             }
 
+            // Paragraphs
+            if (document.getElementById('p-tech-desc')) document.getElementById('p-tech-desc').innerText = t.pTechDesc;
+            if (document.getElementById('p-onprem-desc')) document.getElementById('p-onprem-desc').innerText = t.pOnPremDesc;
+            if (document.getElementById('p-script-desc')) document.getElementById('p-script-desc').innerText = t.pScriptDesc;
+            if (document.getElementById('p-script-prompt')) document.getElementById('p-script-prompt').innerText = t.scriptPrompt;
+            if (document.getElementById('p-cert-desc')) document.getElementById('p-cert-desc').innerText = t.pCertDesc;
+            if (document.getElementById('p-relay-desc')) document.getElementById('p-relay-desc').innerText = t.pRelayDesc;
+            if (document.getElementById('p-conn-desc')) document.getElementById('p-conn-desc').innerText = t.pConnDesc;
+            if (document.getElementById('p-alias-desc')) document.getElementById('p-alias-desc').innerText = t.pAliasDesc;
+            if (document.getElementById('p-shortcuts')) document.getElementById('p-shortcuts').innerHTML = t.pShortcuts;
+            if (document.getElementById('p-contact1')) document.getElementById('p-contact1').innerHTML = t.pContact1;
+            if (document.getElementById('p-contact2')) document.getElementById('p-contact2').innerHTML = t.pContact2;
+
             // Lists
             const lists = document.querySelectorAll('.docs-content ul');
-            if (lists.length >= 7) {
+            if (lists.length >= 6) {
                 if (t.techList) lists[0].innerHTML = t.techList.map(item => `<li>${item}</li>`).join('');
                 if (t.reqList) lists[1].innerHTML = t.reqList.map(item => `<li>${item}</li>`).join('');
                 if (t.scriptList) lists[2].innerHTML = t.scriptList.map(item => `<li>${item}</li>`).join('');
