@@ -1,1 +1,4 @@
 website/
+local-nogit/
+*.exe
+

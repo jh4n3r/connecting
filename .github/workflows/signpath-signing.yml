@@ -1,0 +1,50 @@
+name: Build & Sign Connecting (SignPath Open Source)
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+jobs:
+  build-and-sign:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET / MSBuild
+        uses: microsoft/setup-msbuild@v2
+
+      - name: Compile Connecting.exe
+        run: |
+          csc.exe /unsafe /target:winexe /out:Connecting.exe /win32icon:icon.ico /r:System.dll,System.Drawing.dll,System.Windows.Forms.dll ConectingApp.cs
+
+      - name: Create Unsigned Zip Artifact for SignPath
+        run: |
+          powershell Compress-Archive -Path Connecting.exe -DestinationPath unsigned-Connecting.zip -Force
+
+      - name: Submit Signing Request to SignPath.io
+        uses: SignPath/github-action-submit-signing-request@v1.1
+        with:
+          api-token: ${{ secrets.SIGNPATH_API_TOKEN }}
+          organization-id: ${{ secrets.SIGNPATH_ORGANIZATION_ID }}
+          project-slug: 'connecting'
+          signing-policy-slug: 'release-signing'
+          unsigned-artifact-path: 'unsigned-Connecting.zip'
+          signed-artifact-output-path: 'signed-Connecting.zip'
+          wait-for-completion: true
+
+      - name: Extract Signed Binary
+        run: |
+          powershell Expand-Archive -Path signed-Connecting.zip -DestinationPath dist -Force
+
+      - name: Create GitHub Release Asset
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            dist/Connecting.exe
+            signed-Connecting.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
