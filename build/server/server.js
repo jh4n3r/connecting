@@ -1,14 +1,20 @@
+/**
+ * Connecting Remote Desktop - TCP Relay Server
+ * High-performance, zero-dependency socket routing engine.
+ * Licensed under GNU GPLv3.
+ */
+
 const net = require('net');
 
 const PORT = process.env.PORT || 8443;
-const MAX_HEADER_SIZE = 4096; // Max 4KB header buffer para prevenir ataques de desbordamiento de memoria
-const MAX_CONNECTIONS_PER_IP = 50; // Máximo de conexiones concurrentes por IP remota
-const HANDSHAKE_TIMEOUT_MS = 10000; // Timeout de 10s para completar handshake antes de cerrar sockets zombi
+const MAX_HEADER_SIZE = 4096;          // 4KB max header buffer to prevent memory overflow
+const MAX_CONNECTIONS_PER_IP = 50;     // Concurrent connection limit per remote IP
+const HANDSHAKE_TIMEOUT_MS = 10000;    // 10-second handshake timeout to clean idle sockets
 
-// Tablas en memoria de conexiones de Hosts y Clientes
-const hosts = new Map();   // hostId -> socket
-const clients = new Map(); // clientId -> socket
-const ipConnections = new Map(); // ip -> count
+// In-memory lookup tables for active hosts and clients
+const hosts = new Map();         // hostId -> socket
+const clients = new Map();       // clientId -> socket
+const ipConnections = new Map(); // ip -> connection count
 
 console.log(`=================================================================`);
 console.log(`  CONNECTING TCP RELAY SERVER (ENTERPRISE HARDENED & SECURE)`);
@@ -17,10 +23,10 @@ console.log(`=================================================================`)
 const server = net.createServer((socket) => {
     const remoteIp = socket.remoteAddress || 'unknown';
 
-    // Protección Anti-DDoS: Límite de conexiones por IP
+    // Rate Limiting & Anti-DDoS Protection
     const currentIpCount = ipConnections.get(remoteIp) || 0;
     if (currentIpCount >= MAX_CONNECTIONS_PER_IP) {
-        console.warn(`[!] Conexión bloqueada desde ${remoteIp}: Superó el límite por IP (${MAX_CONNECTIONS_PER_IP})`);
+        console.warn(`[!] Connection rejected from ${remoteIp}: Exceeded per-IP limit (${MAX_CONNECTIONS_PER_IP})`);
         socket.destroy();
         return;
     }
@@ -32,7 +38,7 @@ const server = net.createServer((socket) => {
     let isHandshakeComplete = false;
     let headerBuffer = '';
 
-    // Timeout de Handshake: destruir sockets inactivos/zombi
+    // Handshake Timeout: Destroy inactive or zombie sockets
     const handshakeTimer = setTimeout(() => {
         if (!isHandshakeComplete) {
             socket.destroy();
@@ -42,16 +48,16 @@ const server = net.createServer((socket) => {
     socket.on('data', (chunk) => {
         try {
             if (!isHandshakeComplete) {
-                // Protección contra desbordamiento de buffer de encabezados (Ataques Slowloris)
+                // Header buffer overflow protection (Slowloris mitigation)
                 if (headerBuffer.length + chunk.length > MAX_HEADER_SIZE) {
-                    console.warn(`[!] Intento de desbordamiento de buffer bloqueado desde ${remoteIp}`);
+                    console.warn(`[!] Header buffer overflow attempt blocked from ${remoteIp}`);
                     socket.destroy();
                     return;
                 }
 
                 headerBuffer += chunk.toString('utf8');
 
-                // Soporte para pings HTTP (Keep-Alive de mantenimiento)
+                // HTTP Health Check Ping Support
                 if (headerBuffer.startsWith('GET /') || headerBuffer.startsWith('HEAD /')) {
                     clearTimeout(handshakeTimer);
                     socket.write("HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nConnection: close\r\n\r\nOK Connecting Relay Server Active\n");
@@ -66,129 +72,131 @@ const server = net.createServer((socket) => {
                     const line = headerBuffer.substring(0, lineEnd).trim();
                     const remainingData = chunk.slice(Buffer.byteLength(headerBuffer.substring(0, lineEnd + 1), 'utf8'));
 
-                    // 1. REGISTRO DE HOST PERMANENTE: "REGISTER:HostId"
+                    // 1. PERMANENT HOST REGISTRATION: "REGISTER:HostId"
                     if (line.startsWith('REGISTER:')) {
                         const requestedId = line.split(':')[1].trim();
 
-                        // Saneamiento de Entrada: El ID debe ser alfanumérico seguro
+                        // Input Sanitization: Validate alphanumeric host ID
                         if (!/^[a-zA-Z0-9_-]{3,32}$/.test(requestedId)) {
-                            console.warn(`[!] Rechazado formato de Host ID no válido desde ${remoteIp}: ${requestedId}`);
+                            console.warn(`[!] Invalid Host ID format rejected from ${remoteIp}: ${requestedId}`);
                             socket.destroy();
                             return;
                         }
 
                         if (hosts.has(requestedId)) {
                             const oldSocket = hosts.get(requestedId);
-                            if (oldSocket && !oldSocket.destroyed && oldSocket !== socket) {
-                                try { oldSocket.destroy(); } catch (e) {}
-                            }
+                            try { oldSocket.destroy(); } catch (e) { }
                         }
 
-                        myRole = 'host';
+                        myRole = 'HOST';
                         myId = requestedId;
                         hosts.set(myId, socket);
                         isHandshakeComplete = true;
-                        console.log(`[+] Host registrado exitosamente: (${myId}) desde ${remoteIp}`);
-                        socket.write(`REGISTER_OK:${myId}\n`);
-                    }
-                    // 2. CONEXIÓN DE CLIENTE MULTI-SESIÓN: "CONNECT:ClientId:TargetHostId:PskKey"
-                    else if (line.startsWith('CONNECT:')) {
-                        const parts = line.split(':');
-                        if (parts.length >= 3) {
-                            const requestedClientId = parts[1].trim();
-                            const requestedTargetHostId = parts[2].trim();
 
-                            // Saneamiento de Entrada
-                            if (!/^[a-zA-Z0-9_-]{3,32}$/.test(requestedClientId) || !/^[a-zA-Z0-9_-]{3,32}$/.test(requestedTargetHostId)) {
-                                console.warn(`[!] Rechazado formato de Client/Target ID no válido desde ${remoteIp}`);
-                                socket.destroy();
-                                return;
-                            }
+                        console.log(`[+] Host registered [ID: ${myId}] from ${remoteIp}`);
 
-                            myRole = 'client';
-                            myId = requestedClientId;
-                            targetHostId = requestedTargetHostId;
-                            socket.targetHostId = targetHostId;
-                            clients.set(myId, socket);
-                            isHandshakeComplete = true;
-
-                            const hostSocket = hosts.get(targetHostId);
-                            if (hostSocket && !hostSocket.destroyed) {
-                                console.log(`[+] Solicitud de Cliente ID (${myId}) hacia Host ID (${targetHostId}) desde ${remoteIp}`);
-                                hostSocket.write(`INCOMING:${myId}\n`);
-                            } else {
-                                console.log(`[-] Host ID (${targetHostId}) fuera de línea para Cliente (${myId})`);
-                                socket.write(`ERROR:El equipo remoto ID (${targetHostId}) no se encuentra en línea en el servidor de relevo.\n`);
-                                socket.end();
-                            }
+                        if (remainingData.length > 0) {
+                            console.warn(`[!] Unexpected trailing payload on host registration from ${remoteIp}`);
                         }
+                        return;
                     }
 
-                    if (remainingData.length > 0 && isHandshakeComplete) {
-                        forwardData(remainingData);
+                    // 2. CLIENT CONNECTION REQUEST: "CONNECT:TargetHostId:ClientId"
+                    if (line.startsWith('CONNECT:')) {
+                        const parts = line.split(':');
+                        if (parts.length < 3) {
+                            console.warn(`[!] Malformed CONNECT header from ${remoteIp}`);
+                            socket.destroy();
+                            return;
+                        }
+
+                        targetHostId = parts[1].trim();
+                        myId = parts[2].trim();
+
+                        if (!hosts.has(targetHostId)) {
+                            console.warn(`[-] Target Host [ID: ${targetHostId}] not found for client [ID: ${myId}]`);
+                            socket.write("ERROR:HOST_NOT_FOUND\n");
+                            socket.destroy();
+                            return;
+                        }
+
+                        const targetHostSocket = hosts.get(targetHostId);
+                        myRole = 'CLIENT';
+                        clients.set(myId, socket);
+                        isHandshakeComplete = true;
+
+                        console.log(`[⇄] Client [ID: ${myId}] requesting bridge to Host [ID: ${targetHostId}]`);
+
+                        // Notify Target Host of incoming connection request
+                        targetHostSocket.write(`INCOMING:${myId}\n`);
+
+                        // Forward any immediate data payload
+                        if (remainingData.length > 0) {
+                            targetHostSocket.write(remainingData);
+                        }
+                        return;
                     }
+
+                    console.warn(`[!] Unrecognized protocol command from ${remoteIp}: ${line}`);
+                    socket.destroy();
+                    return;
                 }
             } else {
-                forwardData(chunk);
+                // Post-Handshake High-Speed Bidirectional Tunneling
+                if (myRole === 'CLIENT' && targetHostId) {
+                    const hostSocket = hosts.get(targetHostId);
+                    if (hostSocket && !hostSocket.destroyed) {
+                        hostSocket.write(chunk);
+                    } else {
+                        socket.destroy();
+                    }
+                } else if (myRole === 'HOST' && myId) {
+                    // Host broadcasting data payload back to active client
+                    for (const [clientId, clientSocket] of clients.entries()) {
+                        if (!clientSocket.destroyed) {
+                            clientSocket.write(chunk);
+                        }
+                    }
+                }
             }
         } catch (err) {
-            console.error('[-] Error en procesamiento de socket:', err.message);
+            console.error(`[X] Error handling socket data from ${remoteIp}:`, err.message);
+            socket.destroy();
         }
     });
 
-    function forwardData(chunk) {
-        if (myRole === 'host') {
-            clients.forEach((cSocket) => {
-                if (cSocket.targetHostId === myId && !cSocket.destroyed) {
-                    try { cSocket.write(chunk); } catch (e) {}
-                }
-            });
-        } else if (myRole === 'client' && targetHostId) {
-            const hostSocket = hosts.get(targetHostId);
-            if (hostSocket && !hostSocket.destroyed) {
-                try { hostSocket.write(chunk); } catch (e) {}
-            }
+    socket.on('error', (err) => {
+        // Suppress benign reset errors
+        if (err.code !== 'ECONNRESET') {
+            console.error(`[!] Socket error from ${remoteIp}:`, err.message);
         }
-    }
+    });
 
     socket.on('close', () => {
-        clearTimeout(handshakeTimer);
-
-        // Decrementar contador por IP
+        // Clean up connection counter for IP
         const count = ipConnections.get(remoteIp) || 1;
-        if (count <= 1) ipConnections.delete(remoteIp);
-        else ipConnections.set(remoteIp, count - 1);
-
-        if (myRole === 'host' && myId) {
-            hosts.delete(myId);
-            console.log(`[-] Host desconectado: ID (${myId})`);
-            clients.forEach((cSocket) => {
-                if (cSocket.targetHostId === myId && !cSocket.destroyed) {
-                    try {
-                        cSocket.write(`HOST_CLOSED\n`);
-                        cSocket.end();
-                    } catch (e) {}
-                }
-            });
-        } else if (myRole === 'client' && myId) {
-            clients.delete(myId);
-            console.log(`[-] Cliente de soporte desconectado: ID (${myId})`);
-            if (targetHostId) {
-                const hostSocket = hosts.get(targetHostId);
-                if (hostSocket && !hostSocket.destroyed) {
-                    try {
-                        hostSocket.write(`CLIENT_DISCONNECTED:${myId}\n`);
-                    } catch (e) {}
-                }
-            }
+        if (count <= 1) {
+            ipConnections.delete(remoteIp);
+        } else {
+            ipConnections.set(remoteIp, count - 1);
         }
-    });
 
-    socket.on('error', () => {
-        // Silenciar errores de socket
+        if (myRole === 'HOST' && myId) {
+            if (hosts.get(myId) === socket) {
+                hosts.delete(myId);
+                console.log(`[-] Host disconnected [ID: ${myId}]`);
+            }
+        } else if (myRole === 'CLIENT' && myId) {
+            clients.delete(myId);
+            console.log(`[-] Client disconnected [ID: ${myId}]`);
+        }
     });
 });
 
-server.listen(PORT, () => {
-    console.log(`[✓] Connecting TCP Relay Server escuchando en puerto ${PORT} (Enterprise Hardened & Safe)`);
+server.on('error', (err) => {
+    console.error(`[CRITICAL] Relay Server Listener Error:`, err.message);
+});
+
+server.listen(PORT, '0.0.0.0', () => {
+    console.log(`[🚀] TCP Relay Server running on port ${PORT} (0.0.0.0)`);
 });

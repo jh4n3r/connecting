@@ -297,22 +297,30 @@
                 card2Desc: "Para empresas o redes aisladas de TI, aloja el enrutador de sockets TCP en tu infraestructura local. Todo el tráfico de imágenes y comandos permanece dentro de tu red interna.",
                 card3Title: "Acceso Desatendido y Gestión de Puestos",
                 card3Desc: "Configura tu propia Clave PSK Persistente en puestos clave para intervenciones rápidas y administra tu historial de conexiones con Hostname y Alias personalizados.",
-                techSubtitle: "Ingenieria & Stack de Programacion",
-                techTitle: "¿Con que tecnologia fue creado Connecting?",
+                techSubtitle: "Ingeniería & Stack de Programación",
+                techTitle: "¿Con qué tecnología fue creado Connecting?",
                 techDesc: "Diseño enfocado en velocidad nativa pura, cero dependencias pesadas y portabilidad extrema.",
                 tech1Title: "C# (.NET Framework 4.8)",
-                tech1Desc: "Aplicacion cliente compilada de forma nativa a un solo ejecutable .EXE portatil de ~80 KB. Sin instaladores ni servicios de fondo.",
+                tech1Desc: "Aplicación cliente compilada de forma nativa a un solo ejecutable .EXE portátil de ~80 KB. Sin instaladores ni servicios de fondo.",
                 tech2Title: "Win32 Native API",
-                tech2Desc: "Inyeccion nativa SendInput con coordenadas absolutas de pantalla y mapeo de codigos de escaneo fisico (MapVirtualKey).",
+                tech2Desc: "Inyección nativa SendInput con coordenadas absolutas de pantalla y mapeo de códigos de escaneo físico (MapVirtualKey).",
                 tech3Title: "Node.js TCP Sockets Engine",
-                tech3Desc: "Servidor Relay privado On-Premise ligero escrito en Node.js para enrutamiento directo de sockets con cero bufer.",
+                tech3Desc: "Servidor Relay privado On-Premise ligero escrito en Node.js para enrutamiento directo de sockets con cero búfer.",
                 compSubtitle: "Tabla Comparativa",
-                compTitle: "¿Por que elegir Connecting?",
+                compTitle: "¿Por qué elegir Connecting?",
                 compDesc: "Comparativa directa frente a alternativas comerciales tradicionales.",
                 thFeature: "Característica",
                 thOthers: "Otras Herramientas",
                 thTraditional: "Sistemas Tradicionales",
                 thSaas: "Servicios SaaS",
+                tableRows: [
+                    ["Precio / Licencia", "100% Gratuito / Libre", "Pago Mensual", "Open Source", "Pago Mensual"],
+                    ["Despliegue Privado On-Premise", "Incluido (Servidor propio)", "Solo Plan Enterprise", "Si", "No permitido"],
+                    ["Tamaño del Ejecutable", "~80 KB (Portátil)", "~15 MB", "~25 MB", "~60 MB"],
+                    ["Elevación Admin Automática", "Auto-elevación UAC", "Si (Servicio)", "Manual", "Si (Servicio)"],
+                    ["Clave PSK Persistente", "Persistencia Guardada", "Limitada", "Si", "Aleatoria"],
+                    ["Hostname + Alias en Historial", "Asignación Visual de 1 Clic", "Si", "Solo ID", "Solo ID"]
+                ],
                 footerText: "Connecting Remote Desktop • Desarrollado por @jh4n3r"
             },
             en: {
@@ -352,15 +360,21 @@
                 thOthers: "Other Tools",
                 thTraditional: "Traditional Systems",
                 thSaas: "SaaS Services",
+                tableRows: [
+                    ["Price / License", "100% Free / Open", "Monthly Fee", "Open Source", "Monthly Fee"],
+                    ["Private On-Premise Deployment", "Included (Self-hosted)", "Enterprise Plan Only", "Yes", "Not Allowed"],
+                    ["Executable File Size", "~80 KB (Portable)", "~15 MB", "~25 MB", "~60 MB"],
+                    ["Automatic Admin Elevation", "UAC Auto-Elevation", "Yes (Service)", "Manual", "Yes (Service)"],
+                    ["Persistent PSK Key", "Saved Persistence", "Limited", "Yes", "Random"],
+                    ["Hostname + History Alias", "1-Click Visual Assignment", "Yes", "ID Only", "ID Only"]
+                ],
                 footerText: "Connecting Remote Desktop • Developed by @jh4n3r"
             }
         };
 
         function getInitialLanguage() {
             const saved = localStorage.getItem('connecting_lang');
-            if (saved) return saved;
-            const browserLang = (navigator.language || navigator.userLanguage || 'es').toLowerCase();
-            return browserLang.startsWith('en') ? 'en' : 'es';
+            return saved ? saved : 'es';
         }
 
         function changeLanguage(lang) {
@@ -420,7 +434,7 @@
                 const desc = techHeader.querySelector('.section-desc');
                 if (sub) sub.innerText = t.techSubtitle;
                 if (title) title.innerText = t.techTitle;
-                if (desc) title.innerText = t.techDesc;
+                if (desc) desc.innerText = t.techDesc;
             }
 
             const techCards = document.querySelectorAll('.tech-card');
@@ -451,11 +465,24 @@
                 ths[3].innerText = t.thTraditional;
                 ths[4].innerText = t.thSaas;
             }
+
+            const trs = document.querySelectorAll('.comparison-table tbody tr');
+            if (trs.length >= 6 && t.tableRows) {
+                for (let i = 0; i < 6; i++) {
+                    const tds = trs[i].querySelectorAll('td');
+                    if (tds.length >= 5 && t.tableRows[i]) {
+                        tds[0].innerHTML = `<strong>${t.tableRows[i][0]}</strong>`;
+                        tds[1].innerText = t.tableRows[i][1];
+                        tds[2].innerText = t.tableRows[i][2];
+                        tds[3].innerText = t.tableRows[i][3];
+                        tds[4].innerText = t.tableRows[i][4];
+                    }
+                }
+            }
         }
 
         document.addEventListener('DOMContentLoaded', () => {
-            const lang = getInitialLanguage();
-            changeLanguage(lang);
+            changeLanguage(getInitialLanguage());
         });
     </script>
 </body>

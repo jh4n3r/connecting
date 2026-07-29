@@ -491,9 +491,7 @@ nohup node server.js > relay.log 2>&1 &
 
         function getInitialLanguage() {
             const saved = localStorage.getItem('connecting_lang');
-            if (saved) return saved;
-            const browserLang = (navigator.language || navigator.userLanguage || 'es').toLowerCase();
-            return browserLang.startsWith('en') ? 'en' : 'es';
+            return saved ? saved : 'es';
         }
 
         function changeLanguage(lang) {
