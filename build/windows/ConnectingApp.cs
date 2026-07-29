@@ -675,7 +675,9 @@ namespace Conecting
     public static class PeerResolver
     {
         private static readonly string AppDataDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "ConnectingNodes");
-        public static string RelayServerDomain = "connecting.abrdns.com";
+        
+        // DEFAULT RELAY SERVER CONFIGURATION (Replace with your own domain or IP address)
+        public static string RelayServerDomain = "your-relay-server.com";
         public static int RelayServerPort = 8443;
 
         public static string GetRelayServerHost()
@@ -700,7 +702,7 @@ namespace Conecting
             {
                 if (!Directory.Exists(AppDataDirectory)) Directory.CreateDirectory(AppDataDirectory);
                 string path = Path.Combine(AppDataDirectory, "server_host.dat");
-                File.WriteAllText(path, string.IsNullOrEmpty(host) ? OracleServerDomain : host.Trim());
+                File.WriteAllText(path, string.IsNullOrEmpty(host) ? RelayServerDomain : host.Trim());
             }
             catch { }
         }

@@ -1,0 +1,34 @@
+// Connecting Remote Desktop - Open Source Win32 VERSIONINFO Resource
+#include <winver.h>
+
+1 VERSIONINFO
+FILEVERSION     1,0,1,0
+PRODUCTVERSION  1,0,1,0
+FILEFLAGSMASK   VS_FFI_FILEFLAGSMASK
+FILEFLAGS       0
+FILEOS          VOS__WINDOWS32
+FILETYPE        VFT_APP
+FILESUBTYPE     VFT2_UNKNOWN
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904B0"
+        BEGIN
+            VALUE "CompanyName",      "Connecting Open Source Project\0"
+            VALUE "FileDescription",  "Connecting Remote Desktop - Encrypted Remote Assistance\0"
+            VALUE "FileVersion",      "1.0.1.0\0"
+            VALUE "InternalName",     "Connecting\0"
+            VALUE "LegalCopyright",   "Copyright (C) 2026 Connecting. Licensed under GNU GPLv3.\0"
+            VALUE "OriginalFilename", "Connecting.exe\0"
+            VALUE "ProductName",      "Connecting Remote Desktop\0"
+            VALUE "ProductVersion",   "1.0.1.0\0"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x0409, 1200
+    END
+END
+
+1 24 "Connecting.manifest"
+1 ICON "icon.ico"
