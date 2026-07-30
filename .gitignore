@@ -1,4 +1,5 @@
 website/
 local-nogit/
 *.exe
+build/windows/certs/
 

@@ -5,9 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
     <title>Documentación Oficial - Connecting Remote Desktop Enterprise</title>
-    <meta name="description" content="Guía completa de instalación, despliegue On-Premise con setup-nginx-ssl.sh, configuración de acceso desatendido y manual de usuario para Connecting Remote Desktop.">
+    <meta name="description" content="Guía completa de arquitectura, compilación open source, despliegue de servidor Relay TCP privado y manual técnico de Connecting Remote Desktop.">
     <meta name="robots" content="index, follow">
-    <link rel="canonical" href="https://connecting.abrdns.com/docs">
+    <link rel="canonical" href="https://your-domain.com/docs">
     
     <link rel="icon" href="../favicon.ico" type="image/x-icon">
     <link rel="stylesheet" href="../styles.css">
@@ -15,9 +15,9 @@
     <style>
         .docs-layout {
             display: grid;
-            grid-template-columns: 240px 1fr;
+            grid-template-columns: 260px 1fr;
             gap: 30px;
-            max-width: 1100px;
+            max-width: 1200px;
             margin: 80px auto 40px;
             padding: 0 16px;
             width: 100%;
@@ -96,7 +96,7 @@
             font-size: clamp(1.2rem, 2.5vw, 1.5rem);
             font-weight: 700;
             color: var(--text-primary);
-            margin-top: 30px;
+            margin-top: 32px;
             margin-bottom: 14px;
         }
 
@@ -104,7 +104,7 @@
             font-size: 1.05rem;
             font-weight: 700;
             color: var(--cyan-dark);
-            margin-top: 20px;
+            margin-top: 22px;
             margin-bottom: 8px;
         }
 
@@ -124,6 +124,7 @@
 
         .docs-content li {
             margin-bottom: 6px;
+            line-height: 1.5;
         }
 
         .code-block {
@@ -141,10 +142,6 @@
             max-width: 100%;
         }
 
-        .code-comment { color: #94a3b8; }
-        .code-keyword { color: #f472b6; }
-        .code-string { color: #a3e635; }
-
         .callout-info {
             background: var(--cyan-light);
             border-left: 4px solid var(--cyan-primary);
@@ -153,6 +150,7 @@
             margin-bottom: 20px;
             color: var(--cyan-dark);
             font-size: 0.9rem;
+            line-height: 1.6;
         }
 
         .badge-tech {
@@ -204,7 +202,7 @@
 
             <div class="nav-right" id="navMenu">
                 <a href="../" class="nav-link" id="nav-home">Inicio</a>
-                <a href="../terms/" class="nav-link" id="nav-terms">Términos Legales</a>
+                <a href="../terms" class="nav-link" id="nav-terms">Términos Legales</a>
                 <select id="langSelector" class="lang-select" onchange="changeLanguage(this.value)">
                     <option value="es">Español</option>
                     <option value="en">English</option>
@@ -216,184 +214,148 @@
     <div class="docs-layout">
         <!-- SIDEBAR NAVIGATION -->
         <aside class="docs-sidebar">
-            <h4>Visión General</h4>
+            <h4 id="sb-h1">Visión General</h4>
             <ul>
-                <li><a href="#introduccion">Introducción y Arquitectura</a></li>
-                <li><a href="#stack-tecnologico">Stack Tecnológico Oficial</a></li>
+                <li><a href="#introduccion" id="sb-i1-1">Arquitectura y Principios</a></li>
+                <li><a href="#ejecucion-windows" id="sb-i1-2">Ejecución en Windows</a></li>
+                <li><a href="#estado-linux" id="sb-i1-3">Estado de Linux (DE vs TTY)</a></li>
             </ul>
 
-            <h4>Despliegue On-Premise</h4>
+            <h4 id="sb-h2">Estructura & Build</h4>
             <ul>
-                <li><a href="#requisitos-server">Requisitos del Servidor</a></li>
-                <li><a href="#script-setup">Script setup-nginx-ssl.sh</a></li>
-                <li><a href="#ejecucion-relay">Ejecución del Servidor Relay</a></li>
-                <li><a href="#errores-comunes">Errores Comunes y Revisiones</a></li>
+                <li><a href="#archivos-build" id="sb-i2-1">Archivos Genéricos (build/)</a></li>
+                <li><a href="#compilacion-personalizada" id="sb-i2-2">Compilando tu Ejecutable</a></li>
+                <li><a href="#servidor-relay" id="sb-i2-3">Servidor Relay Privado</a></li>
             </ul>
 
-            <h4>Manual del Cliente (.EXE)</h4>
+            <h4 id="sb-h3">Seguridad & Protocolo</h4>
             <ul>
-                <li><a href="#conexion-ids">Conexión e Identificadores</a></li>
-                <li><a href="#acceso-desatendido">Acceso Desatendido y PSK</a></li>
-                <li><a href="#historial-alias">Hostname y Alias en Historial</a></li>
-                <li><a href="#atajos-teclado">Atajos e Inyección Nativa</a></li>
+                <li><a href="#validacion-certificados" id="sb-i3-1">Validación de Certificados</a></li>
+                <li><a href="#privacidad-relay" id="sb-i3-2">Relay como Broker Seguro</a></li>
+                <li><a href="#licencia-signpath" id="sb-i3-3">Estándar FSF & SignPath</a></li>
             </ul>
 
-            <h4>Capacidades y Alcance</h4>
+            <h4 id="sb-h4">Contacto y Soporte</h4>
             <ul>
-                <li><a href="#lo-que-se-puede">Lo que SI permite esta versión</a></li>
-                <li><a href="#lo-que-no-se-puede">Lo que NO permite esta versión</a></li>
-            </ul>
-
-            <h4>Contacto y Soporte</h4>
-            <ul>
-                <li><a href="#contacto-soporte">Soporte Técnico Oficial</a></li>
+                <li><a href="#contacto-soporte" id="sb-i4-1">Soporte Técnico</a></li>
             </ul>
         </aside>
 
         <!-- MAIN DOCUMENTATION CONTENT -->
         <main class="docs-content">
             <h1 id="doc-title">Documentación Técnica Oficial - Connecting</h1>
-            <p id="doc-desc"><strong>Connecting Remote Desktop</strong> es una plataforma ligera, portátil y cifrada de asistencia y escritorio remoto en tiempo real desarrollada en C# (.NET Framework 4.8) con servidor de relevo de sockets TCP nativo en Node.js.</p>
+            <p id="doc-desc">Connecting Remote Desktop es una solución open-source portátil, cifrada y liviana de control y asistencia remota en tiempo real diseñada para Windows y Linux con servidor de relevo de sockets TCP en Node.js.</p>
 
-            <div class="callout-info">
-                <strong>¿Por qué Connecting Enterprise?</strong> Permite desplegar tu propio servidor Relay privado <strong>On-Premise</strong> dentro de tu infraestructura de TI con Nginx + SSL, garantizando el aislamiento total de datos en redes corporativas sin enviar información a servidores externos.
+            <div class="callout-info" id="callout-main">
+                <strong>Modo Privado &amp; Enterprise:</strong> Connecting permite configurar tu propio servidor de relevo (Relay) privado dentro de tu infraestructura o red local, garantizando privacidad total y aislamiento de datos sin exponer IP ni nombres de servidores públicos.
             </div>
 
-            <!-- STACK TECNOLÓGICO -->
-            <h2 id="stack-tecnologico">Stack Tecnológico Oficial</h2>
-            <p id="p-tech-desc">Connecting ha sido diseñado enfocándose en el rendimiento y cero dependencia de librerías de terceros pesadas:</p>
-            <ul>
-                <li><span class="badge-tech">Cliente Windows</span> <strong>C# (.NET Framework 4.8)</strong>: Compilado con csc.exe a un ejecutable portátil nativo de ~65 KB. No requiere instalador ni servicios de fondo.</li>
-                <li><span class="badge-tech">Motor de Entrada</span> <strong>Win32 Native API (SendInput + MapVirtualKey)</strong>: Inyección nativa de ratón (coordenadas absolutas 0 a 65535) y mapeo de códigos de escaneo físico de teclado para interactuar con herramientas elevadas como Administrador de Tareas, CMD, PowerShell y UAC.</li>
-                <li><span class="badge-tech">Servidor Relay</span> <strong>Node.js (TCP Socket Server Nativo)</strong>: Enrutador de paquetes binarios de alta velocidad sin dependencias externas ejecutado en servidor Linux o servidor privado On-Premise.</li>
-            </ul>
+            <!-- ARQUITECTURA Y EJECUCIÓN WINDOWS -->
+            <h2 id="introduccion">1. Arquitectura de Transmisión y Ejecución en Windows</h2>
+            <p id="p-win-desc">Para garantizar una compatibilidad perfecta en entornos de Directorio Activo (AD) y prevenir bloqueos de antivirus (Windows Defender, Chrome SmartScreen), la aplicación se ejecuta <strong>sin auto-escalamiento inicial (`asInvoker`)</strong> por defecto en modo portátil.</p>
 
-            <!-- DESPLIEGUE ON-PREMISE CON SETUP-NGINX-SSL.SH -->
-            <h2 id="despliegue-on-premise">Guía de Despliegue On-Premise (Servidor Privado)</h2>
-            <p id="p-onprem-desc">Para empresas y departamentos de TI que requieren gestionar conexiones remotas dentro de una red privada aislada (VPN Corporativa o Red Local) utilizando el asistente de despliegue `setup-nginx-ssl.sh`:</p>
-
-            <h3 id="requisitos-server">1. Requisitos del Servidor</h3>
-            <ul>
-                <li><strong>Sistema Operativo</strong>: Linux (Ubuntu Server 20.04/22.04 LTS o Debian).</li>
-                <li><strong>Entorno de Ejecución</strong>: Node.js v16.0.0 o superior.</li>
-                <li><strong>Servidor Web &amp; SSL</strong>: Nginx y Certbot (instalados automáticamente por el asistente).</li>
-                <li><strong>Puertos Abiertos</strong>: Puerto HTTP 80, HTTPS 443 y puerto de Relevo TCP 8443.</li>
-            </ul>
-
-            <h3 id="instalacion-script">2. Configuración Automatizada con setup-nginx-ssl.sh</h3>
-            <p id="p-script-desc">Ejecuta el asistente de configuración Dual (Landing Web + Proxy WebSocket de Relevo):</p>
-
-            <div class="code-block" id="code-block-1">
-# 1. Conceder permisos de ejecución al script de asistente
-chmod +x setup-nginx-ssl.sh
-
-# 2. Ejecutar el asistente como superusuario (root / sudo)
-sudo ./setup-nginx-ssl.sh
+            <div style="text-align: center; margin: 24px 0;">
+                <img src="../app_preview.png" alt="Interfaz Principal Connecting" style="max-width: 100%; border-radius: 8px; border: 1px solid var(--border-color); box-shadow: 0 4px 12px rgba(0,0,0,0.08);" />
+                <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 6px;"><em>Figura 1: Interfaz Principal de Connecting mostrando ID permanente, Clave PSK y Conexión Directa.</em></p>
             </div>
-
-            <p id="p-script-prompt">El script solicitará interactiva o automáticamente:</p>
-            <ul>
-                <li><strong>Dominio o Subdominio</strong>: Dirección pública o interna del servidor (ej: `tu-dominio.com`).</li>
-                <li><strong>Directorio Raíz Web</strong>: Ubicación de los archivos de la Landing Page (`/var/www/tu-dominio.com`).</li>
-                <li><strong>Puerto Interno de Relevo</strong>: Puerto TCP de comunicación (`8443`).</li>
-            </ul>
-
-            <p id="p-cert-desc">El script generará automáticamente el bloque de configuración Nginx Dual en `/etc/nginx/sites-available/` y creará el certificado SSL con Certbot (Let's Encrypt):</p>
-
-            <div class="code-block" id="code-block-2">
-# Bloque de configuración Nginx generado automáticamente:
-server {
-    listen 80;
-    server_name tu-dominio.com;
-    root /var/www/tu-dominio.com;
-    index index.html;
-
-    location / {
-        try_files $uri $uri/ =404;
-    }
-
-    location /ws {
-        proxy_pass http://127.0.0.1:8443;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection 'upgrade';
-        proxy_set_header Host $host;
-        proxy_read_timeout 86400s;
-        proxy_send_timeout 86400s;
-    }
-}
-            </div>
-
-            <h3 id="ejecucion-relay">3. Ejecución del Servidor de Relevo</h3>
-            <p id="p-relay-desc">Inicia el servidor de sockets TCP en Node.js dentro de la carpeta `connecting-relay-server`:</p>
-
-            <div class="code-block" id="code-block-3">
-# Iniciar el servidor Relay en segundo plano
-cd connecting-relay-server
-nohup node server.js > relay.log 2>&1 &
-            </div>
-
-            <h3 id="errores-comunes">4. Errores Comunes y Revisiones de Diagnóstico</h3>
-            <ul>
-                <li><strong>Error de Sintaxis en Nginx</strong>: Verifica la sintaxis del archivo ejecutando `sudo nginx -t`.</li>
-                <li><strong>Puerto 8443 Ocupado o Bloqueado</strong>: Comprueba si el puerto está escuchando ejecutando `ss -tlnp | grep 8443` o `netstat -tlpn`.</li>
-                <li><strong>Renovación de Certificado SSL</strong>: Para probar la renovación automática de Certbot ejecuta `sudo certbot renew --dry-run`.</li>
-                <li><strong>Permisos de Archivos Web</strong>: Asegura los permisos del directorio web ejecutando `sudo chown -R www-data:www-data /var/www/connecting.abrdns.com`.</li>
-            </ul>
-
-            <!-- MANUAL DEL CLIENTE -->
-            <h2 id="uso-cliente">Manual del Cliente Remoto (.EXE)</h2>
             
-            <h3 id="psk-desatendido">1. Acceso Desatendido y Clave PSK Persistente</h3>
-            <p id="p-conn-desc">Para conectar de forma automática sin necesidad de confirmación manual:</p>
-            <ol>
-                <li>Abre <strong>Connecting.exe</strong> en el puesto remoto.</li>
-                <li>Ve a la pestaña <strong>Configuración & Seguridad</strong>.</li>
-                <li>Activa la opción <em>"Permitir Acceso Desatendido directo con Clave PSK"</em>.</li>
-                <li>Introduce tu contraseña en <em>"Clave de Acceso Desatendido Personalizada"</em>.</li>
-                <li>Esta clave se guarda automáticamente en `%APPDATA%\ConnectingNodes\custom_psk.dat`.</li>
-            </ol>
-
-            <h3 id="alias-historial">2. Hostname Automático y Alias Personalizados</h3>
-            <p id="p-alias-desc">Al conectarte a un equipo remoto, Connecting obtiene automáticamente su nombre de sistema (ej: DESKTOP-FINANZAS). En la pantalla principal, cada tarjeta del historial incluye la opción de asignar un nombre amigable como john-administracion.</p>
-
-            <h3 id="atajos-teclado">3. Atajos de Teclado y Control Nativo</h3>
-            <p id="p-shortcuts">Desde el menú superior <strong>"Atajos & Acciones"</strong> dentro de la sesión remota, puedes enviar combinaciones directas de sistema como Win+R, Win+E, Ctrl+Alt+Supr y Ctrl+Shift+Esc.</p>
-
-            <!-- ADVERTENCIA Y FIRMA DE CÓDIGO -->
-            <h2>Firma de Código y Advertencia Windows SmartScreen</h2>
-            <div class="callout-info" style="background:#fffbeb; border-left:4px solid #f59e0b; color:#92400e;">
-                <strong>Aviso sobre la firma digital y seguridad de Connecting.exe:</strong><br>
-                Cada compilación de <strong>Connecting.exe</strong> incluye un manifiesto UAC embebido (`Connecting.manifest`) declarando el nivel `asInvoker` y una firma digital Authenticode con sello de tiempo DigiCert SHA256 mediante `generate-certs.ps1` para garantizar la trazabilidad del ejecutable en despliegues corporativos On-Premise.<br><br>
-                Actualmente, la verificación mediante certificado comercial público a través de <strong>SignPath Foundation</strong> se encuentra en proceso de aprobación para la distribución Open Source en GitHub.<br><br>
-                Si el filtro <strong>Windows SmartScreen</strong> muestra una advertencia al descargar por primera vez indicando <em>"Editor desconocido"</em> o <em>"Windows protegió su PC"</em>, haz clic en <u>"Más información"</u> y presiona <u>"Ejecutar de todas formas"</u>. La aplicación es 100% portátil, segura y no modifica el registro de tu sistema.
-            </div>
-
-            <!-- ALCANCE Y CAPACIDADES -->
-            <h2 id="lo-que-se-puede">Capacidades y Alcance de esta Versión (Release v1.0.1)</h2>
-
-            <h3>Lo que SI permite esta versión:</h3>
-            <ul>
-                <li>Control remoto fluido con transmisión de fotogramas de alta definición.</li>
-                <li>Portapapeles bidireccional en tiempo real para copiar y pegar texto entre local y remoto.</li>
-                <li>Chat interactivo en vivo integrado en la barra lateral.</li>
-                <li>Acceso desatendido persistente protegido mediante contraseña PSK única.</li>
-                <li>Aislamiento nativo de teclado impidiendo interferencias en el equipo local.</li>
-                <li>Widget flotante de sesión en el host para monitorear y finalizar la sesión en 1 clic.</li>
-                <li>Desconexión segura instantánea al cerrar la ventana o finalizar el soporte.</li>
+            <h3 id="h3-win-mode">Modelo de Ejecución y Elevación UAC:</h3>
+            <ul id="ul-win-modes">
+                <li><strong>Modo Estándar (Por Defecto)</strong>: Se ejecuta en 1 segundo como usuario portátil sin solicitar contraseñas ni diálogos UAC. Permite conexión remota, soporte gráfico y transferencia de texto.</li>
+                <li><strong>Modo Administrador (`Reiniciar como Admin`)</strong>: La aplicación incluye un botón dedicado junto al ingreso de clave PSK para reiniciar con elevación UAC voluntaria cuando se requiere controlar aplicaciones administrativas (`cmd/powershell as admin`, Administrador de Tareas, instaladores).</li>
             </ul>
 
-            <h3 id="lo-que-no-se-puede">Lo que NO permite esta versión:</h3>
-            <ul>
-                <li>Transmisión de audio remoto en tiempo real (enfoque exclusivo en control gráfico y texto).</li>
-                <li>Transferencia masiva de archivos por arrastrar y soltar.</li>
-                <li>Cambio entre múltiples monitores en pestañas dentro de una misma ventana (se pueden abrir múltiples instancias ejecutables independientes).</li>
+            <div style="text-align: center; margin: 24px 0;">
+                <img src="../admin_access.png" alt="Reiniciar como Admin" style="max-width: 100%; border-radius: 8px; border: 1px solid var(--border-color); box-shadow: 0 4px 12px rgba(0,0,0,0.08);" />
+                <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 6px;"><em>Figura 2: Ubicación del botón de Elevación UAC Voluntaria "Reiniciar como Admin".</em></p>
+            </div>
+
+            <ul id="ul-win-features">
+                <li><strong>Inyección Win32 `SendInput`</strong>: Motor de inyección de ratón y teclado mediante `SendInput` oficial de Win32, garantizando control 100% granular sobre diálogos UAC y consolas administrativas.</li>
+                <li><strong>Multiventana por Pestañas (Estilo AnyDesk)</strong>: Soporte para múltiples sesiones remotas simultáneas dentro de una misma ventana mediante pestañas dinámicas y un botón `[+]`. Al cerrar una pestaña solo se finaliza esa sesión, manteniendo el cliente principal abierto.</li>
+            </ul>
+
+            <div style="text-align: center; margin: 24px 0;">
+                <img src="../app_preview2.png" alt="Navegación por Pestañas Multi-Sesión" style="max-width: 100%; border-radius: 8px; border: 1px solid var(--border-color); box-shadow: 0 4px 12px rgba(0,0,0,0.08);" />
+                <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 6px;"><em>Figura 3: Sistema de Navegación Multi-Sesión por Pestañas Estilo AnyDesk.</em></p>
+            </div>
+
+            <div style="text-align: center; margin: 24px 0;">
+                <img src="../app_preview3.png" alt="Sesión Remota a Pantalla Completa HD" style="max-width: 100%; border-radius: 8px; border: 1px solid var(--border-color); box-shadow: 0 4px 12px rgba(0,0,0,0.08);" />
+                <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 6px;"><em>Figura 4: Transmisión Full HD en Pantalla Completa a 60 FPS con Calidad Adaptativa.</em></p>
+            </div>
+
+            <ul id="ul-win-svc">
+                <li><strong>Servicio de Windows (`ConnectingService`)</strong>: Permite la instalación del cliente como Servicio de Windows (`NT AUTHORITY\SYSTEM` en Sesión 0) para asistencia desatendida continua y soporte de reinicio remoto.</li>
+            </ul>
+
+            <div style="text-align: center; margin: 24px 0;">
+                <img src="../service_install.png" alt="Instalación del Servicio de Windows" style="max-width: 100%; border-radius: 8px; border: 1px solid var(--border-color); box-shadow: 0 4px 12px rgba(0,0,0,0.08);" />
+                <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 6px;"><em>Figura 5: Panel de Configuración e Instalación/Desinstalación del Servicio de Asistencia de Windows.</em></p>
+            </div>
+
+            <!-- ESTADO DE LINUX -->
+            <h2 id="estado-linux">2. Arquitectura y Estado de Linux</h2>
+            <p id="p-linux-desc">La versión cliente de Linux se encuentra en <strong>desarrollo activo</strong> dentro de la plataforma open-source:</p>
+            <ul id="ul-linux-specs">
+                <li><strong>Entornos de Escritorio (DE)</strong>: Conexión gráfica directa para distribuciones con entornos X11 / Wayland (GNOME, KDE, XFCE).</li>
+                <li><strong>Sesiones Sin Escritorio (Headless / TTY)</strong>: Para servidores o terminales sin interfaz gráfica, Connecting integra una emulación de consola nativa tipo TTY/SSH con stream directo de paquetes binarios (`0x07`).</li>
+            </ul>
+
+            <!-- ESTRUCTURA REPOSITORIO DE BUILD -->
+            <h2 id="archivos-build">3. Estructura del Repositorio (`build/`) y Scripts de Automatización</h2>
+            <p id="p-build-desc">Los archivos fuente genéricos libres y scripts de automatización para construir tus propios binarios o desplegar servidores privados se encuentran organizados en la raíz del repositorio oficial en GitHub:</p>
+            
+            <div class="code-block" id="code-build-tree">
+connecting/
+├── build/
+│   ├── windows/
+│   │   ├── src/                   # Estructura modular de archivos C# (Common, Core, Dialogs, UI)
+│   │   ├── ConnectingApp.cs       # Monolítico C# genérico cliente Windows (Sin DNS/IP privada)
+│   │   ├── Connecting.manifest    # Manifiesto UAC y DPI Awareness de Windows
+│   │   ├── Connecting.rc          # Encabezados de versión Win32 VERSIONINFO
+│   │   ├── build.ps1              # Script PowerShell de compilación y firma digital Authenticode
+│   │   ├── combine.ps1            # Script de ensamblado modular src/*.cs -> ConnectingApp.cs
+│   │   └── generate-certs.ps1     # Generador automático de certificados PFX autofirmados
+│   ├── server/
+│   │   └── server.js              # Servidor de relevo TCP en Node.js (Zero-Knowledge Broker)
+│   └── linux/
+│       └── ConnectingApp.cs       # Arquitectura base para cliente Linux
+├── docs/                          # Documentación y sitio web GitHub Pages
+└── README.md
+            </div>
+
+            <h3 id="compilacion-personalizada">Compilando tu versión privada de Windows:</h3>
+            <p id="p-compile-desc">El código fuente genérico en `build/windows/` incluye una opción integrada en el panel de **Configuración &amp; Seguridad** para especificar un servidor Relay personalizado (vacío por defecto). También puedes compilar directamente especificando el parámetro en `build.ps1`:</p>
+            
+            <div class="code-block" id="code-compile-cmd">
+# Compilación nativa genérica en Windows
+powershell -ExecutionPolicy Bypass -File .\build.ps1
+            </div>
+
+            <!-- SERVIDOR RELAY Y VALIDACIÓN CERTIFICADOS -->
+            <h2 id="servidor-relay">4. Servidor Relay Privado y Validación de Seguridad</h2>
+            <p id="p-security-desc">El ejecutable pre-compilado se conecta a un nodo oficial de relevo de la comunidad, pero cualquier usuario o empresa puede desplegar su propio servidor Relay en su red local o VPS. El servidor Relay funciona <strong>únicamente como un intermediario (broker de conexión)</strong> y no almacena ni decodifica datos de las sesiones.</p>
+            
+            <h3 id="validacion-certificados">Validación de Certificados &amp; Handshake:</h3>
+            <ul id="ul-cert-specs">
+                <li><strong>Handshake con CA del Servidor</strong>: Al conectar, la app envía credenciales validadas con la CA del servidor Relay. Solo tras validar el handshake `CONNECT:ID:TARGET:PSK`, el servidor registra el ID como listo para recibir tráfico.</li>
+                <li><strong>Rotación &amp; Persistencia</strong>: Los nodos generan y rotan IDs únicos y claves PSK seguras, permitiendo tanto sesiones desatendidas persistentes como conexiones temporales de un solo uso.</li>
+                <li><strong>Aislamiento de Servidor</strong>: La infraestructura interna del servidor no se expone a los clientes remotos, protegiendo las direcciones IP reales de ambos puestos.</li>
+            </ul>
+
+            <!-- ESTÁNDAR FSF Y SIGNPATH -->
+            <h2 id="licencia-signpath">5. Cumplimiento de Estándares Open Source &amp; SignPath Foundation</h2>
+            <p id="p-signpath-desc">Para cumplir con los estándares de la <strong>Free Software Foundation (FSF)</strong> y la certificación de código abierto:</p>
+            <ul id="ul-signpath-specs">
+                <li><strong>Licencia Open Source Clara</strong>: Todo el código fuente en `build/` se distribuye bajo licencias abiertas permisivas sin costos ni limitaciones comerciales.</li>
+                <li><strong>Solicitud de Firma SignPath Foundation (En Proceso)</strong>: El proyecto ha solicitado el patrocinio de firma digital gratuita de <strong>SignPath Foundation</strong> para firmar los binarios oficiales de release con certificados EV Authenticode de código abierto. Esto permitirá activar la bandera `uiAccess="true"` en binarios firmados por una CA pública confiable, logrando el control automático nativo de escritorios de seguridad UAC (`Winlogon` / SecureDesktop) sin requerir instalación previa del Servicio de Windows.</li>
             </ul>
 
             <!-- CONTACTO Y SOPORTE -->
-            <h2 id="contacto-soporte">Contacto y Soporte Técnico Oficial</h2>
-            <p id="p-contact1">El código fuente oficial del proyecto se encuentra publicado en GitHub: <a href="https://github.com/jh4n3r/connecting" target="_blank" style="color:var(--cyan-dark); font-weight:700;">https://github.com/jh4n3r/connecting</a>.</p>
-            <p id="p-contact2">Para más información o consultas sobre el acuerdo de uso, consulta nuestros <a href="terms.html" style="color:var(--cyan-dark); font-weight:700;">Términos Legales de Licencia y Servicio</a>.</p>
+            <h2 id="contacto-soporte">6. Soporte Técnico y Repositorio Oficial</h2>
+            <p id="p-contact-desc">Puedes consultar el código fuente completo, reportar fallas o contribuir al proyecto en GitHub: <a href="https://github.com/jh4n3r/connecting" target="_blank" style="color:var(--cyan-dark); font-weight:700;">https://github.com/jh4n3r/connecting</a>.</p>
+            <p id="p-terms-link">Para más información sobre el uso legal, consulta los <a href="../terms" style="color:var(--cyan-dark); font-weight:700;">Términos de Licencia y Servicio</a>.</p>
         </main>
     </div>
 
@@ -406,320 +368,200 @@ nohup node server.js > relay.log 2>&1 &
         const docsTranslations = {
             es: {
                 home: "Inicio",
-                terms: "Terminos Legal",
-                sbHeader1: "Visión General",
-                sbItem1_1: "Introducción y Arquitectura",
-                sbItem1_2: "Stack Tecnológico Oficial",
-                sbHeader2: "Despliegue On-Premise",
-                sbItem2_1: "Requisitos del Servidor",
-                sbItem2_2: "Script setup-nginx-ssl.sh",
-                sbItem2_3: "Ejecución del Servidor Relay",
-                sbItem2_4: "Errores Comunes y Revisiones",
-                sbHeader3: "Manual del Cliente (.EXE)",
-                sbItem3_1: "Conexión e Identificadores",
-                sbItem3_2: "Acceso Desatendido y PSK",
-                sbItem3_3: "Hostname y Alias en Historial",
-                sbItem3_4: "Atajos e Inyección Nativa",
-                sbHeader4: "Capacidades y Alcance",
-                sbItem4_1: "Lo que SI permite esta versión",
-                sbItem4_2: "Lo que NO permite esta versión",
-                sbHeader5: "Contacto y Soporte",
-                sbItem5_1: "Soporte Técnico Oficial",
+                terms: "Términos Legales",
+                sbH1: "Visión General",
+                sbI1_1: "Arquitectura y Principios",
+                sbI1_2: "Ejecución en Windows",
+                sbI1_3: "Estado de Linux (DE vs TTY)",
+                sbH2: "Estructura & Build",
+                sbI2_1: "Archivos Genéricos (build/)",
+                sbI2_2: "Compilando tu Ejecutable",
+                sbI2_3: "Servidor Relay Privado",
+                sbH3: "Seguridad & Protocolo",
+                sbI3_1: "Validación de Certificados",
+                sbI3_2: "Relay como Broker Seguro",
+                sbI3_3: "Estándar FSF & SignPath",
+                sbH4: "Contacto y Soporte",
+                sbI4_1: "Soporte Técnico",
                 docTitle: "Documentación Técnica Oficial - Connecting",
-                docDesc: "<strong>Connecting Remote Desktop</strong> es una plataforma ligera, portátil y cifrada de asistencia y escritorio remoto en tiempo real desarrollada en C# (.NET Framework 4.8) con servidor de relevo de sockets TCP nativo en Node.js.",
-                calloutEnterprise: "<strong>¿Por qué Connecting Enterprise?</strong> Permite desplegar tu propio servidor Relay privado <strong>On-Premise</strong> dentro de tu infraestructura de TI con Nginx + SSL, garantizando el aislamiento total de datos en redes corporativas sin enviar información a servidores externos.",
-                h2Tech: "Stack Tecnológico Oficial",
-                pTechDesc: "Connecting ha sido diseñado enfocándose en el rendimiento y cero dependencia de librerías de terceros pesadas:",
-                techList: [
-                    "<span class=\"badge-tech\">Cliente Windows</span> <strong>C# (.NET Framework 4.8)</strong>: Compilado con csc.exe a un ejecutable portátil nativo de ~65 KB. No requiere instalador ni servicios de fondo.",
-                    "<span class=\"badge-tech\">Motor de Entrada</span> <strong>Win32 Native API (SendInput + MapVirtualKey)</strong>: Inyección nativa de ratón (coordenadas absolutas 0 a 65535) y mapeo de códigos de escaneo físico de teclado para interactuar con herramientas elevadas como Administrador de Tareas, CMD, PowerShell y UAC.",
-                    "<span class=\"badge-tech\">Servidor Relay</span> <strong>Node.js (TCP Socket Server Nativo)</strong>: Enrutador de paquetes binarios de alta velocidad sin dependencias externas ejecutado en servidor Linux o servidor privado On-Premise."
+                docDesc: "Connecting Remote Desktop es una solución open-source portátil, cifrada y liviana de control y asistencia remota en tiempo real diseñada para Windows y Linux con servidor de relevo de sockets TCP en Node.js.",
+                calloutMain: "<strong>Modo Privado & Enterprise:</strong> Connecting permite configurar tu propio servidor de relevo (Relay) privado dentro de tu infraestructura o red local, garantizando privacidad total y aislamiento de datos sin exponer IP ni nombres de servidores públicos.",
+                h2Win: "1. Arquitectura de Transmisión y Ejecución en Windows",
+                pWinDesc: "Para garantizar una compatibilidad perfecta en entornos de Directorio Activo (AD) y prevenir bloqueos de antivirus (Windows Defender, Chrome SmartScreen), la aplicación fue mejorada para iniciarse <strong>sin auto-escalamiento de privilegios (`asInvoker`)</strong> por defecto.",
+                h3WinMode: "Modelo de Ejecución en Windows:",
+                winModes: [
+                    "<strong>Modo Estándar (Por Defecto)</strong>: Se ejecuta en 1 segundo como usuario estándar sin solicitar contraseña ni diálogos UAC. Permite conexión remota, soporte gráfico y transferencia de texto.",
+                    "<strong>Modo Administrador (`⚡ Modo Admin`)</strong>: La aplicación incluye un botón en la interfaz principal para reiniciar con elevación UAC cuando se requiere controlar aplicaciones elevadas (`netplwiz`, consolas `cmd/powershell as admin`, Administrador de Tareas).",
+                    "<strong>Servicio Background (En Desarrollo)</strong>: Próxima integración de un servicio opcional de Windows (`services.msc`) para soporte desatendido completo a nivel del sistema estilo AnyDesk/TeamViewer."
                 ],
-                h2OnPrem: "Guía de Despliegue On-Premise (Servidor Privado)",
-                pOnPremDesc: "Para empresas y departamentos de TI que requieren gestionar conexiones remotas dentro de una red privada aislada (VPN Corporativa o Red Local) utilizando el asistente de despliegue `setup-nginx-ssl.sh`:",
-                h3Req: "1. Requisitos del Servidor",
-                reqList: [
-                    "<strong>Sistema Operativo</strong>: Linux (Ubuntu Server 20.04/22.04 LTS o Debian).",
-                    "<strong>Entorno de Ejecución</strong>: Node.js v16.0.0 o superior.",
-                    "<strong>Servidor Web & SSL</strong>: Nginx y Certbot (instalados automáticamente por el asistente).",
-                    "<strong>Puertos Abiertos</strong>: Puerto HTTP 80, HTTPS 443 y puerto de Relevo TCP 8443."
+                h2Linux: "2. Arquitectura y Estado de Linux",
+                pLinuxDesc: "La versión cliente de Linux se encuentra en <strong>desarrollo activo</strong> dentro de la plataforma open-source:",
+                linuxSpecs: [
+                    "<strong>Entornos de Escritorio (DE)</strong>: Conexión gráfica directa para distribuciones con entornos X11 / Wayland (GNOME, KDE, XFCE).",
+                    "<strong>Sesiones Sin Escritorio (Headless / TTY)</strong>: Para servidores o terminales sin interfaz gráfica, Connecting integra una emulación de consola nativa tipo TTY/SSH con stream directo de paquetes binarios (`0x07`)."
                 ],
-                h3Script: "2. Configuración Automatizada con setup-nginx-ssl.sh",
-                pScriptDesc: "Ejecuta el asistente de configuración Dual (Landing Web + Proxy WebSocket de Relevo):",
-                scriptPrompt: "El script solicitará interactiva o automáticamente:",
-                scriptList: [
-                    "<strong>Dominio o Subdominio</strong>: Dirección pública o interna del servidor (ej: `tu-dominio.com`).",
-                    "<strong>Directorio Raíz Web</strong>: Ubicación de los archivos de la Landing Page (`/var/www/tu-dominio.com`).",
-                    "<strong>Puerto Interno de Relevo</strong>: Puerto TCP de comunicación (`8443`)."
+                h2Build: "3. Estructura del Repositorio (`build/`) y Compilación",
+                pBuildDesc: "Los archivos fuente genéricos libres para construir tus propios binarios o desplegar servidores privados se encuentran organizados en la raíz del repositorio oficial en GitHub:",
+                h3Compile: "Compilando tu versión privada de Windows:",
+                pCompileDesc: "Para apuntar la aplicación a tu propio dominio o servidor Relay interno, modifica la variable `RelayServerDomain` en `ConnectingApp.cs` y compila:",
+                h2Security: "4. Servidor Relay Privado y Validación de Seguridad",
+                pSecurityDesc: "Connecting funciona bajo un servidor de relevo privado (ej: `your-domain.com`), pero puede configurarse para uso propio en red interna. El servidor Relay funciona <strong>únicamente como un intermediario (broker de conexión)</strong> y no almacena ni decodifica datos de las sesiones.",
+                h3Cert: "Validación de Certificados & Handshake:",
+                certSpecs: [
+                    "<strong>Handshake con CA del Servidor</strong>: Al conectar, la app envía credenciales validadas con la CA del servidor Relay. Solo tras validar el handshake `CONNECT:ID:TARGET:PSK`, el servidor registra el ID como listo para recibir tráfico.",
+                    "<strong>Rotación & Persistencia</strong>: Los nodos generan y rotan IDs únicos y claves PSK seguras, permitiendo tanto sesiones desatendidas persistentes como conexiones temporales de un solo uso.",
+                    "<strong>Aislamiento de Servidor</strong>: La infraestructura interna del servidor no se expone a los clientes remotos, protegiendo las direcciones IP reales de ambos puestos."
                 ],
-                pCertDesc: "El script generará automáticamente el bloque de configuración Nginx Dual en `/etc/nginx/sites-available/` y creará el certificado SSL con Certbot (Let's Encrypt):",
-                h3Relay: "3. Ejecución del Servidor de Relevo",
-                pRelayDesc: "Inicia el servidor de sockets TCP en Node.js dentro de la carpeta `connecting-relay-server`:",
-                h3Errors: "4. Errores Comunes y Revisiones de Diagnóstico",
-                errList: [
-                    "<strong>Error de Sintaxis en Nginx</strong>: Verifica la sintaxis del archivo ejecutando `sudo nginx -t`.",
-                    "<strong>Puerto 8443 Ocupado o Bloqueado</strong>: Comprueba si el puerto está escuchando ejecutando `ss -tlnp | grep 8443` o `netstat -tlpn`.",
-                    "<strong>Renovación de Certificado SSL</strong>: Para probar la renovación automática de Certbot ejecuta `sudo certbot renew --dry-run`.",
-                    "<strong>Permisos de Archivos Web</strong>: Asegura los permisos del directorio web ejecutando `sudo chown -R www-data:www-data /var/www/connecting.abrdns.com`."
+                h2SignPath: "5. Cumplimiento de Estándares Open Source & SignPath Foundation",
+                pSignPathDesc: "Para cumplir con los estándares requeridos por la <strong>Free Software Foundation (FSF)</strong> y la certificación de código abierto de <strong>SignPath Foundation</strong> para proyectos en GitHub:",
+                signPathSpecs: [
+                    "<strong>Licencia Open Source Clara</strong>: Todo el código fuente en `build/` se distribuye bajo licencias abiertas permisivas sin costos ni limitaciones comerciales.",
+                    "<strong>Firma Digital Authenticode</strong>: Los binarios oficiales de release se firman digitalmente con certificados SHA256 verificables para garantizar la integridad y origen de la aplicación."
                 ],
-                h2Manual: "Manual del Cliente Remoto (.EXE)",
-                h3Conn: "1. Acceso Desatendido y Clave PSK Persistente",
-                pConnDesc: "Para conectar de forma automática sin necesidad de confirmación manual:",
-                pskSteps: [
-                    "Abre <strong>Connecting.exe</strong> en el puesto remoto.",
-                    "Ve a la pestaña <strong>Configuración & Seguridad</strong>.",
-                    "Activa la opción <em>\"Permitir Acceso Desatendido directo con Clave PSK\"</em>.",
-                    "Introduce tu contraseña en <em>\"Clave de Acceso Desatendido Personalizada\"</em>.",
-                    "Esta clave se guarda automáticamente en `%APPDATA%\\ConnectingNodes\\custom_psk.dat`."
-                ],
-                h3Psk: "2. Hostname Automático y Alias Personalizados",
-                pAliasDesc: "Al conectarte a un equipo remoto, Connecting obtiene automáticamente su nombre de sistema (ej: DESKTOP-FINANZAS). En la pantalla principal, cada tarjeta del historial incluye la opción de asignar un nombre amigable como john-administracion.",
-                h3Shortcuts: "3. Atajos de Teclado y Control Nativo",
-                pShortcuts: "Desde el menú superior <strong>\"Atajos & Acciones\"</strong> dentro de la sesión remota, puedes enviar combinaciones directas de sistema como Win+R, Win+E, Ctrl+Alt+Supr y Ctrl+Shift+Esc.",
-                h2Smartscreen: "Firma de Código y Advertencia Windows SmartScreen",
-                smartscreenCallout: "<strong>Aviso sobre la firma digital y seguridad de Connecting.exe:</strong><br>Cada compilación de <strong>Connecting.exe</strong> incluye un manifiesto UAC embebido (`Connecting.manifest`) declarando el nivel `asInvoker` y una firma digital Authenticode con sello de tiempo DigiCert SHA256 mediante `generate-certs.ps1` para garantizar la trazabilidad del ejecutable en despliegues corporativos On-Premise.<br><br>Actualmente, la verificación mediante certificado comercial público a través de <strong>SignPath Foundation</strong> se encuentra en proceso de aprobación para la distribución Open Source en GitHub.<br><br>Si el filtro <strong>Windows SmartScreen</strong> muestra una advertencia al descargar por primera vez indicando <em>\"Editor desconocido\"</em> o <em>\"Windows protegió su PC\"</em>, haz clic en <u>\"Más información\"</u> y presiona <u>\"Ejecutar de todas formas\"</u>. La aplicación es 100% portátil, segura y no modifica el registro de tu sistema.",
-                h2Scope: "Capacidades y Alcance de esta Versión (Release v1.0.1)",
-                h3Allows: "Lo que SI permite esta versión:",
-                allowsList: [
-                    "Control remoto fluido con transmisión de fotogramas de alta definición.",
-                    "Portapapeles bidireccional en tiempo real para copiar y pegar texto entre local y remoto.",
-                    "Chat interactivo en vivo integrado en la barra lateral.",
-                    "Acceso desatendido persistente protegido mediante contraseña PSK única.",
-                    "Aislamiento nativo de teclado impidiendo interferencias en el equipo local.",
-                    "Widget flotante de sesión en el host para monitorear y finalizar la sesión en 1 clic.",
-                    "Desconexión segura instantánea al cerrar la ventana o finalizar el soporte."
-                ],
-                h3Disallows: "Lo que NO permite esta versión:",
-                disallowsList: [
-                    "Transmisión de audio remoto en tiempo real (enfoque exclusivo en control gráfico y texto).",
-                    "Transferencia masiva de archivos por arrastrar y soltar.",
-                    "Cambio entre múltiples monitores en pestañas dentro de una misma ventana (se pueden abrir múltiples instancias ejecutables independientes)."
-                ],
-                h2Contact: "Contacto y Soporte Técnico Oficial",
-                pContact1: "El código fuente oficial del proyecto se encuentra publicado en GitHub: <a href=\"https://github.com/jh4n3r/connecting\" target=\"_blank\" style=\"color:var(--cyan-dark); font-weight:700;\">https://github.com/jh4n3r/connecting</a>.",
-                pContact2: "Para más información o consultas sobre el acuerdo de uso, consulta nuestros <a href=\"terms.html\" style=\"color:var(--cyan-dark); font-weight:700;\">Términos Legales de Licencia y Servicio</a>.",
-                codeBlock1: "# 1. Conceder permisos de ejecución al script de asistente\nchmod +x setup-nginx-ssl.sh\n\n# 2. Ejecutar el asistente como superusuario (root / sudo)\nsudo ./setup-nginx-ssl.sh",
-                codeBlock2: "# Bloque de configuración Nginx generado automáticamente:\nserver {\n    listen 80;\n    server_name tu-dominio.com;\n    root /var/www/tu-dominio.com;\n    index index.html;\n\n    location / {\n        try_files $uri $uri/ =404;\n    }\n\n    location /ws {\n        proxy_pass http://127.0.0.1:8443;\n        proxy_http_version 1.1;\n        proxy_set_header Upgrade $http_upgrade;\n        proxy_set_header Connection 'upgrade';\n        proxy_set_header Host $host;\n        proxy_read_timeout 86400s;\n        proxy_send_timeout 86400s;\n    }\n}",
-                codeBlock3: "# Iniciar el servidor Relay en segundo plano\ncd connecting-relay-server\nnohup node server.js > relay.log 2>&1 &",
+                h2Contact: "6. Soporte Técnico y Repositorio Oficial",
+                pContactDesc: "Puedes consultar el código fuente completo, reportar fallas o contribuir al proyecto en GitHub: <a href=\"https://github.com/jh4n3r/connecting\" target=\"_blank\" style=\"color:var(--cyan-dark); font-weight:700;\">https://github.com/jh4n3r/connecting</a>.",
+                pTermsLink: "Para más información sobre el uso legal, consulta los <a href=\"../terms\" style=\"color:var(--cyan-dark); font-weight:700;\">Términos de Licencia y Servicio</a>.",
                 footerCopy: "&copy; 2026 Connecting Remote Desktop • Desarrollado por <strong>@jh4n3r</strong>"
             },
             en: {
                 home: "Home",
                 terms: "Legal Terms",
-                sbHeader1: "Overview",
-                sbItem1_1: "Introduction & Architecture",
-                sbItem1_2: "Official Tech Stack",
-                sbHeader2: "On-Premise Deployment",
-                sbItem2_1: "Server Requirements",
-                sbItem2_2: "Script setup-nginx-ssl.sh",
-                sbItem2_3: "Relay Server Execution",
-                sbItem2_4: "Common Errors & Troubleshooting",
-                sbHeader3: "Client Manual (.EXE)",
-                sbItem3_1: "Connection & 9-Digit IDs",
-                sbItem3_2: "Unattended Access & PSK",
-                sbItem3_3: "Hostname & Alias History",
-                sbItem3_4: "Shortcuts & Native Injection",
-                sbHeader4: "Capabilities & Scope",
-                sbItem4_1: "Supported in this release",
-                sbItem4_2: "Not supported in this release",
-                sbHeader5: "Contact & Support",
-                sbItem5_1: "Official Technical Support",
+                sbH1: "Overview",
+                sbI1_1: "Architecture & Principles",
+                sbI1_2: "Windows Execution",
+                sbI1_3: "Linux Status (DE vs TTY)",
+                sbH2: "Structure & Build",
+                sbI2_1: "Generic Files (build/)",
+                sbI2_2: "Building Your Binary",
+                sbI2_3: "Private Relay Server",
+                sbH3: "Security & Protocol",
+                sbI3_1: "Certificate Validation",
+                sbI3_2: "Relay as Secure Broker",
+                sbI3_3: "FSF & SignPath Standards",
+                sbH4: "Contact & Support",
+                sbI4_1: "Technical Support",
                 docTitle: "Official Technical Documentation - Connecting",
-                docDesc: "<strong>Connecting Remote Desktop</strong> is a lightweight, portable, and encrypted real-time remote desktop and assistance platform built in C# (.NET Framework 4.8) with a native Node.js TCP socket relay server.",
-                calloutEnterprise: "<strong>Why Connecting Enterprise?</strong> Deploy your own private <strong>On-Premise</strong> Relay server inside your IT infrastructure with Nginx + SSL, ensuring total data isolation in corporate networks without sending info to third-party servers.",
-                h2Tech: "Official Tech Stack",
-                pTechDesc: "Connecting was engineered focusing on pure performance and zero heavy third-party dependencies:",
-                techList: [
-                    "<span class=\"badge-tech\">Windows Client</span> <strong>C# (.NET Framework 4.8)</strong>: Compiled natively with csc.exe into a portable ~80 KB binary. No installer or background services.",
-                    "<span class=\"badge-tech\">Input Engine</span> <strong>Win32 Native API (SendInput + MapVirtualKey)</strong>: Native mouse injection (absolute coordinates 0-65535) and physical scan code mapping for elevated system windows like Task Manager, CMD, PowerShell, and UAC.",
-                    "<span class=\"badge-tech\">Relay Server</span> <strong>Node.js (Native TCP Socket Server)</strong>: High-speed binary packet router with zero third-party dependencies running on Linux or On-Premise private server."
+                docDesc: "Connecting Remote Desktop is a lightweight, portable, and encrypted open-source real-time remote desktop and assistance solution built for Windows and Linux with a native Node.js TCP socket relay server.",
+                calloutMain: "<strong>Private & Enterprise Mode:</strong> Connecting allows configuring your own private Relay server inside your infrastructure or local LAN, guaranteeing full privacy without exposing public IP or server names.",
+                h2Win: "1. Transmission Architecture and Windows Execution",
+                pWinDesc: "To ensure seamless compatibility in Active Directory (AD) environments and prevent antivirus blocks (Windows Defender, Chrome SmartScreen), the app was enhanced to launch <strong>without forced privilege elevation (`asInvoker`)</strong> by default.",
+                h3WinMode: "Windows Execution Model:",
+                winModes: [
+                    "<strong>Standard Mode (Default)</strong>: Launches in 1 second as standard user with zero UAC or password prompts. Enables remote connection, screen control, and clipboard transfer.",
+                    "<strong>Administrator Mode (`⚡ Admin Mode`)</strong>: Includes an in-app button to restart with UAC elevation when controlling elevated windows (`netplwiz`, `cmd/powershell as admin`, Task Manager) is required.",
+                    "<strong>Background Service (In Development)</strong>: Upcoming integration of an optional Windows Service (`services.msc`) for system-level unattended support like AnyDesk/TeamViewer."
                 ],
-                h2OnPrem: "On-Premise Deployment Guide (Private Server)",
-                pOnPremDesc: "For corporate environments and IT departments requiring isolated remote management within a private network (VPN or Local LAN) using the deployment wizard `setup-nginx-ssl.sh`:",
-                h3Req: "1. Server Requirements",
-                reqList: [
-                    "<strong>Operating System</strong>: Linux (Ubuntu Server 20.04/22.04 LTS or Debian).",
-                    "<strong>Runtime Environment</strong>: Node.js v16.0.0 or higher.",
-                    "<strong>Web Server & SSL</strong>: Nginx and Certbot (installed automatically by wizard).",
-                    "<strong>Open Ports</strong>: HTTP Port 80, HTTPS Port 443, and TCP Relay Port 8443."
+                h2Linux: "2. Linux Architecture & Development Status",
+                pLinuxDesc: "The Linux client architecture is under <strong>active development</strong> within the open-source platform:",
+                linuxSpecs: [
+                    "<strong>Desktop Environments (DE)</strong>: Direct graphical connection for distributions running X11 / Wayland (GNOME, KDE, XFCE).",
+                    "<strong>Headless / Non-DE Sessions (TTY)</strong>: For headless servers or non-graphical terminals, Connecting embeds native TTY/SSH console emulation streaming binary packets (`0x07`)."
                 ],
-                h3Script: "2. Automated Configuration with setup-nginx-ssl.sh",
-                pScriptDesc: "Run the Dual setup wizard (Landing Web + Relay WebSocket Proxy):",
-                scriptPrompt: "The script will interactively or automatically prompt for:",
-                scriptList: [
-                    "<strong>Domain or Subdomain</strong>: Public or internal server address (e.g., `your-domain.com`).",
-                    "<strong>Web Root Directory</strong>: Location of Landing Page files (`/var/www/your-domain.com`).",
-                    "<strong>Internal Relay Port</strong>: TCP communication port (`8443`)."
+                h2Build: "3. Repository Build Structure (`build/`) and Compilation",
+                pBuildDesc: "Generic open source files to build custom binaries or deploy private servers are located under the root `build/` folder in the official GitHub repository:",
+                h3Compile: "Compiling your private Windows binary:",
+                pCompileDesc: "To point the client to your custom domain or private Relay server, update `RelayServerDomain` in `ConnectingApp.cs` and compile:",
+                h2Security: "4. Private Relay Server & Security Handshake",
+                pSecurityDesc: "Connecting runs over a private relay server (e.g. `your-domain.com`), but can be configured for internal enterprise use. The Relay server acts <strong>strictly as a connection broker</strong> and does not store or decrypt session payload data.",
+                h3Cert: "Certificate Validation & Handshake:",
+                certSpecs: [
+                    "<strong>Server CA Handshake</strong>: Upon connection, the client sends validated credentials verified against the server CA. Only after completing `CONNECT:ID:TARGET:PSK` validation does the server register the node as ready.",
+                    "<strong>Rotation & Persistence</strong>: Nodes generate and rotate unique 9-digit IDs and secure PSK keys, supporting both unattended persistent access and temporary single-use sessions.",
+                    "<strong>Server Isolation</strong>: Server infrastructure remains undisclosed to remote peers, shielding real IP addresses of both endpoints."
                 ],
-                pCertDesc: "The script automatically generates the Dual Nginx server block under `/etc/nginx/sites-available/` and issues the SSL certificate via Certbot (Let's Encrypt):",
-                h3Relay: "3. Running the Relay Server",
-                pRelayDesc: "Start the Node.js TCP socket server inside the `connecting-relay-server` folder:",
-                h3Errors: "4. Troubleshooting & Common Diagnostics",
-                errList: [
-                    "<strong>Nginx Syntax Error</strong>: Test configuration syntax by running `sudo nginx -t`.",
-                    "<strong>Port 8443 Busy or Blocked</strong>: Check if the port is listening by running `ss -tlnp | grep 8443` or `netstat -tlpn`.",
-                    "<strong>SSL Certificate Renewal</strong>: Test Certbot auto-renewal by running `sudo certbot renew --dry-run`.",
-                    "<strong>Web File Permissions</strong>: Secure web directory ownership by running `sudo chown -R www-data:www-data /var/www/connecting.abrdns.com`."
+                h2SignPath: "5. Open Source Standards & SignPath Foundation Compliance",
+                pSignPathDesc: "To comply with standards set by the <strong>Free Software Foundation (FSF)</strong> and <strong>SignPath Foundation</strong> open-source signing certification for GitHub projects:",
+                signPathSpecs: [
+                    "<strong>Clear Open Source License</strong>: All source code under `build/` is distributed under permissive open licenses without commercial fees or restrictions.",
+                    "<strong>Authenticode Digital Signature</strong>: Official release binaries are digitally signed with SHA256 certificates to verify application integrity."
                 ],
-                h2Manual: "Portable Client User Manual (.EXE)",
-                h3Conn: "1. Unattended Access & Persistent PSK Key",
-                pConnDesc: "To connect automatically without manual confirmation on target host:",
-                pskSteps: [
-                    "Open <strong>Connecting.exe</strong> on the remote workstation.",
-                    "Navigate to <strong>Settings & Security</strong> tab.",
-                    "Enable <em>'Allow Unattended Access with PSK Key'</em>.",
-                    "Set your password under <em>'Custom Unattended Access Key'</em>.",
-                    "This password is automatically saved in `%APPDATA%\\ConnectingNodes\\custom_psk.dat`."
-                ],
-                h3Psk: "2. Automatic Hostname & Custom Aliases",
-                pAliasDesc: "When connecting to a remote device, Connecting automatically retrieves its system machine name (e.g., DESKTOP-FINANCE). On the main dashboard, each history card allows assigning a custom friendly alias like john-admin.",
-                h3Shortcuts: "3. Keyboard Shortcuts & Native Control",
-                pShortcuts: "From the top menu <strong>\"Shortcuts & Actions\"</strong> during a remote session, you can send direct system key combinations like Win+R, Win+E, Ctrl+Alt+Del, and Ctrl+Shift+Esc.",
-                h2Smartscreen: "Code Signing & Windows SmartScreen Warning",
-                smartscreenCallout: "<strong>Notice regarding Connecting.exe digital signature and security:</strong><br>Every build of <strong>Connecting.exe</strong> embeds an UAC application manifest (`Connecting.manifest`) declaring `asInvoker` level and an Authenticode digital signature with DigiCert SHA256 timestamping via `generate-certs.ps1` for execution traceability in On-Premise corporate deployments.<br><br>Commercial verification via public certificate through <strong>SignPath Foundation</strong> is currently pending approval for open source distribution on GitHub.<br><br>If <strong>Windows SmartScreen</strong> displays a warning prompt stating <em>'Unknown Publisher'</em> or <em>'Windows protected your PC'</em>, click <u>'More info'</u> and press <u>'Run anyway'</u>. The application is 100% portable, secure, and makes no registry modifications.",
-                h2Scope: "Capabilities & Scope of this Release (v1.0.1)",
-                h3Allows: "Supported in this release:",
-                allowsList: [
-                    "Smooth real-time remote control with high-definition frame streaming.",
-                    "Real-time bidirectional text clipboard between local and remote.",
-                    "Live interactive messaging chat in sidebar.",
-                    "Persistent unattended access protected with a unique PSK password.",
-                    "Native keyboard isolation preventing local machine interference.",
-                    "Floating host session widget to monitor and terminate sessions in 1 click.",
-                    "Instant secure disconnect upon closing window or ending support."
-                ],
-                h3Disallows: "Not supported in this release:",
-                disallowsList: [
-                    "Real-time remote audio streaming (exclusive focus on high-speed graphics and text).",
-                    "Massive drag-and-drop file transfer.",
-                    "Multi-monitor tab switching inside a single window (multiple independent executable instances can be opened)."
-                ],
-                h2Contact: "Contact & Official Technical Support",
-                pContact1: "The official project source code is hosted on GitHub: <a href=\"https://github.com/jh4n3r/connecting\" target=\"_blank\" style=\"color:var(--cyan-dark); font-weight:700;\">https://github.com/jh4n3r/connecting</a>.",
-                pContact2: "For more details on licensing and compliance, visit our <a href=\"terms.html\" style=\"color:var(--cyan-dark); font-weight:700;\">Legal Terms of Service</a>.",
-                codeBlock1: "# 1. Grant execution permissions to the wizard script\nchmod +x setup-nginx-ssl.sh\n\n# 2. Run the wizard as superuser (root / sudo)\nsudo ./setup-nginx-ssl.sh",
-                codeBlock2: "# Automatically generated Nginx server block:\nserver {\n    listen 80;\n    server_name your-domain.com;\n    root /var/www/your-domain.com;\n    index index.html;\n\n    location / {\n        try_files $uri $uri/ =404;\n    }\n\n    location /ws {\n        proxy_pass http://127.0.0.1:8443;\n        proxy_http_version 1.1;\n        proxy_set_header Upgrade $http_upgrade;\n        proxy_set_header Connection 'upgrade';\n        proxy_set_header Host $host;\n        proxy_read_timeout 86400s;\n        proxy_send_timeout 86400s;\n    }\n}",
-                codeBlock3: "# Start Relay server in background\ncd connecting-relay-server\nnohup node server.js > relay.log 2>&1 &",
+                h2Contact: "6. Technical Support & Official Repository",
+                pContactDesc: "Review full source code, report issues, or contribute on GitHub: <a href=\"https://github.com/jh4n3r/connecting\" target=\"_blank\" style=\"color:var(--cyan-dark); font-weight:700;\">https://github.com/jh4n3r/connecting</a>.",
+                pTermsLink: "For complete legal usage details, check out our <a href=\"../terms\" style=\"color:var(--cyan-dark); font-weight:700;\">License & Service Terms</a>.",
                 footerCopy: "&copy; 2026 Connecting Remote Desktop • Developed by <strong>@jh4n3r</strong>"
             }
         };
 
         function getInitialLanguage() {
             const saved = localStorage.getItem('connecting_lang');
-            if (saved) return saved;
-
-            const userLang = (navigator.language || navigator.userLanguage || 'es').toLowerCase();
-            return userLang.startsWith('es') ? 'es' : 'en';
+            if (saved && (saved === 'es' || saved === 'en')) return saved;
+            const navLang = (navigator.language || navigator.userLanguage || 'es').toLowerCase();
+            return navLang.startsWith('es') ? 'es' : 'en';
         }
 
         function changeLanguage(lang) {
             localStorage.setItem('connecting_lang', lang);
-            const selector = document.getElementById('langSelector');
-            if (selector) selector.value = lang;
-            const t = docsTranslations[lang] || docsTranslations.es;
+            document.getElementById('langSelector').value = lang;
+            const t = docsTranslations[lang] || docsTranslations['es'];
 
-            if (document.getElementById('nav-home')) document.getElementById('nav-home').innerText = t.home;
-            if (document.getElementById('nav-terms')) document.getElementById('nav-terms').innerText = t.terms;
-            if (document.getElementById('doc-title')) document.getElementById('doc-title').innerText = t.docTitle;
-            if (document.getElementById('doc-desc')) document.getElementById('doc-desc').innerHTML = t.docDesc;
+            document.getElementById('nav-home').innerText = t.home;
+            document.getElementById('nav-terms').innerText = t.terms;
 
-            // Sidebar Headers
-            const sbHeaders = document.querySelectorAll('.docs-sidebar h4');
-            if (sbHeaders.length >= 5) {
-                sbHeaders[0].innerText = t.sbHeader1;
-                sbHeaders[1].innerText = t.sbHeader2;
-                sbHeaders[2].innerText = t.sbHeader3;
-                sbHeaders[3].innerText = t.sbHeader4;
-                sbHeaders[4].innerText = t.sbHeader5;
-            }
+            document.getElementById('sb-h1').innerText = t.sbH1;
+            document.getElementById('sb-i1-1').innerText = t.sbI1_1;
+            document.getElementById('sb-i1-2').innerText = t.sbI1_2;
+            document.getElementById('sb-i1-3').innerText = t.sbI1_3;
+            document.getElementById('sb-h2').innerText = t.sbH2;
+            document.getElementById('sb-i2-1').innerText = t.sbI2_1;
+            document.getElementById('sb-i2-2').innerText = t.sbI2_2;
+            document.getElementById('sb-i2-3').innerText = t.sbI2_3;
+            document.getElementById('sb-h3').innerText = t.sbH3;
+            document.getElementById('sb-i3-1').innerText = t.sbI3_1;
+            document.getElementById('sb-i3-2').innerText = t.sbI3_2;
+            document.getElementById('sb-i3-3').innerText = t.sbI3_3;
+            document.getElementById('sb-h4').innerText = t.sbH4;
+            document.getElementById('sb-i4-1').innerText = t.sbI4_1;
 
-            // Sidebar Links
-            const sbLinks = document.querySelectorAll('.docs-sidebar a');
-            if (sbLinks.length >= 12) {
-                sbLinks[0].innerText = t.sbItem1_1;
-                sbLinks[1].innerText = t.sbItem1_2;
-                sbLinks[2].innerText = t.sbItem2_1;
-                sbLinks[3].innerText = t.sbItem2_2;
-                sbLinks[4].innerText = t.sbItem2_3;
-                sbLinks[5].innerText = t.sbItem2_4;
-                sbLinks[6].innerText = t.sbItem3_1;
-                sbLinks[7].innerText = t.sbItem3_2;
-                sbLinks[8].innerText = t.sbItem3_3;
-                sbLinks[9].innerText = t.sbItem3_4;
-                sbLinks[10].innerText = t.sbItem4_1;
-                sbLinks[11].innerText = t.sbItem4_2;
-            }
+            document.getElementById('doc-title').innerText = t.docTitle;
+            document.getElementById('doc-desc').innerText = t.docDesc;
+            document.getElementById('callout-main').innerHTML = t.calloutMain;
 
-            // Callouts
-            const callouts = document.querySelectorAll('.callout-info');
-            if (callouts.length >= 2) {
-                callouts[0].innerHTML = t.calloutEnterprise;
-                callouts[1].innerHTML = t.smartscreenCallout;
-            }
+            document.getElementById('introduccion').innerText = t.h2Win;
+            document.getElementById('p-win-desc').innerHTML = t.pWinDesc;
+            document.getElementById('h3-win-mode').innerText = t.h3WinMode;
+            document.getElementById('ul-win-modes').innerHTML = t.winModes.map(m => `<li>${m}</li>`).join('');
 
-            // Headings H2 & H3
-            const h2s = document.querySelectorAll('.docs-content h2');
-            if (h2s.length >= 6) {
-                h2s[0].innerText = t.h2Tech;
-                h2s[1].innerText = t.h2OnPrem;
-                h2s[2].innerText = t.h2Manual;
-                h2s[3].innerText = t.h2Smartscreen;
-                h2s[4].innerText = t.h2Scope;
-                h2s[5].innerText = t.h2Contact;
-            }
+            document.getElementById('estado-linux').innerText = t.h2Linux;
+            document.getElementById('p-linux-desc').innerHTML = t.pLinuxDesc;
+            document.getElementById('ul-linux-specs').innerHTML = t.linuxSpecs.map(s => `<li>${s}</li>`).join('');
 
-            const h3s = document.querySelectorAll('.docs-content h3');
-            if (h3s.length >= 9) {
-                h3s[0].innerText = t.h3Req;
-                h3s[1].innerText = t.h3Script;
-                h3s[2].innerText = t.h3Relay;
-                h3s[3].innerText = t.h3Errors;
-                h3s[4].innerText = t.h3Conn;
-                h3s[5].innerText = t.h3Psk;
-                h3s[6].innerText = t.h3Shortcuts;
-                h3s[7].innerText = t.h3Allows;
-                h3s[8].innerText = t.h3Disallows;
-            }
+            document.getElementById('archivos-build').innerText = t.h2Build;
+            document.getElementById('p-build-desc').innerText = t.pBuildDesc;
+            document.getElementById('compilacion-personalizada').innerText = t.h3Compile;
+            document.getElementById('p-compile-desc').innerText = t.pCompileDesc;
 
-            // Paragraphs
-            if (document.getElementById('p-tech-desc')) document.getElementById('p-tech-desc').innerText = t.pTechDesc;
-            if (document.getElementById('p-onprem-desc')) document.getElementById('p-onprem-desc').innerText = t.pOnPremDesc;
-            if (document.getElementById('p-script-desc')) document.getElementById('p-script-desc').innerText = t.pScriptDesc;
-            if (document.getElementById('p-script-prompt')) document.getElementById('p-script-prompt').innerText = t.scriptPrompt;
-            if (document.getElementById('p-cert-desc')) document.getElementById('p-cert-desc').innerText = t.pCertDesc;
-            if (document.getElementById('p-relay-desc')) document.getElementById('p-relay-desc').innerText = t.pRelayDesc;
-            if (document.getElementById('p-conn-desc')) document.getElementById('p-conn-desc').innerText = t.pConnDesc;
-            if (document.getElementById('p-alias-desc')) document.getElementById('p-alias-desc').innerText = t.pAliasDesc;
-            if (document.getElementById('p-shortcuts')) document.getElementById('p-shortcuts').innerHTML = t.pShortcuts;
-            if (document.getElementById('p-contact1')) document.getElementById('p-contact1').innerHTML = t.pContact1;
-            if (document.getElementById('p-contact2')) document.getElementById('p-contact2').innerHTML = t.pContact2;
+            document.getElementById('servidor-relay').innerText = t.h2Security;
+            document.getElementById('p-security-desc').innerHTML = t.pSecurityDesc;
+            document.getElementById('validacion-certificados').innerText = t.h3Cert;
+            document.getElementById('ul-cert-specs').innerHTML = t.certSpecs.map(c => `<li>${c}</li>`).join('');
 
-            // Lists
-            const lists = document.querySelectorAll('.docs-content ul');
-            if (lists.length >= 6) {
-                if (t.techList) lists[0].innerHTML = t.techList.map(item => `<li>${item}</li>`).join('');
-                if (t.reqList) lists[1].innerHTML = t.reqList.map(item => `<li>${item}</li>`).join('');
-                if (t.scriptList) lists[2].innerHTML = t.scriptList.map(item => `<li>${item}</li>`).join('');
-                if (t.errList) lists[3].innerHTML = t.errList.map(item => `<li>${item}</li>`).join('');
-                if (t.allowsList) lists[4].innerHTML = t.allowsList.map(item => `<li>${item}</li>`).join('');
-                if (t.disallowsList) lists[5].innerHTML = t.disallowsList.map(item => `<li>${item}</li>`).join('');
-            }
+            document.getElementById('licencia-signpath').innerText = t.h2SignPath;
+            document.getElementById('p-signpath-desc').innerHTML = t.pSignPathDesc;
+            document.getElementById('ul-signpath-specs').innerHTML = t.signPathSpecs.map(s => `<li>${s}</li>`).join('');
 
-            const ols = document.querySelectorAll('.docs-content ol');
-            if (ols.length >= 1 && t.pskSteps) {
-                ols[0].innerHTML = t.pskSteps.map(item => `<li>${item}</li>`).join('');
-            }
-
-            // Code blocks
-            if (document.getElementById('code-block-1')) document.getElementById('code-block-1').innerText = t.codeBlock1;
-            if (document.getElementById('code-block-2')) document.getElementById('code-block-2').innerText = t.codeBlock2;
-            if (document.getElementById('code-block-3')) document.getElementById('code-block-3').innerText = t.codeBlock3;
+            document.getElementById('contacto-soporte').innerText = t.h2Contact;
+            document.getElementById('p-contact-desc').innerHTML = t.pContactDesc;
+            document.getElementById('p-terms-link').innerHTML = t.pTermsLink;
 
             const footP = document.querySelector('.footer p');
             if (footP) footP.innerHTML = t.footerCopy;
         }
 
+        // Mobile Hamburger Toggle
         document.addEventListener('DOMContentLoaded', () => {
+            const toggle = document.getElementById('mobileToggle');
+            const menu = document.getElementById('navMenu');
+            if (toggle && menu) {
+                toggle.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    menu.classList.toggle('active');
+                });
+                document.addEventListener('click', (e) => {
+                    if (!menu.contains(e.target) && !toggle.contains(e.target)) {
+                        menu.classList.remove('active');
+                    }
+                });
+            }
             changeLanguage(getInitialLanguage());
         });
     </script>

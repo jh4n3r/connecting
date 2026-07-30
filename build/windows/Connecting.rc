@@ -1,9 +1,12 @@
-// Connecting Remote Desktop - Open Source Win32 VERSIONINFO Resource
+// Connecting Remote Desktop - Native Win32 VERSIONINFO Resource
+// This embeds rich metadata into the PE header of the compiled .exe
+// Antivirus engines score binaries WITHOUT this metadata as suspicious
+
 #include <winver.h>
 
 1 VERSIONINFO
-FILEVERSION     1,0,1,0
-PRODUCTVERSION  1,0,1,0
+FILEVERSION     1,0,2,0
+PRODUCTVERSION  1,0,2,0
 FILEFLAGSMASK   VS_FFI_FILEFLAGSMASK
 FILEFLAGS       0
 FILEOS          VOS__WINDOWS32
@@ -16,12 +19,12 @@ BEGIN
         BEGIN
             VALUE "CompanyName",      "Connecting Open Source Project\0"
             VALUE "FileDescription",  "Connecting Remote Desktop - Encrypted Remote Assistance\0"
-            VALUE "FileVersion",      "1.0.1.0\0"
+            VALUE "FileVersion",      "1.0.2.0\0"
             VALUE "InternalName",     "Connecting\0"
             VALUE "LegalCopyright",   "Copyright (C) 2026 Connecting. Licensed under GNU GPLv3.\0"
             VALUE "OriginalFilename", "Connecting.exe\0"
             VALUE "ProductName",      "Connecting Remote Desktop\0"
-            VALUE "ProductVersion",   "1.0.1.0\0"
+            VALUE "ProductVersion",   "1.0.2.0\0"
         END
     END
     BLOCK "VarFileInfo"
@@ -30,5 +33,8 @@ BEGIN
     END
 END
 
+// Embed application manifest for UAC level declaration
 1 24 "Connecting.manifest"
+
+// Embed application icon
 1 ICON "icon.ico"
