@@ -1,6 +1,6 @@
 using System;
 
-namespace Conecting.Common
+namespace Conecting
 {
     /// <summary>
     /// Application Internationalization and Localization Manager.

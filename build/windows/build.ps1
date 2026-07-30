@@ -65,11 +65,11 @@ Write-Host ""
 Write-Host "[+] Compiling $SourceFile -> $OutputExe ..." -ForegroundColor Yellow
 
 if ($useNativeRes) {
-    & $CscPath /target:winexe /out:$OutputExe /win32res:$ResFile /unsafe `
+    & $CscPath /target:winexe /out:$OutputExe /win32res:$ResFile /unsafe /codepage:65001 `
         /r:System.dll,System.Drawing.dll,System.Windows.Forms.dll `
         $SourceFile
 } else {
-    $cscArgs = @("/target:winexe", "/out:$OutputExe", "/unsafe")
+    $cscArgs = @("/target:winexe", "/out:$OutputExe", "/unsafe", "/codepage:65001")
     
     if (Test-Path $ManifestFile) {
         $cscArgs += "/win32manifest:$ManifestFile"

@@ -9,11 +9,7 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Windows.Forms;
-using Conecting.Common;
-using Conecting.Core;
-using Conecting.Dialogs;
-
-namespace Conecting.UI
+namespace Conecting
 {
     /// <summary>
     /// Main Application Window.
@@ -993,11 +989,31 @@ namespace Conecting.UI
             TextBox txtRelayHost = new TextBox
             {
                 Location = new Point(370, 95),
-                Size = new Size(240, 28),
+                Size = new Size(230, 28),
                 Font = new Font("Segoe UI", 10F),
                 Text = PeerResolver.GetCustomRelayHost()
             };
-            txtRelayHost.TextChanged += (s, e) => { PeerResolver.SaveCustomRelayHost(txtRelayHost.Text); };
+            ModernButton btnSaveRelay = new ModernButton
+            {
+                Text = AppI18n.T("Guardar Servidor", "Save Server"),
+                Location = new Point(610, 92),
+                Size = new Size(140, 32),
+                NormalColor = ColorCyanPrimary,
+                HoverColor = ColorCyanDark,
+                BorderRadius = 6
+            };
+            btnSaveRelay.Click += (s, e) =>
+            {
+                string host = txtRelayHost.Text.Trim();
+                PeerResolver.SaveCustomRelayHost(host);
+                MessageBox.Show(
+                    AppI18n.T("Servidor Relay personalizado guardado correctamente. La aplicación registrará el puesto en la nueva dirección.", "Custom Relay Server saved successfully. The app will register on the new address."),
+                    "Connecting",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Information
+                );
+                StartRelayHostRegistration();
+            };
 
             bool isSvcInstalled = PeerResolver.IsWindowsServiceInstalled("ConnectingService");
             ModernButton btnInstallSvc = new ModernButton
@@ -1067,6 +1083,7 @@ namespace Conecting.UI
             cardService.Controls.Add(cboLang);
             cardService.Controls.Add(lblRelayHostLabel);
             cardService.Controls.Add(txtRelayHost);
+            cardService.Controls.Add(btnSaveRelay);
             cardService.Controls.Add(btnInstallSvc);
 
             panelContentSettings.Controls.Add(cardSec);

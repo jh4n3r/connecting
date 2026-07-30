@@ -1,7 +1,6 @@
 using System;
 using System.Reflection;
 using System.Windows.Forms;
-using Conecting.UI;
 
 [assembly: AssemblyTitle("Connecting Remote Desktop")]
 [assembly: AssemblyDescription("Connecting - Portable & Secure Remote Control Platform")]

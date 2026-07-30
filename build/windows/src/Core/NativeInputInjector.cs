@@ -2,7 +2,7 @@ using System;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 
-namespace Conecting.Core
+namespace Conecting
 {
     /// <summary>
     /// High-Precision Native Win32 Input Injector.

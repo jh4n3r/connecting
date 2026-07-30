@@ -4,10 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
-    <title>Documentación Oficial - Connecting Remote Desktop Enterprise</title>
-    <meta name="description" content="Guía completa de arquitectura, compilación open source, despliegue de servidor Relay TCP privado y manual técnico de Connecting Remote Desktop.">
+    <title>Manual Técnico de Arquitectura &amp; Código Fuente - Connecting Remote Desktop</title>
+    <meta name="description" content="Documentación técnica detallada de la arquitectura interna de Connecting: captura de pantalla GDI, compresión JPEG adaptativa, inyección SendInput, protocolo binario TCP y configuración de servidores Relay.">
     <meta name="robots" content="index, follow">
-    <link rel="canonical" href="https://your-domain.com/docs">
+    <link rel="canonical" href="https://jh4n3r.github.io/connecting/docs">
     
     <link rel="icon" href="../favicon.ico" type="image/x-icon">
     <link rel="stylesheet" href="../styles.css">
@@ -15,9 +15,9 @@
     <style>
         .docs-layout {
             display: grid;
-            grid-template-columns: 260px 1fr;
+            grid-template-columns: 280px 1fr;
             gap: 30px;
-            max-width: 1200px;
+            max-width: 1240px;
             margin: 80px auto 40px;
             padding: 0 16px;
             width: 100%;
@@ -36,12 +36,12 @@
 
         .docs-sidebar h4 {
             font-family: var(--font-heading);
-            font-size: 0.8rem;
+            font-size: 0.82rem;
             text-transform: uppercase;
             letter-spacing: 0.05em;
             color: var(--cyan-dark);
             margin-bottom: 10px;
-            margin-top: 14px;
+            margin-top: 16px;
         }
 
         .docs-sidebar h4:first-child { margin-top: 0; }
@@ -61,7 +61,7 @@
             font-size: 0.85rem;
             font-weight: 500;
             display: block;
-            padding: 4px 6px;
+            padding: 5px 8px;
             border-radius: 4px;
             transition: all 0.2s ease;
         }
@@ -75,7 +75,7 @@
             background: #ffffff;
             border: 1px solid var(--border-color);
             border-radius: 10px;
-            padding: 30px;
+            padding: 36px;
             width: 100%;
             max-width: 100%;
             overflow-x: hidden;
@@ -83,85 +83,114 @@
 
         .docs-content h1 {
             font-family: var(--font-heading);
-            font-size: clamp(1.6rem, 3.5vw, 2.2rem);
+            font-size: clamp(1.8rem, 3.5vw, 2.3rem);
             font-weight: 800;
             color: var(--text-primary);
             margin-bottom: 14px;
             border-bottom: 2px solid var(--cyan-light);
-            padding-bottom: 10px;
+            padding-bottom: 12px;
         }
 
         .docs-content h2 {
             font-family: var(--font-heading);
-            font-size: clamp(1.2rem, 2.5vw, 1.5rem);
+            font-size: clamp(1.3rem, 2.5vw, 1.6rem);
             font-weight: 700;
             color: var(--text-primary);
-            margin-top: 32px;
-            margin-bottom: 14px;
+            margin-top: 36px;
+            margin-bottom: 16px;
+            border-bottom: 1px solid #f1f5f9;
+            padding-bottom: 8px;
         }
 
         .docs-content h3 {
-            font-size: 1.05rem;
+            font-size: 1.1rem;
             font-weight: 700;
             color: var(--cyan-dark);
-            margin-top: 22px;
-            margin-bottom: 8px;
+            margin-top: 24px;
+            margin-bottom: 10px;
         }
 
         .docs-content p {
             color: var(--text-muted);
             margin-bottom: 14px;
-            font-size: 0.92rem;
-            line-height: 1.6;
+            font-size: 0.95rem;
+            line-height: 1.65;
         }
 
         .docs-content ul, .docs-content ol {
-            margin-bottom: 16px;
-            padding-left: 20px;
+            margin-bottom: 18px;
+            padding-left: 22px;
             color: var(--text-muted);
-            font-size: 0.92rem;
+            font-size: 0.94rem;
         }
 
         .docs-content li {
-            margin-bottom: 6px;
-            line-height: 1.5;
+            margin-bottom: 8px;
+            line-height: 1.55;
         }
 
         .code-block {
             background: #0f172a;
             color: #38bdf8;
-            padding: 14px 16px;
+            padding: 16px 18px;
             border-radius: 8px;
             font-family: 'Consolas', 'Courier New', monospace;
-            font-size: 0.85rem;
+            font-size: 0.88rem;
             overflow-x: auto;
-            margin-bottom: 16px;
+            margin-bottom: 18px;
             border: 1px solid #1e293b;
             white-space: pre-wrap;
             word-break: break-word;
-            max-width: 100%;
+            line-height: 1.45;
         }
 
         .callout-info {
             background: var(--cyan-light);
             border-left: 4px solid var(--cyan-primary);
-            padding: 14px 16px;
+            padding: 16px 18px;
             border-radius: 0 8px 8px 0;
-            margin-bottom: 20px;
+            margin-bottom: 22px;
             color: var(--cyan-dark);
-            font-size: 0.9rem;
+            font-size: 0.92rem;
             line-height: 1.6;
         }
 
-        .badge-tech {
-            display: inline-block;
-            background: var(--cyan-light);
-            color: var(--cyan-dark);
+        .tech-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 24px;
+            font-size: 0.9rem;
+        }
+
+        .tech-table th, .tech-table td {
+            border: 1px solid var(--border-color);
+            padding: 10px 14px;
+            text-align: left;
+        }
+
+        .tech-table th {
+            background: #f8fafc;
+            color: var(--text-primary);
             font-weight: 700;
-            font-size: 0.78rem;
-            padding: 2px 8px;
-            border-radius: 4px;
-            margin-right: 6px;
+        }
+
+        .img-container {
+            text-align: center;
+            margin: 28px 0;
+        }
+
+        .img-container img {
+            max-width: 100%;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+        }
+
+        .img-caption {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-top: 8px;
+            font-style: italic;
         }
 
         @media (max-width: 768px) {
@@ -177,7 +206,7 @@
                 margin-bottom: 16px;
             }
             .docs-content {
-                padding: 16px;
+                padding: 20px;
             }
         }
     </style>
@@ -214,148 +243,292 @@
     <div class="docs-layout">
         <!-- SIDEBAR NAVIGATION -->
         <aside class="docs-sidebar">
-            <h4 id="sb-h1">Visión General</h4>
+            <h4 id="sb-h1">Arquitectura &amp; Código</h4>
             <ul>
-                <li><a href="#introduccion" id="sb-i1-1">Arquitectura y Principios</a></li>
-                <li><a href="#ejecucion-windows" id="sb-i1-2">Ejecución en Windows</a></li>
-                <li><a href="#estado-linux" id="sb-i1-3">Estado de Linux (DE vs TTY)</a></li>
+                <li><a href="#estructura-codigo">Estructura Modular del Proyecto</a></li>
+                <li><a href="#captura-pantalla">Procesamiento de Imagen GDI &amp; JPEG</a></li>
+                <li><a href="#inyeccion-entrada">Inyección de Entrada SendInput</a></li>
             </ul>
 
-            <h4 id="sb-h2">Estructura & Build</h4>
+            <h4 id="sb-h2">Red &amp; Protocolos</h4>
             <ul>
-                <li><a href="#archivos-build" id="sb-i2-1">Archivos Genéricos (build/)</a></li>
-                <li><a href="#compilacion-personalizada" id="sb-i2-2">Compilando tu Ejecutable</a></li>
-                <li><a href="#servidor-relay" id="sb-i2-3">Servidor Relay Privado</a></li>
+                <li><a href="#protocolo-paquetes">Protocolo Binario TCP (Framing)</a></li>
+                <li><a href="#configuracion-relay">Configuración del Servidor Relay</a></li>
+                <li><a href="#autenticacion-psk">Mapeo de Claves PSK &amp; IDs</a></li>
             </ul>
 
-            <h4 id="sb-h3">Seguridad & Protocolo</h4>
+            <h4 id="sb-h3">Elevación &amp; Servicios</h4>
             <ul>
-                <li><a href="#validacion-certificados" id="sb-i3-1">Validación de Certificados</a></li>
-                <li><a href="#privacidad-relay" id="sb-i3-2">Relay como Broker Seguro</a></li>
-                <li><a href="#licencia-signpath" id="sb-i3-3">Estándar FSF & SignPath</a></li>
+                <li><a href="#elevacion-uac">Elevación UAC &amp; Reiniciar como Admin</a></li>
+                <li><a href="#servicio-windows">Servicio de Windows ConnectingService</a></li>
+                <li><a href="#licencia-signpath">Certificación SignPath Foundation</a></li>
             </ul>
 
-            <h4 id="sb-h4">Contacto y Soporte</h4>
+            <h4 id="sb-h4">Compilador &amp; Build</h4>
             <ul>
-                <li><a href="#contacto-soporte" id="sb-i4-1">Soporte Técnico</a></li>
+                <li><a href="#guia-compilacion">Instrucciones de Compilación C#</a></li>
             </ul>
         </aside>
 
         <!-- MAIN DOCUMENTATION CONTENT -->
         <main class="docs-content">
-            <h1 id="doc-title">Documentación Técnica Oficial - Connecting</h1>
-            <p id="doc-desc">Connecting Remote Desktop es una solución open-source portátil, cifrada y liviana de control y asistencia remota en tiempo real diseñada para Windows y Linux con servidor de relevo de sockets TCP en Node.js.</p>
+            <h1 id="doc-title">Manual Técnico Oficial de Arquitectura — Connecting</h1>
+            <p id="doc-desc">Documentación técnica exhaustiva del funcionamiento interno de Connecting Remote Desktop: flujo de captura gráfica GDI, compresión JPEG adaptativa, inyección de eventos Win32, protocolo binario sobre sockets TCP y estructura modular C#.</p>
 
             <div class="callout-info" id="callout-main">
-                <strong>Modo Privado &amp; Enterprise:</strong> Connecting permite configurar tu propio servidor de relevo (Relay) privado dentro de tu infraestructura o red local, garantizando privacidad total y aislamiento de datos sin exponer IP ni nombres de servidores públicos.
+                <strong>Diseño Open Source &amp; Aislamiento de Privacidad:</strong> El código alojado en el repositorio público `build/windows/` está estructurado de forma genérica para permitir la compilación limpia y el despliegue privado en cualquier servidor o red corporativa sin dependencia de infraestructura de terceros.
             </div>
 
-            <!-- ARQUITECTURA Y EJECUCIÓN WINDOWS -->
-            <h2 id="introduccion">1. Arquitectura de Transmisión y Ejecución en Windows</h2>
-            <p id="p-win-desc">Para garantizar una compatibilidad perfecta en entornos de Directorio Activo (AD) y prevenir bloqueos de antivirus (Windows Defender, Chrome SmartScreen), la aplicación se ejecuta <strong>sin auto-escalamiento inicial (`asInvoker`)</strong> por defecto en modo portátil.</p>
+            <!-- 1. ESTRUCTURA MODULAR DEL PROYECTO -->
+            <h2 id="estructura-codigo">1. Estructura Modular del Código Fuente C#</h2>
+            <p>La aplicación está estructurada en módulos desacoplados dentro del directorio <code>src/</code> para facilitar el mantenimiento y la compilación nativa en cualquier entorno Windows sin requerir dependencias pesadas ni instaladores externos:</p>
 
-            <div style="text-align: center; margin: 24px 0;">
-                <img src="../app_preview.png" alt="Interfaz Principal Connecting" style="max-width: 100%; border-radius: 8px; border: 1px solid var(--border-color); box-shadow: 0 4px 12px rgba(0,0,0,0.08);" />
-                <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 6px;"><em>Figura 1: Interfaz Principal de Connecting mostrando ID permanente, Clave PSK y Conexión Directa.</em></p>
+            <table class="tech-table">
+                <thead>
+                    <tr>
+                        <th>Archivo Fuente</th>
+                        <th>Namespace / Clase</th>
+                        <th>Responsabilidad Principal</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>src/Common/PeerResolver.cs</code></td>
+                        <td><code>Conecting.Common.PeerResolver</code></td>
+                        <td>Generación de ID permanente de 9 dígitos, gestión de clave PSK, persistencia de idioma, registro HKLM del Servicio de Windows y configuración del dominio/IP del Servidor Relay.</td>
+                    </tr>
+                    <tr>
+                        <td><code>src/Common/PacketProtocol.cs</code></td>
+                        <td><code>Conecting.Common.PacketProtocol</code></td>
+                        <td>Protocolo binario de enmarcado TCP: serialización y deserialización de payloads con cabecera de 1 byte de comando y 4 bytes de longitud.</td>
+                    </tr>
+                    <tr>
+                        <td><code>src/Common/AppI18n.cs</code></td>
+                        <td><code>Conecting.Common.AppI18n</code></td>
+                        <td>Motor de internacionalización dinámico bidireccional (Español / Inglés).</td>
+                    </tr>
+                    <tr>
+                        <td><code>src/Core/DesktopCapturer.cs</code></td>
+                        <td><code>Conecting.Core.DesktopCapturer</code></td>
+                        <td>Captura de pantalla de alta velocidad mediante Win32 GDI, conmutación dinámica de escritorio de entrada (Desktop switch) y compresión JPEG adaptativa en memoria.</td>
+                    </tr>
+                    <tr>
+                        <td><code>src/Core/NativeInputInjector.cs</code></td>
+                        <td><code>Conecting.Core.NativeInputInjector</code></td>
+                        <td>Inyección directa de eventos de ratón y teclado en el sistema operativo remoto utilizando la API nativa `SendInput` de Win32.</td>
+                    </tr>
+                    <tr>
+                        <td><code>src/Core/ConnectionHistory.cs</code></td>
+                        <td><code>Conecting.Core.ConnectionHistory</code></td>
+                        <td>Persistencia del historial de conexiones recientes, nombres de equipos y alias de usuario en formato JSON/DAT.</td>
+                    </tr>
+                    <tr>
+                        <td><code>src/UI/MainForm.cs</code></td>
+                        <td><code>Conecting.UI.MainForm</code></td>
+                        <td>Ventana principal de la aplicación, panel de control, configuración global, gestión del servidor Relay y bucle de registro de host.</td>
+                    </tr>
+                    <tr>
+                        <td><code>src/UI/RemoteSessionView.cs</code></td>
+                        <td><code>Conecting.UI.RemoteSessionView</code></td>
+                        <td>Visor de la sesión remota en vivo: renderizado de vídeo a 60 FPS, escalado gráfico, captura de eventos de entrada y control de calidad adaptativa (90L, 75L, 60L).</td>
+                    </tr>
+                    <tr>
+                        <td><code>src/UI/SessionTabControl.cs</code></td>
+                        <td><code>Conecting.UI.SessionTabControl</code></td>
+                        <td>Sistema de navegación multi-sesión por pestañas dinámicas estilo AnyDesk.</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="img-container">
+                <img src="../app_preview.png" alt="Interfaz Principal de Connecting" />
+                <div class="img-caption">Figura 1: Interfaz gráfica principal de Connecting renderizando el ID de acceso de 9 dígitos y la clave PSK.</div>
             </div>
-            
-            <h3 id="h3-win-mode">Modelo de Ejecución y Elevación UAC:</h3>
-            <ul id="ul-win-modes">
-                <li><strong>Modo Estándar (Por Defecto)</strong>: Se ejecuta en 1 segundo como usuario portátil sin solicitar contraseñas ni diálogos UAC. Permite conexión remota, soporte gráfico y transferencia de texto.</li>
-                <li><strong>Modo Administrador (`Reiniciar como Admin`)</strong>: La aplicación incluye un botón dedicado junto al ingreso de clave PSK para reiniciar con elevación UAC voluntaria cuando se requiere controlar aplicaciones administrativas (`cmd/powershell as admin`, Administrador de Tareas, instaladores).</li>
+
+            <!-- 2. PROCESAMIENTO DE IMAGEN GDI & JPEG -->
+            <h2 id="captura-pantalla">2. Procesamiento de Imagen GDI &amp; Compresión JPEG Adaptativa</h2>
+            <p>El motor de transmisión de vídeo en tiempo real se implementa en <code>src/Core/DesktopCapturer.cs</code> mediante la captura directa de la memoria de pantalla (Device Context) de Windows:</p>
+
+            <h3>Algoritmo de Captura &amp; Encodificación:</h3>
+            <ol>
+                <li><strong>Obtención del Contexto de Pantalla (GDI DC)</strong>: Mediante <code>Graphics.FromHdc</code> o <code>CopyFromScreen</code>, se extrae el marco actual del monitor primario utilizando las dimensiones del área de trabajo.</li>
+                <li><strong>Recreación de Bitmaps en Memoria</strong>: Para minimizar el uso de Garbage Collection (GC) de .NET, el objeto <code>Bitmap</code> en memoria se reutiliza de forma continua. Si las dimensiones de la pantalla cambian, el contexto gráfico se libera y se vuelve a instanciar automáticamente.</li>
+                <li><strong>Compresión JPEG con Calidad Adaptativa</strong>: La imagen capturada se comprime en memoria usando el códec nativo de Windows (<code>System.Drawing.Imaging.Encoder.Quality</code>) y se convierte en un arreglo de bytes JPEG.</li>
+            </ol>
+
+            <div class="code-block">
+// Fragmento de configuración de calidad JPEG en DesktopCapturer.cs
+EncoderParameters encoderParams = new EncoderParameters(1);
+encoderParams.Param[0] = new EncoderParameter(System.Drawing.Imaging.Encoder.Quality, qualityLevel); // 90L, 75L, o 60L
+ImageCodecInfo jpegCodec = GetEncoder(ImageFormat.Jpeg);
+MemoryStream ms = new MemoryStream();
+_captureBitmap.Save(ms, jpegCodec, encoderParams);
+return ms.ToArray();
+            </div>
+
+            <h3>Niveles de Calidad de Transmisión:</h3>
+            <ul>
+                <li><strong>Mejor Aspecto (High Quality - 90L)</strong>: Calidad de imagen superior para lectura de código o trabajo de precisión gráfica. Consume mayor ancho de banda.</li>
+                <li><strong>Balanceado (Balanced - 75L - Por Defecto)</strong>: Equilibrio óptimo entre nitidez de imagen y uso reducido de red (transmisión fluida a 60 FPS).</li>
+                <li><strong>Rápida (Fast / Low Latency - 60L)</strong>: Máxima velocidad de fotogramas para conexiones con ancho de banda limitado o alta latencia de red.</li>
             </ul>
 
-            <div style="text-align: center; margin: 24px 0;">
-                <img src="../admin_access.png" alt="Reiniciar como Admin" style="max-width: 100%; border-radius: 8px; border: 1px solid var(--border-color); box-shadow: 0 4px 12px rgba(0,0,0,0.08);" />
-                <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 6px;"><em>Figura 2: Ubicación del botón de Elevación UAC Voluntaria "Reiniciar como Admin".</em></p>
+            <div class="img-container">
+                <img src="../app_preview3.png" alt="Transmisión HD a Pantalla Completa" />
+                <div class="img-caption">Figura 2: Sesión remota activa a pantalla completa con ajuste adaptativo de resolución y 60 FPS.</div>
             </div>
 
-            <ul id="ul-win-features">
-                <li><strong>Inyección Win32 `SendInput`</strong>: Motor de inyección de ratón y teclado mediante `SendInput` oficial de Win32, garantizando control 100% granular sobre diálogos UAC y consolas administrativas.</li>
-                <li><strong>Multiventana por Pestañas (Estilo AnyDesk)</strong>: Soporte para múltiples sesiones remotas simultáneas dentro de una misma ventana mediante pestañas dinámicas y un botón `[+]`. Al cerrar una pestaña solo se finaliza esa sesión, manteniendo el cliente principal abierto.</li>
-            </ul>
+            <!-- 3. INYECCIÓN NATIVA DE ENTRADA SENDINPUT -->
+            <h2 id="inyeccion-entrada">3. Inyección Nativa de Entrada Win32 (`SendInput`)</h2>
+            <p>La inyección de eventos de ratón y teclado se realiza en <code>src/Core/NativeInputInjector.cs</code> interactuando directamente con el subsistema <code>user32.dll</code> del sistema operativo remoto:</p>
 
-            <div style="text-align: center; margin: 24px 0;">
-                <img src="../app_preview2.png" alt="Navegación por Pestañas Multi-Sesión" style="max-width: 100%; border-radius: 8px; border: 1px solid var(--border-color); box-shadow: 0 4px 12px rgba(0,0,0,0.08);" />
-                <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 6px;"><em>Figura 3: Sistema de Navegación Multi-Sesión por Pestañas Estilo AnyDesk.</em></p>
+            <h3>Mapeo y Normalización de Coordenadas:</h3>
+            <p>Los clics y movimientos de ratón recibidos en el cliente se transmiten como valores flotantes normalizados entre <code>0.0</code> y <code>1.0</code>. En el host, <code>NativeInputInjector</code> convierte estas coordenadas al espacio absoluto de Win32 (de <code>0</code> a <code>65535</code>):</p>
+
+            <div class="code-block">
+// Conversión de coordenadas de ratón normalizadas a absolutas Win32
+int absoluteX = (int)(normalizedX * 65535.0f);
+int absoluteY = (int)(normalizedY * 65535.0f);
+
+INPUT input = new INPUT();
+input.type = INPUT_MOUSE;
+input.union.mi.dx = absoluteX;
+input.union.mi.dy = absoluteY;
+input.union.mi.dwFlags = MOUSEEVENTF_ABSOLUTE | MOUSEEVENTF_VIRTUALDESK | MOUSEEVENTF_MOVE;
+SendInput(1, ref input, Marshal.SizeOf(typeof(INPUT)));
             </div>
 
-            <div style="text-align: center; margin: 24px 0;">
-                <img src="../app_preview3.png" alt="Sesión Remota a Pantalla Completa HD" style="max-width: 100%; border-radius: 8px; border: 1px solid var(--border-color); box-shadow: 0 4px 12px rgba(0,0,0,0.08);" />
-                <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 6px;"><em>Figura 4: Transmisión Full HD en Pantalla Completa a 60 FPS con Calidad Adaptativa.</em></p>
+            <!-- 4. PROTOCOLO BINARIO TCP -->
+            <h2 id="protocolo-paquetes">4. Protocolo Binario de Enmarcado TCP (Framing)</h2>
+            <p>La comunicación entre cliente, host y servidor de relevo se gestiona en <code>src/Common/PacketProtocol.cs</code> a través de un protocolo binario ligero estructurado de la siguiente forma:</p>
+
+            <div class="code-block">
++--------------------+--------------------------------+--------------------------------+
+|  Tipo (1 Byte)     |  Longitud Payload (4 Bytes)   |  Payload de Datos (N Bytes)   |
++--------------------+--------------------------------+--------------------------------+
             </div>
 
-            <ul id="ul-win-svc">
-                <li><strong>Servicio de Windows (`ConnectingService`)</strong>: Permite la instalación del cliente como Servicio de Windows (`NT AUTHORITY\SYSTEM` en Sesión 0) para asistencia desatendida continua y soporte de reinicio remoto.</li>
-            </ul>
+            <h3>Catálogo de Paquetes de Control:</h3>
+            <table class="tech-table">
+                <thead>
+                    <tr>
+                        <th>Código Hex</th>
+                        <th>Nombre del Paquete</th>
+                        <th>Descripción del Payload</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>0x00</code></td>
+                        <td><code>FRAME_JPEG</code></td>
+                        <td>Arreglo de bytes conteniendo la imagen comprimida en JPEG de la pantalla actual.</td>
+                    </tr>
+                    <tr>
+                        <td><code>0x01</code></td>
+                        <td><code>MOUSE_EVENT</code></td>
+                        <td>Coordenadas flotantes normalizadas (X, Y) y código de acción (Move, Down, Up, RightClick).</td>
+                    </tr>
+                    <tr>
+                        <td><code>0x02</code></td>
+                        <td><code>KEYBOARD_EVENT</code></td>
+                        <td>Código de tecla virtual Win32 (Virtual Key code) y estado de pulsación (KeyDown / KeyUp).</td>
+                    </tr>
+                    <tr>
+                        <td><code>0x03</code></td>
+                        <td><code>CHAT_MESSAGE</code></td>
+                        <td>Cadena de texto en formato UTF-8 conteniendo mensajes del chat de soporte técnico.</td>
+                    </tr>
+                    <tr>
+                        <td><code>0x04</code></td>
+                        <td><code>CLIPBOARD_SYNC</code></td>
+                        <td>Contenido de texto del portapapeles para sincronización bidireccional en tiempo real.</td>
+                    </tr>
+                    <tr>
+                        <td><code>0x05</code></td>
+                        <td><code>QUALITY_CHANGE</code></td>
+                        <td>Instrucción de cambio de calidad JPEG (envía 90, 75 o 60 para actualizar el encoder del host).</td>
+                    </tr>
+                </tbody>
+            </table>
 
-            <div style="text-align: center; margin: 24px 0;">
-                <img src="../service_install.png" alt="Instalación del Servicio de Windows" style="max-width: 100%; border-radius: 8px; border: 1px solid var(--border-color); box-shadow: 0 4px 12px rgba(0,0,0,0.08);" />
-                <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 6px;"><em>Figura 5: Panel de Configuración e Instalación/Desinstalación del Servicio de Asistencia de Windows.</em></p>
+            <!-- 5. CONFIGURACIÓN DEL SERVIDOR RELAY -->
+            <h2 id="configuracion-relay">5. Configuración del Servidor Relay &amp; Claves de Acceso</h2>
+            <p>Para personalizar el dominio o servidor Relay privado al que se conecta el ejecutable, existen dos vías principales:</p>
+
+            <h3>A) Modificación Directa en el Código Fuente C#:</h3>
+            <p>Abre el archivo <code>src/Common/PeerResolver.cs</code> y modifica las siguientes variables estáticas:</p>
+            <div class="code-block">
+// src/Common/PeerResolver.cs (Líneas 23 - 24)
+public static string RelayServerDomain = "tu-servidor-relay.com"; // Modifica por la IP o dominio de tu servidor Relay
+public static int RelayServerPort = 8443;
             </div>
 
-            <!-- ESTADO DE LINUX -->
-            <h2 id="estado-linux">2. Arquitectura y Estado de Linux</h2>
-            <p id="p-linux-desc">La versión cliente de Linux se encuentra en <strong>desarrollo activo</strong> dentro de la plataforma open-source:</p>
-            <ul id="ul-linux-specs">
-                <li><strong>Entornos de Escritorio (DE)</strong>: Conexión gráfica directa para distribuciones con entornos X11 / Wayland (GNOME, KDE, XFCE).</li>
-                <li><strong>Sesiones Sin Escritorio (Headless / TTY)</strong>: Para servidores o terminales sin interfaz gráfica, Connecting integra una emulación de consola nativa tipo TTY/SSH con stream directo de paquetes binarios (`0x07`).</li>
-            </ul>
+            <h3>B) Configuración Dinámica desde la Interfaz Visual (GUI):</h3>
+            <p>Dentro de la aplicación, navega a la pestaña de <strong>Configuración &amp; Seguridad</strong> en la parte inferior. En la sección <strong>Servidor Relay Personalizado (Dominio o IP)</strong>, ingresa la dirección de tu servidor y presiona el botón <strong>Guardar Servidor</strong>. La aplicación persistirá este cambio en <code>%APPDATA%\ConnectingNodes\relayhost.dat</code> y reiniciará el registro de puesto automáticamente.</p>
 
-            <!-- ESTRUCTURA REPOSITORIO DE BUILD -->
-            <h2 id="archivos-build">3. Estructura del Repositorio (`build/`) y Scripts de Automatización</h2>
-            <p id="p-build-desc">Los archivos fuente genéricos libres y scripts de automatización para construir tus propios binarios o desplegar servidores privados se encuentran organizados en la raíz del repositorio oficial en GitHub:</p>
-            
-            <div class="code-block" id="code-build-tree">
-connecting/
-├── build/
-│   ├── windows/
-│   │   ├── src/                   # Estructura modular de archivos C# (Common, Core, Dialogs, UI)
-│   │   ├── ConnectingApp.cs       # Monolítico C# genérico cliente Windows (Sin DNS/IP privada)
-│   │   ├── Connecting.manifest    # Manifiesto UAC y DPI Awareness de Windows
-│   │   ├── Connecting.rc          # Encabezados de versión Win32 VERSIONINFO
-│   │   ├── build.ps1              # Script PowerShell de compilación y firma digital Authenticode
-│   │   ├── combine.ps1            # Script de ensamblado modular src/*.cs -> ConnectingApp.cs
-│   │   └── generate-certs.ps1     # Generador automático de certificados PFX autofirmados
-│   ├── server/
-│   │   └── server.js              # Servidor de relevo TCP en Node.js (Zero-Knowledge Broker)
-│   └── linux/
-│       └── ConnectingApp.cs       # Arquitectura base para cliente Linux
-├── docs/                          # Documentación y sitio web GitHub Pages
-└── README.md
+            <h3>¿Por qué la conexión remota funciona aunque no se configure una clave personalizada?</h3>
+            <p>Connecting genera automáticamente una clave PSK de 6 dígitos aleatorios almacenada en <code>node_psk.dat</code> (mostrada en pantalla como <code>Clave PSK Segura</code>). Si el campo de contraseña personalizada (<code>txtCustomPsk</code> / <code>unattended_psk.dat</code>) se deja vacío, la aplicación utiliza la clave PSK dinámica generada, garantizando acceso desatendido seguro de inmediato.</p>
+
+            <!-- 6. ELEVACIÓN UAC Y SERVICIO DE WINDOWS -->
+            <h2 id="elevacion-uac">6. Elevación UAC &amp; Servicio de Windows (`ConnectingService`)</h2>
+
+            <h3>Modo Portátil e Inicios sin Elevación (`asInvoker`):</h3>
+            <p>Al ejecutarse de forma portátil, Connecting inicia en 1 segundo con privilegios normales de usuario (<code>asInvoker</code>), evitando la necesidad de contraseñas de administrador o confirmaciones UAC al abrir la aplicación.</p>
+
+            <h3>Reinicio con Elevación UAC Voluntaria:</h3>
+            <p>Si el técnico necesita interactuar con ventanas administrativas (tales como el Administrador de Tareas, consolas de comandos o ejecutables de instalación), se utiliza el botón <strong>Reiniciar como Admin</strong> ubicado en la interfaz. Este botón reinicia la aplicación invocando la API de Windows con el verbo de elevación:</p>
+            <div class="code-block">
+ProcessStartInfo psi = new ProcessStartInfo
+{
+    FileName = Application.ExecutablePath,
+    Verb = "runas", // Solicita elevación UAC a Windows
+    UseShellExecute = true
+};
+Process.Start(psi);
+Application.Exit();
             </div>
 
-            <h3 id="compilacion-personalizada">Compilando tu versión privada de Windows:</h3>
-            <p id="p-compile-desc">El código fuente genérico en `build/windows/` incluye una opción integrada en el panel de **Configuración &amp; Seguridad** para especificar un servidor Relay personalizado (vacío por defecto). También puedes compilar directamente especificando el parámetro en `build.ps1`:</p>
-            
-            <div class="code-block" id="code-compile-cmd">
-# Compilación nativa genérica en Windows
+            <div class="img-container">
+                <img src="../admin_access.png" alt="Botón Reiniciar como Admin" />
+                <div class="img-caption">Figura 3: Ubicación del botón "Reiniciar como Admin" para elevación UAC en tiempo de ejecución.</div>
+            </div>
+
+            <h3 id="servicio-windows">Instalación del Servicio de Asistencia de Windows (`ConnectingService`):</h3>
+            <p>Para soporte desatendido continuo en equipos corporativos, la aplicación permite la instalación como Servicio de Windows (ejecutado bajo la cuenta <code>NT AUTHORITY\SYSTEM</code> en Sesión 0). La gestión se realiza directamente desde el panel de Configuración de la app o mediante la consola de comandos:</p>
+
+            <div class="code-block">
+# Instalación manual del Servicio de Windows mediante consola de comandos (cmd as admin)
+sc stop "ConnectingService" 2>nul
+sc delete "ConnectingService" 2>nul
+sc create "ConnectingService" binPath= "C:\Ruta\Connecting.exe --service" start= auto
+sc start "ConnectingService"
+            </div>
+
+            <div class="img-container">
+                <img src="../service_install.png" alt="Instalación del Servicio de Windows" />
+                <div class="img-caption">Figura 4: Panel de Configuración mostrando la opción de instalación/desinstalación del Servicio de Windows.</div>
+            </div>
+
+            <!-- 7. CERTIFICACIÓN SIGNPATH FOUNDATION -->
+            <h2 id="licencia-signpath">7. Solicitud de Certificación SignPath Foundation</h2>
+            <p>Para cumplir con los estándares de la <strong>Free Software Foundation (FSF)</strong> y garantizar la distribución de ejecutables confiables sin alertas de Windows SmartScreen, el proyecto ha iniciado el proceso de solicitud de patrocinio con <strong>SignPath Foundation</strong> para obtener firma digital EV Authenticode de código abierto.</p>
+            <p>La firma Authenticode pública permitirá declarar la bandera <code>uiAccess="true"</code> en el manifiesto de la aplicación, habilitando la captura nativa de la pantalla de seguridad de UAC (<code>Winlogon</code> / SecureDesktop) sin requerir que la aplicación sea instalada previamente en <code>Program Files</code>.</p>
+
+            <!-- 8. INSTRUCCIONES DE COMPILACIÓN -->
+            <h2 id="guia-compilacion">8. Instrucciones de Compilación del Código Fuente</h2>
+            <p>El proyecto incluye scripts en PowerShell para compilar el código fuente modular o monolítico sin necesidad de instalar la suite completa de Visual Studio. Todos los ejecutables se compilan con el parámetro de codepage UTF-8 (<code>-codepage:65001</code>) para preservar la integridad visual de los textos e interfaz gráfica:</p>
+
+            <div class="code-block">
+# 1. Navega al directorio de compilación
+cd build/windows
+
+# 2. Ensambla la estructura modular src/*.cs en ConnectingApp.cs
+powershell -ExecutionPolicy Bypass -File .\combine.ps1
+
+# 3. Compila el ejecutable Connecting.exe y aplica la firma digital local
 powershell -ExecutionPolicy Bypass -File .\build.ps1
             </div>
 
-            <!-- SERVIDOR RELAY Y VALIDACIÓN CERTIFICADOS -->
-            <h2 id="servidor-relay">4. Servidor Relay Privado y Validación de Seguridad</h2>
-            <p id="p-security-desc">El ejecutable pre-compilado se conecta a un nodo oficial de relevo de la comunidad, pero cualquier usuario o empresa puede desplegar su propio servidor Relay en su red local o VPS. El servidor Relay funciona <strong>únicamente como un intermediario (broker de conexión)</strong> y no almacena ni decodifica datos de las sesiones.</p>
-            
-            <h3 id="validacion-certificados">Validación de Certificados &amp; Handshake:</h3>
-            <ul id="ul-cert-specs">
-                <li><strong>Handshake con CA del Servidor</strong>: Al conectar, la app envía credenciales validadas con la CA del servidor Relay. Solo tras validar el handshake `CONNECT:ID:TARGET:PSK`, el servidor registra el ID como listo para recibir tráfico.</li>
-                <li><strong>Rotación &amp; Persistencia</strong>: Los nodos generan y rotan IDs únicos y claves PSK seguras, permitiendo tanto sesiones desatendidas persistentes como conexiones temporales de un solo uso.</li>
-                <li><strong>Aislamiento de Servidor</strong>: La infraestructura interna del servidor no se expone a los clientes remotos, protegiendo las direcciones IP reales de ambos puestos.</li>
-            </ul>
-
-            <!-- ESTÁNDAR FSF Y SIGNPATH -->
-            <h2 id="licencia-signpath">5. Cumplimiento de Estándares Open Source &amp; SignPath Foundation</h2>
-            <p id="p-signpath-desc">Para cumplir con los estándares de la <strong>Free Software Foundation (FSF)</strong> y la certificación de código abierto:</p>
-            <ul id="ul-signpath-specs">
-                <li><strong>Licencia Open Source Clara</strong>: Todo el código fuente en `build/` se distribuye bajo licencias abiertas permisivas sin costos ni limitaciones comerciales.</li>
-                <li><strong>Solicitud de Firma SignPath Foundation (En Proceso)</strong>: El proyecto ha solicitado el patrocinio de firma digital gratuita de <strong>SignPath Foundation</strong> para firmar los binarios oficiales de release con certificados EV Authenticode de código abierto. Esto permitirá activar la bandera `uiAccess="true"` en binarios firmados por una CA pública confiable, logrando el control automático nativo de escritorios de seguridad UAC (`Winlogon` / SecureDesktop) sin requerir instalación previa del Servicio de Windows.</li>
-            </ul>
-
-            <!-- CONTACTO Y SOPORTE -->
-            <h2 id="contacto-soporte">6. Soporte Técnico y Repositorio Oficial</h2>
-            <p id="p-contact-desc">Puedes consultar el código fuente completo, reportar fallas o contribuir al proyecto en GitHub: <a href="https://github.com/jh4n3r/connecting" target="_blank" style="color:var(--cyan-dark); font-weight:700;">https://github.com/jh4n3r/connecting</a>.</p>
-            <p id="p-terms-link">Para más información sobre el uso legal, consulta los <a href="../terms" style="color:var(--cyan-dark); font-weight:700;">Términos de Licencia y Servicio</a>.</p>
         </main>
     </div>
 
@@ -364,206 +537,5 @@ powershell -ExecutionPolicy Bypass -File .\build.ps1
         <p>&copy; 2026 Connecting Remote Desktop • Desarrollado por <strong>@jh4n3r</strong></p>
     </footer>
 
-    <script>
-        const docsTranslations = {
-            es: {
-                home: "Inicio",
-                terms: "Términos Legales",
-                sbH1: "Visión General",
-                sbI1_1: "Arquitectura y Principios",
-                sbI1_2: "Ejecución en Windows",
-                sbI1_3: "Estado de Linux (DE vs TTY)",
-                sbH2: "Estructura & Build",
-                sbI2_1: "Archivos Genéricos (build/)",
-                sbI2_2: "Compilando tu Ejecutable",
-                sbI2_3: "Servidor Relay Privado",
-                sbH3: "Seguridad & Protocolo",
-                sbI3_1: "Validación de Certificados",
-                sbI3_2: "Relay como Broker Seguro",
-                sbI3_3: "Estándar FSF & SignPath",
-                sbH4: "Contacto y Soporte",
-                sbI4_1: "Soporte Técnico",
-                docTitle: "Documentación Técnica Oficial - Connecting",
-                docDesc: "Connecting Remote Desktop es una solución open-source portátil, cifrada y liviana de control y asistencia remota en tiempo real diseñada para Windows y Linux con servidor de relevo de sockets TCP en Node.js.",
-                calloutMain: "<strong>Modo Privado & Enterprise:</strong> Connecting permite configurar tu propio servidor de relevo (Relay) privado dentro de tu infraestructura o red local, garantizando privacidad total y aislamiento de datos sin exponer IP ni nombres de servidores públicos.",
-                h2Win: "1. Arquitectura de Transmisión y Ejecución en Windows",
-                pWinDesc: "Para garantizar una compatibilidad perfecta en entornos de Directorio Activo (AD) y prevenir bloqueos de antivirus (Windows Defender, Chrome SmartScreen), la aplicación fue mejorada para iniciarse <strong>sin auto-escalamiento de privilegios (`asInvoker`)</strong> por defecto.",
-                h3WinMode: "Modelo de Ejecución en Windows:",
-                winModes: [
-                    "<strong>Modo Estándar (Por Defecto)</strong>: Se ejecuta en 1 segundo como usuario estándar sin solicitar contraseña ni diálogos UAC. Permite conexión remota, soporte gráfico y transferencia de texto.",
-                    "<strong>Modo Administrador (`⚡ Modo Admin`)</strong>: La aplicación incluye un botón en la interfaz principal para reiniciar con elevación UAC cuando se requiere controlar aplicaciones elevadas (`netplwiz`, consolas `cmd/powershell as admin`, Administrador de Tareas).",
-                    "<strong>Servicio Background (En Desarrollo)</strong>: Próxima integración de un servicio opcional de Windows (`services.msc`) para soporte desatendido completo a nivel del sistema estilo AnyDesk/TeamViewer."
-                ],
-                h2Linux: "2. Arquitectura y Estado de Linux",
-                pLinuxDesc: "La versión cliente de Linux se encuentra en <strong>desarrollo activo</strong> dentro de la plataforma open-source:",
-                linuxSpecs: [
-                    "<strong>Entornos de Escritorio (DE)</strong>: Conexión gráfica directa para distribuciones con entornos X11 / Wayland (GNOME, KDE, XFCE).",
-                    "<strong>Sesiones Sin Escritorio (Headless / TTY)</strong>: Para servidores o terminales sin interfaz gráfica, Connecting integra una emulación de consola nativa tipo TTY/SSH con stream directo de paquetes binarios (`0x07`)."
-                ],
-                h2Build: "3. Estructura del Repositorio (`build/`) y Compilación",
-                pBuildDesc: "Los archivos fuente genéricos libres para construir tus propios binarios o desplegar servidores privados se encuentran organizados en la raíz del repositorio oficial en GitHub:",
-                h3Compile: "Compilando tu versión privada de Windows:",
-                pCompileDesc: "Para apuntar la aplicación a tu propio dominio o servidor Relay interno, modifica la variable `RelayServerDomain` en `ConnectingApp.cs` y compila:",
-                h2Security: "4. Servidor Relay Privado y Validación de Seguridad",
-                pSecurityDesc: "Connecting funciona bajo un servidor de relevo privado (ej: `your-domain.com`), pero puede configurarse para uso propio en red interna. El servidor Relay funciona <strong>únicamente como un intermediario (broker de conexión)</strong> y no almacena ni decodifica datos de las sesiones.",
-                h3Cert: "Validación de Certificados & Handshake:",
-                certSpecs: [
-                    "<strong>Handshake con CA del Servidor</strong>: Al conectar, la app envía credenciales validadas con la CA del servidor Relay. Solo tras validar el handshake `CONNECT:ID:TARGET:PSK`, el servidor registra el ID como listo para recibir tráfico.",
-                    "<strong>Rotación & Persistencia</strong>: Los nodos generan y rotan IDs únicos y claves PSK seguras, permitiendo tanto sesiones desatendidas persistentes como conexiones temporales de un solo uso.",
-                    "<strong>Aislamiento de Servidor</strong>: La infraestructura interna del servidor no se expone a los clientes remotos, protegiendo las direcciones IP reales de ambos puestos."
-                ],
-                h2SignPath: "5. Cumplimiento de Estándares Open Source & SignPath Foundation",
-                pSignPathDesc: "Para cumplir con los estándares requeridos por la <strong>Free Software Foundation (FSF)</strong> y la certificación de código abierto de <strong>SignPath Foundation</strong> para proyectos en GitHub:",
-                signPathSpecs: [
-                    "<strong>Licencia Open Source Clara</strong>: Todo el código fuente en `build/` se distribuye bajo licencias abiertas permisivas sin costos ni limitaciones comerciales.",
-                    "<strong>Firma Digital Authenticode</strong>: Los binarios oficiales de release se firman digitalmente con certificados SHA256 verificables para garantizar la integridad y origen de la aplicación."
-                ],
-                h2Contact: "6. Soporte Técnico y Repositorio Oficial",
-                pContactDesc: "Puedes consultar el código fuente completo, reportar fallas o contribuir al proyecto en GitHub: <a href=\"https://github.com/jh4n3r/connecting\" target=\"_blank\" style=\"color:var(--cyan-dark); font-weight:700;\">https://github.com/jh4n3r/connecting</a>.",
-                pTermsLink: "Para más información sobre el uso legal, consulta los <a href=\"../terms\" style=\"color:var(--cyan-dark); font-weight:700;\">Términos de Licencia y Servicio</a>.",
-                footerCopy: "&copy; 2026 Connecting Remote Desktop • Desarrollado por <strong>@jh4n3r</strong>"
-            },
-            en: {
-                home: "Home",
-                terms: "Legal Terms",
-                sbH1: "Overview",
-                sbI1_1: "Architecture & Principles",
-                sbI1_2: "Windows Execution",
-                sbI1_3: "Linux Status (DE vs TTY)",
-                sbH2: "Structure & Build",
-                sbI2_1: "Generic Files (build/)",
-                sbI2_2: "Building Your Binary",
-                sbI2_3: "Private Relay Server",
-                sbH3: "Security & Protocol",
-                sbI3_1: "Certificate Validation",
-                sbI3_2: "Relay as Secure Broker",
-                sbI3_3: "FSF & SignPath Standards",
-                sbH4: "Contact & Support",
-                sbI4_1: "Technical Support",
-                docTitle: "Official Technical Documentation - Connecting",
-                docDesc: "Connecting Remote Desktop is a lightweight, portable, and encrypted open-source real-time remote desktop and assistance solution built for Windows and Linux with a native Node.js TCP socket relay server.",
-                calloutMain: "<strong>Private & Enterprise Mode:</strong> Connecting allows configuring your own private Relay server inside your infrastructure or local LAN, guaranteeing full privacy without exposing public IP or server names.",
-                h2Win: "1. Transmission Architecture and Windows Execution",
-                pWinDesc: "To ensure seamless compatibility in Active Directory (AD) environments and prevent antivirus blocks (Windows Defender, Chrome SmartScreen), the app was enhanced to launch <strong>without forced privilege elevation (`asInvoker`)</strong> by default.",
-                h3WinMode: "Windows Execution Model:",
-                winModes: [
-                    "<strong>Standard Mode (Default)</strong>: Launches in 1 second as standard user with zero UAC or password prompts. Enables remote connection, screen control, and clipboard transfer.",
-                    "<strong>Administrator Mode (`⚡ Admin Mode`)</strong>: Includes an in-app button to restart with UAC elevation when controlling elevated windows (`netplwiz`, `cmd/powershell as admin`, Task Manager) is required.",
-                    "<strong>Background Service (In Development)</strong>: Upcoming integration of an optional Windows Service (`services.msc`) for system-level unattended support like AnyDesk/TeamViewer."
-                ],
-                h2Linux: "2. Linux Architecture & Development Status",
-                pLinuxDesc: "The Linux client architecture is under <strong>active development</strong> within the open-source platform:",
-                linuxSpecs: [
-                    "<strong>Desktop Environments (DE)</strong>: Direct graphical connection for distributions running X11 / Wayland (GNOME, KDE, XFCE).",
-                    "<strong>Headless / Non-DE Sessions (TTY)</strong>: For headless servers or non-graphical terminals, Connecting embeds native TTY/SSH console emulation streaming binary packets (`0x07`)."
-                ],
-                h2Build: "3. Repository Build Structure (`build/`) and Compilation",
-                pBuildDesc: "Generic open source files to build custom binaries or deploy private servers are located under the root `build/` folder in the official GitHub repository:",
-                h3Compile: "Compiling your private Windows binary:",
-                pCompileDesc: "To point the client to your custom domain or private Relay server, update `RelayServerDomain` in `ConnectingApp.cs` and compile:",
-                h2Security: "4. Private Relay Server & Security Handshake",
-                pSecurityDesc: "Connecting runs over a private relay server (e.g. `your-domain.com`), but can be configured for internal enterprise use. The Relay server acts <strong>strictly as a connection broker</strong> and does not store or decrypt session payload data.",
-                h3Cert: "Certificate Validation & Handshake:",
-                certSpecs: [
-                    "<strong>Server CA Handshake</strong>: Upon connection, the client sends validated credentials verified against the server CA. Only after completing `CONNECT:ID:TARGET:PSK` validation does the server register the node as ready.",
-                    "<strong>Rotation & Persistence</strong>: Nodes generate and rotate unique 9-digit IDs and secure PSK keys, supporting both unattended persistent access and temporary single-use sessions.",
-                    "<strong>Server Isolation</strong>: Server infrastructure remains undisclosed to remote peers, shielding real IP addresses of both endpoints."
-                ],
-                h2SignPath: "5. Open Source Standards & SignPath Foundation Compliance",
-                pSignPathDesc: "To comply with standards set by the <strong>Free Software Foundation (FSF)</strong> and <strong>SignPath Foundation</strong> open-source signing certification for GitHub projects:",
-                signPathSpecs: [
-                    "<strong>Clear Open Source License</strong>: All source code under `build/` is distributed under permissive open licenses without commercial fees or restrictions.",
-                    "<strong>Authenticode Digital Signature</strong>: Official release binaries are digitally signed with SHA256 certificates to verify application integrity."
-                ],
-                h2Contact: "6. Technical Support & Official Repository",
-                pContactDesc: "Review full source code, report issues, or contribute on GitHub: <a href=\"https://github.com/jh4n3r/connecting\" target=\"_blank\" style=\"color:var(--cyan-dark); font-weight:700;\">https://github.com/jh4n3r/connecting</a>.",
-                pTermsLink: "For complete legal usage details, check out our <a href=\"../terms\" style=\"color:var(--cyan-dark); font-weight:700;\">License & Service Terms</a>.",
-                footerCopy: "&copy; 2026 Connecting Remote Desktop • Developed by <strong>@jh4n3r</strong>"
-            }
-        };
-
-        function getInitialLanguage() {
-            const saved = localStorage.getItem('connecting_lang');
-            if (saved && (saved === 'es' || saved === 'en')) return saved;
-            const navLang = (navigator.language || navigator.userLanguage || 'es').toLowerCase();
-            return navLang.startsWith('es') ? 'es' : 'en';
-        }
-
-        function changeLanguage(lang) {
-            localStorage.setItem('connecting_lang', lang);
-            document.getElementById('langSelector').value = lang;
-            const t = docsTranslations[lang] || docsTranslations['es'];
-
-            document.getElementById('nav-home').innerText = t.home;
-            document.getElementById('nav-terms').innerText = t.terms;
-
-            document.getElementById('sb-h1').innerText = t.sbH1;
-            document.getElementById('sb-i1-1').innerText = t.sbI1_1;
-            document.getElementById('sb-i1-2').innerText = t.sbI1_2;
-            document.getElementById('sb-i1-3').innerText = t.sbI1_3;
-            document.getElementById('sb-h2').innerText = t.sbH2;
-            document.getElementById('sb-i2-1').innerText = t.sbI2_1;
-            document.getElementById('sb-i2-2').innerText = t.sbI2_2;
-            document.getElementById('sb-i2-3').innerText = t.sbI2_3;
-            document.getElementById('sb-h3').innerText = t.sbH3;
-            document.getElementById('sb-i3-1').innerText = t.sbI3_1;
-            document.getElementById('sb-i3-2').innerText = t.sbI3_2;
-            document.getElementById('sb-i3-3').innerText = t.sbI3_3;
-            document.getElementById('sb-h4').innerText = t.sbH4;
-            document.getElementById('sb-i4-1').innerText = t.sbI4_1;
-
-            document.getElementById('doc-title').innerText = t.docTitle;
-            document.getElementById('doc-desc').innerText = t.docDesc;
-            document.getElementById('callout-main').innerHTML = t.calloutMain;
-
-            document.getElementById('introduccion').innerText = t.h2Win;
-            document.getElementById('p-win-desc').innerHTML = t.pWinDesc;
-            document.getElementById('h3-win-mode').innerText = t.h3WinMode;
-            document.getElementById('ul-win-modes').innerHTML = t.winModes.map(m => `<li>${m}</li>`).join('');
-
-            document.getElementById('estado-linux').innerText = t.h2Linux;
-            document.getElementById('p-linux-desc').innerHTML = t.pLinuxDesc;
-            document.getElementById('ul-linux-specs').innerHTML = t.linuxSpecs.map(s => `<li>${s}</li>`).join('');
-
-            document.getElementById('archivos-build').innerText = t.h2Build;
-            document.getElementById('p-build-desc').innerText = t.pBuildDesc;
-            document.getElementById('compilacion-personalizada').innerText = t.h3Compile;
-            document.getElementById('p-compile-desc').innerText = t.pCompileDesc;
-
-            document.getElementById('servidor-relay').innerText = t.h2Security;
-            document.getElementById('p-security-desc').innerHTML = t.pSecurityDesc;
-            document.getElementById('validacion-certificados').innerText = t.h3Cert;
-            document.getElementById('ul-cert-specs').innerHTML = t.certSpecs.map(c => `<li>${c}</li>`).join('');
-
-            document.getElementById('licencia-signpath').innerText = t.h2SignPath;
-            document.getElementById('p-signpath-desc').innerHTML = t.pSignPathDesc;
-            document.getElementById('ul-signpath-specs').innerHTML = t.signPathSpecs.map(s => `<li>${s}</li>`).join('');
-
-            document.getElementById('contacto-soporte').innerText = t.h2Contact;
-            document.getElementById('p-contact-desc').innerHTML = t.pContactDesc;
-            document.getElementById('p-terms-link').innerHTML = t.pTermsLink;
-
-            const footP = document.querySelector('.footer p');
-            if (footP) footP.innerHTML = t.footerCopy;
-        }
-
-        // Mobile Hamburger Toggle
-        document.addEventListener('DOMContentLoaded', () => {
-            const toggle = document.getElementById('mobileToggle');
-            const menu = document.getElementById('navMenu');
-            if (toggle && menu) {
-                toggle.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    menu.classList.toggle('active');
-                });
-                document.addEventListener('click', (e) => {
-                    if (!menu.contains(e.target) && !toggle.contains(e.target)) {
-                        menu.classList.remove('active');
-                    }
-                });
-            }
-            changeLanguage(getInitialLanguage());
-        });
-    </script>
 </body>
 </html>

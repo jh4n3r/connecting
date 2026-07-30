@@ -1,10 +1,7 @@
 using System;
 using System.Drawing;
 using System.Windows.Forms;
-using Conecting.Common;
-using Conecting.UI;
-
-namespace Conecting.Dialogs
+namespace Conecting
 {
     public class AboutForm : Form
     {

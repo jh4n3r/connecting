@@ -1,8 +1,4 @@
-﻿using Conecting.Common;
-using Conecting.Core;
-using Conecting.Dialogs;
-using Conecting.UI;
-using Microsoft.Win32;
+﻿using Microsoft.Win32;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing.Drawing2D;
@@ -24,7 +20,7 @@ using System;
 [assembly: AssemblyDescription("Connecting - Portable & Secure Remote Control Platform")]
 [assembly: AssemblyCompany("Connecting")]
 [assembly: AssemblyProduct("Connecting Remote Desktop Enterprise")]
-[assembly: AssemblyCopyright("Copyright Â© 2026 Connecting")]
+[assembly: AssemblyCopyright("Copyright © 2026 Connecting")]
 [assembly: AssemblyFileVersion("1.0.2.0")]
 [assembly: AssemblyVersion("1.0.2.0")]
 
@@ -56,7 +52,8 @@ namespace Conecting
 }
 
 
-namespace Conecting.Common
+
+namespace Conecting
 {
     /// <summary>
     /// Application Internationalization and Localization Manager.
@@ -85,7 +82,8 @@ namespace Conecting.Common
 }
 
 
-namespace Conecting.Common
+
+namespace Conecting
 {
     /// <summary>
     /// Unified packet protocol handler for streaming framing data and control messages.
@@ -158,7 +156,8 @@ namespace Conecting.Common
 }
 
 
-namespace Conecting.Common
+
+namespace Conecting
 {
     /// <summary>
     /// Peer Resolution Engine.
@@ -412,7 +411,7 @@ namespace Conecting.Common
 
             if (cleanTargetId.Length != 9)
             {
-                errorMsg = AppI18n.T("La ID introducida debe contener exactamente 9 dÃ­gitos.", "Entered ID must contain exactly 9 digits.");
+                errorMsg = AppI18n.T("La ID introducida debe contener exactamente 9 dígitos.", "Entered ID must contain exactly 9 digits.");
                 return null;
             }
 
@@ -429,7 +428,7 @@ namespace Conecting.Common
                 {
                     try { client.Close(); } catch { }
                     errorMsg = string.Format(AppI18n.T(
-                        "No se pudo establecer conexiÃ³n con el Servidor Relay ({0}:{1}).",
+                        "No se pudo establecer conexión con el Servidor Relay ({0}:{1}).",
                         "Could not connect to Relay Server ({0}:{1})."
                     ), targetHost, RelayServerPort);
                     return null;
@@ -445,7 +444,7 @@ namespace Conecting.Common
                 if (r <= 0)
                 {
                     client.Close();
-                    errorMsg = AppI18n.T("El equipo remoto no respondiÃ³ a la solicitud.", "Remote computer did not respond to request.");
+                    errorMsg = AppI18n.T("El equipo remoto no respondió a la solicitud.", "Remote computer did not respond to request.");
                     return null;
                 }
 
@@ -461,7 +460,7 @@ namespace Conecting.Common
                 else if (resp.Contains("BUSY"))
                 {
                     client.Close();
-                    errorMsg = AppI18n.T("El equipo remoto se encuentra en otra sesiÃ³n activa.", "Remote computer is busy in another active session.");
+                    errorMsg = AppI18n.T("El equipo remoto se encuentra en otra sesión activa.", "Remote computer is busy in another active session.");
                     return null;
                 }
                 else if (resp.Contains("PSK_INVALID"))
@@ -474,7 +473,7 @@ namespace Conecting.Common
                 {
                     client.Close();
                     errorMsg = string.Format(AppI18n.T(
-                        "El equipo remoto ID ({0}) estÃ¡ fuera de lÃ­nea o rechazÃ³ la conexiÃ³n.",
+                        "El equipo remoto ID ({0}) está fuera de línea o rechazó la conexión.",
                         "Remote computer ID ({0}) is offline or rejected connection."
                     ), cleanTargetId);
                     return null;
@@ -482,7 +481,7 @@ namespace Conecting.Common
             }
             catch (Exception ex)
             {
-                errorMsg = AppI18n.T("Error de conexiÃ³n: ", "Connection error: ") + ex.Message;
+                errorMsg = AppI18n.T("Error de conexión: ", "Connection error: ") + ex.Message;
                 return null;
             }
         }
@@ -498,7 +497,8 @@ namespace Conecting.Common
 }
 
 
-namespace Conecting.Core
+
+namespace Conecting
 {
     public class HistoryItem
     {
@@ -676,7 +676,8 @@ namespace Conecting.Core
 }
 
 
-namespace Conecting.Core
+
+namespace Conecting
 {
     /// <summary>
     /// High-Performance Desktop Screen Capture Engine (GDI / Win32 API).
@@ -889,7 +890,8 @@ namespace Conecting.Core
 }
 
 
-namespace Conecting.Core
+
+namespace Conecting
 {
     /// <summary>
     /// High-Precision Native Win32 Input Injector.
@@ -1075,7 +1077,7 @@ namespace Conecting.Core
 }
 
 
-namespace Conecting.Dialogs
+namespace Conecting
 {
     public class AboutForm : Form
     {
@@ -1092,11 +1094,11 @@ namespace Conecting.Dialogs
             try { this.Icon = Icon.ExtractAssociatedIcon(Application.ExecutablePath); } catch { }
 
             Label lblTitle = new Label { Text = "Connecting Remote Desktop", Font = new Font("Segoe UI", 14F, FontStyle.Bold), Location = new Point(20, 20), AutoSize = true, ForeColor = Color.FromArgb(14, 98, 115) };
-            Label lblVer = new Label { Text = AppI18n.T("VersiÃ³n 1.0.2 (Build 2026)", "Version 1.0.2 (Build 2026)"), Font = new Font("Segoe UI", 9.5F, FontStyle.Bold), Location = new Point(20, 52), AutoSize = true, ForeColor = Color.FromArgb(100, 116, 139) };
+            Label lblVer = new Label { Text = AppI18n.T("Versión 1.0.2 (Build 2026)", "Version 1.0.2 (Build 2026)"), Font = new Font("Segoe UI", 9.5F, FontStyle.Bold), Location = new Point(20, 52), AutoSize = true, ForeColor = Color.FromArgb(100, 116, 139) };
             Label lblDesc = new Label
             {
                 Text = AppI18n.T(
-                    "Plataforma de Escritorio Remoto Abierta, Portable y Segura.\nDiseÃ±ado para ofrecer asistencia tÃ©cnica nativa sin dependencias.",
+                    "Plataforma de Escritorio Remoto Abierta, Portable y Segura.\nDiseñado para ofrecer asistencia técnica nativa sin dependencias.",
                     "Open, Portable, and Secure Remote Desktop Platform.\nDesigned for native technical support without external dependencies."
                 ),
                 Font = new Font("Segoe UI", 9.5F),
@@ -1124,7 +1126,7 @@ namespace Conecting.Dialogs
 }
 
 
-namespace Conecting.Dialogs
+namespace Conecting
 {
     public class ConnectionRequestForm : Form
     {
@@ -1134,7 +1136,7 @@ namespace Conecting.Dialogs
 
         public ConnectionRequestForm(string requestingPeerId)
         {
-            this.Text = AppI18n.T("Solicitud de ConexiÃ³n Entrante", "Incoming Connection Request");
+            this.Text = AppI18n.T("Solicitud de Conexión Entrante", "Incoming Connection Request");
             this.Size = new Size(480, 310);
             this.StartPosition = FormStartPosition.CenterScreen;
             this.FormBorderStyle = FormBorderStyle.FixedDialog;
@@ -1165,7 +1167,7 @@ namespace Conecting.Dialogs
 
             Label lblTitle = new Label
             {
-                Text = AppI18n.T("Â¡Solicitud de Control Remoto!", "Remote Control Request!"),
+                Text = AppI18n.T("¡Solicitud de Control Remoto!", "Remote Control Request!"),
                 Font = new Font("Segoe UI", 12F, FontStyle.Bold),
                 Location = new Point(75, 16),
                 AutoSize = true,
@@ -1195,7 +1197,7 @@ namespace Conecting.Dialogs
 
             CheckBox chkInput = new CheckBox
             {
-                Text = AppI18n.T("Controlar teclado y ratÃ³n en tiempo real", "Control mouse and keyboard in real time"),
+                Text = AppI18n.T("Controlar teclado y ratón en tiempo real", "Control mouse and keyboard in real time"),
                 Checked = true,
                 Location = new Point(16, 30),
                 AutoSize = true,
@@ -1245,7 +1247,7 @@ namespace Conecting.Dialogs
 }
 
 
-namespace Conecting.Dialogs
+namespace Conecting
 {
     public class ConnectingProgressForm : Form
     {
@@ -1283,7 +1285,7 @@ namespace Conecting.Dialogs
 
             Label lblSubText = new Label
             {
-                Text = AppI18n.T("Estableciendo conexiÃ³n en tiempo real...\nEsperando respuesta del equipo remoto.", "Establishing real-time connection...\nWaiting for remote computer response."),
+                Text = AppI18n.T("Estableciendo conexión en tiempo real...\nEsperando respuesta del equipo remoto.", "Establishing real-time connection...\nWaiting for remote computer response."),
                 Font = new Font("Segoe UI", 9.5F),
                 ForeColor = Color.FromArgb(100, 116, 139),
                 Location = new Point(85, 55),
@@ -1310,7 +1312,8 @@ namespace Conecting.Dialogs
 }
 
 
-namespace Conecting.UI
+
+namespace Conecting
 {
     /// <summary>
     /// Floating Session Notification Widget on Host Screen.
@@ -1353,7 +1356,7 @@ namespace Conecting.UI
 
             Label lblSub = new Label
             {
-                Text = AppI18n.T("SESIÃ“N ACTIVA", "ACTIVE SESSION"),
+                Text = AppI18n.T("SESIÓN ACTIVA", "ACTIVE SESSION"),
                 Font = new Font("Segoe UI", 7.5F, FontStyle.Bold),
                 ForeColor = Color.FromArgb(148, 163, 184),
                 Location = new Point(10, 24),
@@ -1508,7 +1511,7 @@ namespace Conecting.UI
 }
 
 
-namespace Conecting.UI
+namespace Conecting
 {
     /// <summary>
     /// Main Application Window.
@@ -1599,7 +1602,7 @@ namespace Conecting.UI
                 {
                     e.Cancel = true;
                     this.Hide();
-                    trayIcon.ShowBalloonTip(2000, "Connecting", AppI18n.T("La aplicaciÃ³n sigue activa en segundo plano.", "Connecting is running in system tray."), ToolTipIcon.Info);
+                    trayIcon.ShowBalloonTip(2000, "Connecting", AppI18n.T("La aplicación sigue activa en segundo plano.", "Connecting is running in system tray."), ToolTipIcon.Info);
                 }
             };
         }
@@ -1824,7 +1827,7 @@ namespace Conecting.UI
 
         private void InitializeComponent()
         {
-            this.Text = "Connecting - SoluciÃ³n de Escritorio Remoto";
+            this.Text = "Connecting - Solución de Escritorio Remoto";
             this.Size = new Size(1000, 750);
             this.MinimumSize = new Size(950, 700);
             this.StartPosition = FormStartPosition.CenterScreen;
@@ -1875,7 +1878,7 @@ namespace Conecting.UI
 
             lblSubtitle = new Label
             {
-                Text = AppI18n.T("Plataforma de Control Remoto PortÃ¡til y Segura", "Portable and Secure Remote Desktop Platform"),
+                Text = AppI18n.T("Plataforma de Control Remoto Portátil y Segura", "Portable and Secure Remote Desktop Platform"),
                 Font = new Font("Segoe UI", 9.5F),
                 ForeColor = ColorTextMuted,
                 Location = new Point(87, 54),
@@ -1899,10 +1902,10 @@ namespace Conecting.UI
                 Padding = new Padding(0)
             };
 
-            // AnyDesk-Style Hamburger Menu Button [ â‰¡ ]
+            // AnyDesk-Style Hamburger Menu Button [ ≡ ]
             ModernButton btnHamburgerMenu = new ModernButton
             {
-                Text = " â‰¡ ",
+                Text = " ≡ ",
                 Dock = DockStyle.Right,
                 Width = 44,
                 NormalColor = Color.FromArgb(241, 245, 249),
@@ -1913,17 +1916,17 @@ namespace Conecting.UI
             };
 
             ContextMenuStrip menuHamburger = new ContextMenuStrip();
-            menuHamburger.Items.Add(AppI18n.T("âš™ ConfiguraciÃ³n & Seguridad", "âš™ Settings & Security"), null, (s, e) =>
+            menuHamburger.Items.Add(AppI18n.T("⚙ Configuración & Seguridad", "⚙ Settings & Security"), null, (s, e) =>
             {
                 if (sessionTabControl != null) sessionTabControl.SelectSettingsTab();
             });
 
             bool isAdmin = IsUserAnAdmin();
-            menuHamburger.Items.Add(isAdmin ? AppI18n.T("ðŸ›¡ Modo Administrador (Activo)", "ðŸ›¡ Administrator Mode (Active)") : AppI18n.T("ðŸ›¡ Reiniciar como Administrador", "ðŸ›¡ Restart as Administrator"), null, (s, e) =>
+            menuHamburger.Items.Add(isAdmin ? AppI18n.T("🛡 Modo Administrador (Activo)", "🛡 Administrator Mode (Active)") : AppI18n.T("🛡 Reiniciar como Administrador", "🛡 Restart as Administrator"), null, (s, e) =>
             {
                 if (!isAdmin)
                 {
-                    if (MessageBox.Show(AppI18n.T("Â¿Desea reiniciar la aplicaciÃ³n con permisos de Administrador?", "Restart application with Administrator permissions?"), "Connecting", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+                    if (MessageBox.Show(AppI18n.T("¿Desea reiniciar la aplicación con permisos de Administrador?", "Restart application with Administrator permissions?"), "Connecting", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                     {
                         try
                         {
@@ -1941,11 +1944,11 @@ namespace Conecting.UI
                 }
             });
             menuHamburger.Items.Add("-");
-            menuHamburger.Items.Add(AppI18n.T("â“ Acerca de Connecting...", "â“ About Connecting..."), null, (s, e) =>
+            menuHamburger.Items.Add(AppI18n.T("❓ Acerca de Connecting...", "❓ About Connecting..."), null, (s, e) =>
             {
                 using (AboutForm about = new AboutForm()) { about.ShowDialog(); }
             });
-            menuHamburger.Items.Add(AppI18n.T("ðŸ“– Ayuda y DocumentaciÃ³n", "ðŸ“– Help & Documentation"), null, (s, e) =>
+            menuHamburger.Items.Add(AppI18n.T("📖 Ayuda y Documentación", "📖 Help & Documentation"), null, (s, e) =>
             {
                 try { Process.Start("https://jh4n3r.github.io/connecting/docs/"); } catch { }
             });
@@ -2072,7 +2075,7 @@ namespace Conecting.UI
             };
             btnRegenerateId.Click += (s, e) =>
             {
-                if (MessageBox.Show(AppI18n.T("Â¿EstÃ¡ seguro de que desea generar una nueva ID permanente para este puesto?", "Are you sure you want to generate a new permanent ID for this computer?"), "Connecting", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+                if (MessageBox.Show(AppI18n.T("¿Está seguro de que desea generar una nueva ID permanente para este puesto?", "Are you sure you want to generate a new permanent ID for this computer?"), "Connecting", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                 {
                     GenerateMyCredentials(true);
                 }
@@ -2188,7 +2191,7 @@ namespace Conecting.UI
             {
                 btnTopAdmin.Click += (s, e) =>
                 {
-                    if (MessageBox.Show(AppI18n.T("Â¿Desea reiniciar la aplicaciÃ³n con permisos elevados de Administrador?", "Restart application with elevated Administrator permissions?"), "Connecting", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+                    if (MessageBox.Show(AppI18n.T("¿Desea reiniciar la aplicación con permisos elevados de Administrador?", "Restart application with elevated Administrator permissions?"), "Connecting", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                     {
                         try
                         {
@@ -2247,7 +2250,7 @@ namespace Conecting.UI
             btnClearHist.FlatAppearance.BorderColor = Color.FromArgb(254, 202, 202);
             btnClearHist.Click += (s, e) =>
             {
-                if (MessageBox.Show(AppI18n.T("Â¿Desea borrar todo el historial de conexiones recientes?", "Clear all recent connection history?"), "Connecting", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+                if (MessageBox.Show(AppI18n.T("¿Desea borrar todo el historial de conexiones recientes?", "Clear all recent connection history?"), "Connecting", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                 {
                     ConnectionHistoryManager.ClearAll();
                     RefreshHistoryGrid();
@@ -2308,7 +2311,7 @@ namespace Conecting.UI
             {
                 Label lblEmpty = new Label
                 {
-                    Text = AppI18n.T("No hay conexiones recientes aÃºn.", "No recent connections yet."),
+                    Text = AppI18n.T("No hay conexiones recientes aún.", "No recent connections yet."),
                     Font = new Font("Segoe UI", 9.5F, FontStyle.Italic),
                     ForeColor = ColorTextMuted,
                     AutoSize = true,
@@ -2332,10 +2335,10 @@ namespace Conecting.UI
                 Label lblAliasHost = new Label { Text = displayTitle, Font = new Font("Segoe UI", 9.5F, FontStyle.Bold), ForeColor = ColorTextDark, Location = new Point(8, 8), Size = new Size(135, 22), AutoEllipsis = true };
                 Label lblId = new Label { Text = string.Format("ID: {0}", item.Id), Font = new Font("Segoe UI", 8.5F), ForeColor = ColorTextMuted, Location = new Point(8, 30), AutoSize = true };
 
-                Button btnEditAlias = new Button { Text = "âœ", Location = new Point(148, 6), Size = new Size(26, 24), FlatStyle = FlatStyle.Flat, Cursor = Cursors.Hand };
+                Button btnEditAlias = new Button { Text = "✏", Location = new Point(148, 6), Size = new Size(26, 24), FlatStyle = FlatStyle.Flat, Cursor = Cursors.Hand };
                 btnEditAlias.FlatAppearance.BorderSize = 0;
 
-                Button btnDelete = new Button { Text = "âœ•", Location = new Point(176, 6), Size = new Size(26, 24), FlatStyle = FlatStyle.Flat, Cursor = Cursors.Hand, ForeColor = Color.FromArgb(225, 29, 72) };
+                Button btnDelete = new Button { Text = "✕", Location = new Point(176, 6), Size = new Size(26, 24), FlatStyle = FlatStyle.Flat, Cursor = Cursors.Hand, ForeColor = Color.FromArgb(225, 29, 72) };
                 btnDelete.FlatAppearance.BorderSize = 0;
 
                 string currentTargetId = item.Id;
@@ -2353,7 +2356,7 @@ namespace Conecting.UI
 
                 btnDelete.Click += (s, e) =>
                 {
-                    if (MessageBox.Show(string.Format(AppI18n.T("Â¿Eliminar puesto ID ({0}) del historial?", "Delete ID ({0}) from history?"), currentTargetId), "Connecting", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+                    if (MessageBox.Show(string.Format(AppI18n.T("¿Eliminar puesto ID ({0}) del historial?", "Delete ID ({0}) from history?"), currentTargetId), "Connecting", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                     {
                         ConnectionHistoryManager.RemoveSession(currentTargetId);
                         RefreshHistoryGrid();
@@ -2411,9 +2414,9 @@ namespace Conecting.UI
         private void BuildSettingsTab()
         {
             cardSec = new ModernCardPanel { Size = new Size(930, 380), Location = new Point(24, 20), BackColor = ColorCardBg, BorderRadius = 12, Padding = new Padding(24) };
-            Label lblSecHeader = new Label { Text = AppI18n.T("ConfiguraciÃ³n Global de Seguridad y Acceso Desatendido", "Global Security & Unattended Access Settings"), Font = new Font("Segoe UI", 13F, FontStyle.Bold), Location = new Point(24, 20), AutoSize = true, ForeColor = ColorTextDark };
+            Label lblSecHeader = new Label { Text = AppI18n.T("Configuración Global de Seguridad y Acceso Desatendido", "Global Security & Unattended Access Settings"), Font = new Font("Segoe UI", 13F, FontStyle.Bold), Location = new Point(24, 20), AutoSize = true, ForeColor = ColorTextDark };
 
-            chkUnattendedAccess = new CheckBox { Text = AppI18n.T("Permitir Acceso Desatendido directo con Clave PSK (sin confirmaciÃ³n)", "Allow direct unattended access with PSK Key (no prompt)"), Checked = true, Location = new Point(24, 65), AutoSize = true, Font = new Font("Segoe UI", 10F, FontStyle.Bold) };
+            chkUnattendedAccess = new CheckBox { Text = AppI18n.T("Permitir Acceso Desatendido directo con Clave PSK (sin confirmación)", "Allow direct unattended access with PSK Key (no prompt)"), Checked = true, Location = new Point(24, 65), AutoSize = true, Font = new Font("Segoe UI", 10F, FontStyle.Bold) };
             
             Label lblCustomPskLabel = new Label { Text = AppI18n.T("Clave de Acceso Desatendido Personalizada:", "Custom Unattended Access Key:"), Location = new Point(24, 105), AutoSize = true, Font = new Font("Segoe UI", 9.5F, FontStyle.Bold) };
             
@@ -2436,7 +2439,7 @@ namespace Conecting.UI
             };
             chkShowCustomPsk.CheckedChanged += (s, e) => { txtCustomPsk.UseSystemPasswordChar = !chkShowCustomPsk.Checked; };
 
-            Label lblUserAliasLabel = new Label { Text = AppI18n.T("Nombre de PresentaciÃ³n (Alias en Chat y ConexiÃ³n):", "Display Name (Chat & Connection Alias):"), Location = new Point(24, 150), AutoSize = true, Font = new Font("Segoe UI", 9.5F, FontStyle.Bold) };
+            Label lblUserAliasLabel = new Label { Text = AppI18n.T("Nombre de Presentación (Alias en Chat y Conexión):", "Display Name (Chat & Connection Alias):"), Location = new Point(24, 150), AutoSize = true, Font = new Font("Segoe UI", 9.5F, FontStyle.Bold) };
             TextBox txtUserAlias = new TextBox
             {
                 Location = new Point(370, 147),
@@ -2466,9 +2469,9 @@ namespace Conecting.UI
             cardService = new ModernCardPanel { Size = new Size(930, 190), Location = new Point(24, 415), BackColor = ColorCardBg, BorderRadius = 12, Padding = new Padding(24) };
             Label lblSvcHeader = new Label { Text = AppI18n.T("Servicio de Asistencia de Windows, Idioma y Relay Server", "Windows Assistance Service, Language & Relay Server"), Font = new Font("Segoe UI", 12F, FontStyle.Bold), Location = new Point(24, 16), AutoSize = true, ForeColor = ColorTextDark };
             
-            Label lblLang = new Label { Text = AppI18n.T("Idioma de la AplicaciÃ³n:", "Application Language:"), Location = new Point(24, 55), AutoSize = true, Font = new Font("Segoe UI", 9.5F, FontStyle.Bold) };
+            Label lblLang = new Label { Text = AppI18n.T("Idioma de la Aplicación:", "Application Language:"), Location = new Point(24, 55), AutoSize = true, Font = new Font("Segoe UI", 9.5F, FontStyle.Bold) };
             ComboBox cboLang = new ComboBox { Location = new Point(190, 52), Size = new Size(150, 28), DropDownStyle = ComboBoxStyle.DropDownList, Font = new Font("Segoe UI", 10F) };
-            cboLang.Items.Add("EspaÃ±ol (ES)");
+            cboLang.Items.Add("Español (ES)");
             cboLang.Items.Add("English (EN)");
             
             string savedLang = PeerResolver.GetSavedLanguage();
@@ -2479,7 +2482,7 @@ namespace Conecting.UI
                 if (sel != PeerResolver.GetSavedLanguage())
                 {
                     PeerResolver.SaveLanguage(sel);
-                    MessageBox.Show(AppI18n.T("La aplicaciÃ³n se reiniciarÃ¡ para aplicar los cambios de idioma.", "The application will restart to apply language changes."), "Connecting", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    MessageBox.Show(AppI18n.T("La aplicación se reiniciará para aplicar los cambios de idioma.", "The application will restart to apply language changes."), "Connecting", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     Application.Restart();
                 }
             };
@@ -2488,11 +2491,31 @@ namespace Conecting.UI
             TextBox txtRelayHost = new TextBox
             {
                 Location = new Point(370, 95),
-                Size = new Size(240, 28),
+                Size = new Size(230, 28),
                 Font = new Font("Segoe UI", 10F),
                 Text = PeerResolver.GetCustomRelayHost()
             };
-            txtRelayHost.TextChanged += (s, e) => { PeerResolver.SaveCustomRelayHost(txtRelayHost.Text); };
+            ModernButton btnSaveRelay = new ModernButton
+            {
+                Text = AppI18n.T("Guardar Servidor", "Save Server"),
+                Location = new Point(610, 92),
+                Size = new Size(140, 32),
+                NormalColor = ColorCyanPrimary,
+                HoverColor = ColorCyanDark,
+                BorderRadius = 6
+            };
+            btnSaveRelay.Click += (s, e) =>
+            {
+                string host = txtRelayHost.Text.Trim();
+                PeerResolver.SaveCustomRelayHost(host);
+                MessageBox.Show(
+                    AppI18n.T("Servidor Relay personalizado guardado correctamente. La aplicación registrará el puesto en la nueva dirección.", "Custom Relay Server saved successfully. The app will register on the new address."),
+                    "Connecting",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Information
+                );
+                StartRelayHostRegistration();
+            };
 
             bool isSvcInstalled = PeerResolver.IsWindowsServiceInstalled("ConnectingService");
             ModernButton btnInstallSvc = new ModernButton
@@ -2509,7 +2532,7 @@ namespace Conecting.UI
                 bool currentlyInstalled = PeerResolver.IsWindowsServiceInstalled("ConnectingService");
                 if (currentlyInstalled)
                 {
-                    if (MessageBox.Show(AppI18n.T("Â¿Desea detener y desinstalar el Servicio de Windows ConnectingService?", "Stop and uninstall ConnectingService Windows Service?"), "Connecting", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+                    if (MessageBox.Show(AppI18n.T("¿Desea detener y desinstalar el Servicio de Windows ConnectingService?", "Stop and uninstall ConnectingService Windows Service?"), "Connecting", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                     {
                         try
                         {
@@ -2533,7 +2556,7 @@ namespace Conecting.UI
                 }
                 else
                 {
-                    if (MessageBox.Show(AppI18n.T("Â¿Desea crear e iniciar el Servicio de Windows ConnectingService?", "Create and start ConnectingService Windows Service?"), "Connecting", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+                    if (MessageBox.Show(AppI18n.T("¿Desea crear e iniciar el Servicio de Windows ConnectingService?", "Create and start ConnectingService Windows Service?"), "Connecting", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                     {
                         try
                         {
@@ -2562,6 +2585,7 @@ namespace Conecting.UI
             cardService.Controls.Add(cboLang);
             cardService.Controls.Add(lblRelayHostLabel);
             cardService.Controls.Add(txtRelayHost);
+            cardService.Controls.Add(btnSaveRelay);
             cardService.Controls.Add(btnInstallSvc);
 
             panelContentSettings.Controls.Add(cardSec);
@@ -2744,14 +2768,14 @@ namespace Conecting.UI
             string rawInput = txtRemoteId.Text.Trim();
             if (string.IsNullOrEmpty(rawInput))
             {
-                MessageBox.Show(AppI18n.T("Por favor introduzca la ID remota de 9 dÃ­gitos.", "Please enter the 9-digit remote ID."), "Connecting", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show(AppI18n.T("Por favor introduzca la ID remota de 9 dígitos.", "Please enter the 9-digit remote ID."), "Connecting", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
             string pskInput = txtRemotePsk.Text.Trim();
             if (string.IsNullOrEmpty(pskInput))
             {
-                MessageBox.Show(AppI18n.T("La Clave PSK es OBLIGATORIA para iniciar una sesiÃ³n remota.", "PSK Key is REQUIRED to start a remote session."), "Connecting", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show(AppI18n.T("La Clave PSK es OBLIGATORIA para iniciar una sesión remota.", "PSK Key is REQUIRED to start a remote session."), "Connecting", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
@@ -2809,7 +2833,8 @@ namespace Conecting.UI
 }
 
 
-namespace Conecting.UI
+
+namespace Conecting
 {
     /// <summary>
     /// Custom Premium Rounded Button Control.
@@ -3033,7 +3058,7 @@ namespace Conecting.UI
 }
 
 
-namespace Conecting.UI
+namespace Conecting
 {
     /// <summary>
     /// Remote Session Viewer Control embedded within a Session Tab.
@@ -3198,7 +3223,7 @@ namespace Conecting.UI
 
             ModernButton btnMainMenu = new ModernButton
             {
-                Text = AppI18n.T("MenÃº", "Menu"),
+                Text = AppI18n.T("Menú", "Menu"),
                 Size = new Size(60, 32),
                 NormalColor = Color.FromArgb(241, 245, 249),
                 HoverColor = Color.FromArgb(226, 232, 240),
@@ -3227,7 +3252,7 @@ namespace Conecting.UI
             };
             lblReconnectingText = new Label
             {
-                Text = AppI18n.T("Reconectando sesiÃ³n en tiempo real...\nRestableciendo enlace con el host remoto.", "Reconnecting session in real time...\nRestoring link with remote host."),
+                Text = AppI18n.T("Reconectando sesión en tiempo real...\nRestableciendo enlace con el host remoto.", "Reconnecting session in real time...\nRestoring link with remote host."),
                 Font = new Font("Segoe UI", 9.5F, FontStyle.Bold),
                 ForeColor = Color.White,
                 Dock = DockStyle.Fill,
@@ -3263,7 +3288,7 @@ namespace Conecting.UI
         {
             menuView = new ContextMenuStrip();
             ToolStripMenuItem itemStretch = new ToolStripMenuItem(AppI18n.T("Ajustar a la Ventana", "Fit to Window"));
-            ToolStripMenuItem itemOriginal = new ToolStripMenuItem(AppI18n.T("TamaÃ±o Original (1:1)", "Original Size (1:1)"));
+            ToolStripMenuItem itemOriginal = new ToolStripMenuItem(AppI18n.T("Tamaño Original (1:1)", "Original Size (1:1)"));
             ToolStripMenuItem itemFull = new ToolStripMenuItem(AppI18n.T("Pantalla Completa (F11)", "Full Screen (F11)"));
 
             itemStretch.Click += (s, e) => { picRemoteDesktop.SizeMode = PictureBoxSizeMode.Zoom; };
@@ -3279,16 +3304,16 @@ namespace Conecting.UI
             menuView.Items.Add(itemFull);
             menuView.Items.Add(new ToolStripSeparator());
 
-            ToolStripMenuItem menuQualityHeader = new ToolStripMenuItem(AppI18n.T("Calidad de TransmisiÃ³n:", "Transmission Quality:")) { Enabled = false };
+            ToolStripMenuItem menuQualityHeader = new ToolStripMenuItem(AppI18n.T("Calidad de Transmisión:", "Transmission Quality:")) { Enabled = false };
             ToolStripMenuItem itemQualityBalanced = new ToolStripMenuItem(AppI18n.T("Balanceado (Recomendado)", "Balanced (Recommended)"));
-            ToolStripMenuItem itemQualityBest = new ToolStripMenuItem(AppI18n.T("Mejor Aspecto (Alta DefiniciÃ³n)", "Best Quality (High Definition)"));
-            ToolStripMenuItem itemQualityFast = new ToolStripMenuItem(AppI18n.T("RÃ¡pida (Baja Latencia)", "Fast (Low Latency)"));
+            ToolStripMenuItem itemQualityBest = new ToolStripMenuItem(AppI18n.T("Mejor Aspecto (Alta Definición)", "Best Quality (High Definition)"));
+            ToolStripMenuItem itemQualityFast = new ToolStripMenuItem(AppI18n.T("Rápida (Baja Latencia)", "Fast (Low Latency)"));
 
             Action updateQualityChecks = () =>
             {
-                itemQualityBalanced.Text = (currentQualityLevel == 75 ? "âœ“ " : "  ") + AppI18n.T("Balanceado (Recomendado)", "Balanced (Recommended)");
-                itemQualityBest.Text = (currentQualityLevel == 90 ? "âœ“ " : "  ") + AppI18n.T("Mejor Aspecto (Alta DefiniciÃ³n)", "Best Quality (High Definition)");
-                itemQualityFast.Text = (currentQualityLevel == 60 ? "âœ“ " : "  ") + AppI18n.T("RÃ¡pida (Baja Latencia)", "Fast (Low Latency)");
+                itemQualityBalanced.Text = (currentQualityLevel == 75 ? "✓ " : "  ") + AppI18n.T("Balanceado (Recomendado)", "Balanced (Recommended)");
+                itemQualityBest.Text = (currentQualityLevel == 90 ? "✓ " : "  ") + AppI18n.T("Mejor Aspecto (Alta Definición)", "Best Quality (High Definition)");
+                itemQualityFast.Text = (currentQualityLevel == 60 ? "✓ " : "  ") + AppI18n.T("Rápida (Baja Latencia)", "Fast (Low Latency)");
             };
 
             itemQualityBalanced.Click += (s, e) =>
@@ -3342,12 +3367,12 @@ namespace Conecting.UI
             {
                 using (AboutForm about = new AboutForm()) { about.ShowDialog(); }
             });
-            menuMainMenu.Items.Add(AppI18n.T("Ayuda y DocumentaciÃ³n", "Help & Documentation"), null, (s, e) =>
+            menuMainMenu.Items.Add(AppI18n.T("Ayuda y Documentación", "Help & Documentation"), null, (s, e) =>
             {
                 try { System.Diagnostics.Process.Start("https://jh4n3r.github.io/connecting/docs/"); } catch { }
             });
             menuMainMenu.Items.Add("-");
-            menuMainMenu.Items.Add(AppI18n.T("Finalizar SesiÃ³n Remota", "End Remote Session"), null, (s, e) => { CloseSession(); });
+            menuMainMenu.Items.Add(AppI18n.T("Finalizar Sesión Remota", "End Remote Session"), null, (s, e) => { CloseSession(); });
             btnTarget.Click += (s, e) => { menuMainMenu.Show(btnTarget, new Point(0, btnTarget.Height)); };
         }
 
@@ -3372,8 +3397,8 @@ namespace Conecting.UI
                 BorderStyle = BorderStyle.FixedSingle
             };
 
-            Label lblChatHeader = new Label { Text = "ðŸ’¬ Chat de SesiÃ³n Remota", Font = new Font("Segoe UI", 10.5F, FontStyle.Bold), Location = new Point(12, 12), AutoSize = true, ForeColor = Color.FromArgb(14, 98, 115) };
-            btnCloseChatDrawer = new ModernButton { Text = "âœ•", Location = new Point(260, 8), Size = new Size(28, 28), NormalColor = Color.FromArgb(239, 68, 68), HoverColor = Color.FromArgb(220, 38, 38), BorderRadius = 4 };
+            Label lblChatHeader = new Label { Text = "💬 Chat de Sesión Remota", Font = new Font("Segoe UI", 10.5F, FontStyle.Bold), Location = new Point(12, 12), AutoSize = true, ForeColor = Color.FromArgb(14, 98, 115) };
+            btnCloseChatDrawer = new ModernButton { Text = "✕", Location = new Point(260, 8), Size = new Size(28, 28), NormalColor = Color.FromArgb(239, 68, 68), HoverColor = Color.FromArgb(220, 38, 38), BorderRadius = 4 };
             btnCloseChatDrawer.Click += (s, e) => { panelChatDrawer.Visible = false; };
 
             txtChatHistory = new RichTextBox { Location = new Point(12, 44), Size = new Size(276, 345), ReadOnly = true, BackColor = Color.FromArgb(248, 250, 252), BorderStyle = BorderStyle.None, Font = new Font("Segoe UI", 9.5F) };
@@ -3400,8 +3425,8 @@ namespace Conecting.UI
         private void BuildTtyDrawer()
         {
             panelTtyDrawer = new Panel { Size = new Size(440, 480), BackColor = Color.FromArgb(15, 23, 42), Visible = false, Padding = new Padding(12), BorderStyle = BorderStyle.FixedSingle };
-            Label lblTtyHeader = new Label { Text = "ðŸ’» Consola Interactiva TTY", Font = new Font("Segoe UI", 10.5F, FontStyle.Bold), Location = new Point(12, 12), AutoSize = true, ForeColor = Color.FromArgb(0, 172, 193) };
-            btnCloseTtyDrawer = new ModernButton { Text = "âœ•", Location = new Point(400, 8), Size = new Size(28, 28), NormalColor = Color.FromArgb(239, 68, 68), HoverColor = Color.FromArgb(220, 38, 38), BorderRadius = 4 };
+            Label lblTtyHeader = new Label { Text = "💻 Consola Interactiva TTY", Font = new Font("Segoe UI", 10.5F, FontStyle.Bold), Location = new Point(12, 12), AutoSize = true, ForeColor = Color.FromArgb(0, 172, 193) };
+            btnCloseTtyDrawer = new ModernButton { Text = "✕", Location = new Point(400, 8), Size = new Size(28, 28), NormalColor = Color.FromArgb(239, 68, 68), HoverColor = Color.FromArgb(220, 38, 38), BorderRadius = 4 };
             btnCloseTtyDrawer.Click += (s, e) => { panelTtyDrawer.Visible = false; };
 
             txtTtyHistory = new RichTextBox { Location = new Point(12, 44), Size = new Size(416, 375), ReadOnly = true, BackColor = Color.FromArgb(2, 6, 23), ForeColor = Color.FromArgb(74, 222, 128), BorderStyle = BorderStyle.None, Font = new Font("Consolas", 9.5F) };
@@ -3864,7 +3889,7 @@ namespace Conecting.UI
                 this.Invoke((MethodInvoker)delegate
                 {
                     MessageBox.Show(
-                        string.Format(AppI18n.T("El equipo remoto ({0}) ha finalizado la sesiÃ³n.", "Remote computer ({0}) ended the session."), TargetId),
+                        string.Format(AppI18n.T("El equipo remoto ({0}) ha finalizado la sesión.", "Remote computer ({0}) ended the session."), TargetId),
                         "Connecting",
                         MessageBoxButtons.OK,
                         MessageBoxIcon.Information
@@ -3905,7 +3930,8 @@ namespace Conecting.UI
 }
 
 
-namespace Conecting.UI
+
+namespace Conecting
 {
     public class SessionTabItem
     {
@@ -4086,7 +4112,7 @@ namespace Conecting.UI
 
             Button btnClose = new Button
             {
-                Text = "âœ•",
+                Text = "✕",
                 Size = new Size(22, 22),
                 Location = new Point(172, 6),
                 FlatStyle = FlatStyle.Flat,

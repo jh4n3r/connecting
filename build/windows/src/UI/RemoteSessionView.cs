@@ -7,11 +7,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using System.Windows.Forms;
-using Conecting.Common;
-using Conecting.Core;
-using Conecting.Dialogs;
-
-namespace Conecting.UI
+namespace Conecting
 {
     /// <summary>
     /// Remote Session Viewer Control embedded within a Session Tab.

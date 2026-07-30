@@ -7,11 +7,15 @@ $usings = New-Object System.Collections.Generic.HashSet[string]
 $codeBlocks = @()
 
 foreach ($file in $files) {
-    $lines = Get-Content -Path $file
+    $rawText = [System.IO.File]::ReadAllText($file, [System.Text.Encoding]::UTF8)
+    $lines = $rawText -split "\r?\n"
     $body = @()
     foreach ($line in $lines) {
         if ($line -match "^using\s+[\w\.]+;") {
-            $null = $usings.Add($line.Trim())
+            $u = $line.Trim()
+            if (-not ($u.StartsWith("using Conecting"))) {
+                $null = $usings.Add($u)
+            }
         } else {
             $body += $line
         }

@@ -6,7 +6,7 @@ using System.Security.Cryptography;
 using System.Text;
 using Microsoft.Win32;
 
-namespace Conecting.Common
+namespace Conecting
 {
     /// <summary>
     /// Peer Resolution Engine.

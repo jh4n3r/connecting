@@ -5,9 +5,8 @@ using System.Net.Sockets;
 using System.Text;
 using System.Windows.Forms;
 using Conecting.Common;
-using Conecting.UI;
 
-namespace Conecting.UI
+namespace Conecting
 {
     /// <summary>
     /// Floating Session Notification Widget on Host Screen.

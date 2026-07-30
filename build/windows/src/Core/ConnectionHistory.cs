@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 
-namespace Conecting.Core
+namespace Conecting
 {
     public class HistoryItem
     {

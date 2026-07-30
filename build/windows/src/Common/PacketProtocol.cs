@@ -2,7 +2,7 @@ using System;
 using System.IO;
 using System.Net.Sockets;
 
-namespace Conecting.Common
+namespace Conecting
 {
     /// <summary>
     /// Unified packet protocol handler for streaming framing data and control messages.

@@ -6,7 +6,7 @@ using System.IO;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 
-namespace Conecting.Core
+namespace Conecting
 {
     /// <summary>
     /// High-Performance Desktop Screen Capture Engine (GDI / Win32 API).
