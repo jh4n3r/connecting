@@ -561,5 +561,37 @@ powershell -ExecutionPolicy Bypass -File .\build.ps1
         <p>&copy; 2026 Connecting Remote Desktop • Desarrollado por <strong>@jh4n3r</strong></p>
     </footer>
 
+    <script>
+        function getInitialLanguage() {
+            const saved = localStorage.getItem('connecting_lang');
+            if (saved === 'es' || saved === 'en') return saved;
+            const userLang = (navigator.language || navigator.userLanguage || 'es').toLowerCase();
+            return userLang.startsWith('es') ? 'es' : 'en';
+        }
+
+        function changeLanguage(lang) {
+            localStorage.setItem('connecting_lang', lang);
+            const selector = document.getElementById('langSelector');
+            if (selector) selector.value = lang;
+
+            const navHome = document.getElementById('nav-home');
+            if (navHome) navHome.innerText = (lang === 'en') ? 'Home' : 'Inicio';
+
+            const navTerms = document.getElementById('nav-terms');
+            if (navTerms) navTerms.innerText = (lang === 'en') ? 'Legal Terms' : 'Términos Legales';
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            changeLanguage(getInitialLanguage());
+
+            const mobileToggle = document.getElementById('mobileToggle');
+            const navMenu = document.getElementById('navMenu');
+            if (mobileToggle && navMenu) {
+                mobileToggle.addEventListener('click', () => {
+                    navMenu.classList.toggle('active');
+                });
+            }
+        });
+    </script>
 </body>
 </html>
