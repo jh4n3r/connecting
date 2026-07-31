@@ -254,7 +254,7 @@
             <h4 id="sb-h2">Red &amp; Protocolos</h4>
             <ul>
                 <li><a href="#protocolo-paquetes">Protocolo Binario TCP (Framing)</a></li>
-                <li><a href="#configuracion-relay">Configuración del Servidor Relay</a></li>
+                <li><a href="#configuracion-relay">Servidor Relay &amp; Seguridad TLS/SSL</a></li>
                 <li><a href="#autenticacion-psk">Mapeo de Claves PSK &amp; IDs</a></li>
             </ul>
 
@@ -453,8 +453,32 @@ SendInput(1, ref input, Marshal.SizeOf(typeof(INPUT)));
             </table>
 
             <!-- 5. CONFIGURACIÓN DEL SERVIDOR RELAY -->
-            <h2 id="configuracion-relay">5. Configuración del Servidor Relay &amp; Claves de Acceso</h2>
-            <p>Para personalizar el dominio o servidor Relay privado al que se conecta el ejecutable, existen dos vías principales:</p>
+            <h2 id="configuracion-relay">5. Configuración del Servidor Relay &amp; Seguridad TLS/SSL</h2>
+            <p>El servidor Relay (<code>build/server/server.js</code>) soporta <strong>cifrado TLS/SSL nativo</strong> usando certificados Let's Encrypt o cualquier certificado X.509 válido. Toda la comunicación entre clientes, hosts y el servidor viaja cifrada de extremo a extremo mediante TLS 1.2+.</p>
+
+            <div class="callout-info">
+                <strong>Arquitectura de Seguridad TLS:</strong><br>
+                El servidor opera en modo dual: si detecta certificados SSL válidos en el sistema, inicia como servidor <code>tls.createServer()</code> con cifrado nativo. Si no encuentra certificados, inicia en modo TCP plano como fallback de desarrollo. Los clientes negocian <code>SslStream</code> con <code>SslProtocols.Tls12</code> para máxima compatibilidad y seguridad.
+            </div>
+
+            <h3>Configuración del Dominio y Certificados SSL:</h3>
+            <p>El servidor soporta configuración mediante variables de entorno para máxima flexibilidad de despliegue:</p>
+            <div class="code-block">
+# Variables de entorno soportadas por server.js:
+RELAY_DOMAIN="your-relay-server.com"    # Dominio del certificado SSL
+CERT_PATH="/etc/letsencrypt/live/your-domain/fullchain.pem"  # Ruta al certificado
+KEY_PATH="/etc/letsencrypt/live/your-domain/privkey.pem"      # Ruta a la clave privada
+PORT=8443                                # Puerto de escucha (default: 8443)
+            </div>
+
+            <h3>Flujo de Conexión TLS:</h3>
+            <div class="code-block">
+┌─────────────────┐      TLS 1.2       ┌─────────────────┐      TLS 1.2       ┌─────────────────┐
+│   Host (C#)     │ ◄──────────────── │  Relay Server   │ ──────────────── │  Client (C#)    │
+│  SslStream      │     Puerto 8443    │  tls.createServer│    Puerto 8443    │  SslStream      │
+│  TLS 1.2        │                    │  Node.js        │                    │  TLS 1.2        │
+└─────────────────┘                    └─────────────────┘                    └─────────────────┘
+            </div>
 
             <h3>A) Modificación Directa en el Código Fuente C#:</h3>
             <p>Abre el archivo <code>src/Common/PeerResolver.cs</code> y modifica las siguientes variables estáticas:</p>
