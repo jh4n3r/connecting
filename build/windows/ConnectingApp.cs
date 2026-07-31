@@ -5,10 +5,13 @@ using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.Drawing;
 using System.IO;
+using System.Net.Security;
 using System.Net.Sockets;
 using System.Net;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Security.Authentication;
+using System.Security.Cryptography.X509Certificates;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
@@ -106,40 +109,47 @@ namespace Conecting
     /// <summary>
     /// Unified packet protocol handler for streaming framing data and control messages.
     /// Header Format: [PacketType: 1 Byte][PayloadLength: 4 Bytes LittleEndian]
+    /// Thread-safe: uses locks for SslStream compatibility.
     /// </summary>
     public static class PacketProtocol
     {
-        public static bool ReadPacket(NetworkStream stream, out byte pktType, out byte[] payload)
+        private static readonly object ReadLock = new object();
+        private static readonly object WriteLock = new object();
+
+        public static bool ReadPacket(Stream stream, out byte pktType, out byte[] payload)
         {
             pktType = 0;
             payload = null;
 
             try
             {
-                byte[] header = new byte[5];
-                int readHeaderBytes = 0;
-                while (readHeaderBytes < 5)
+                lock (ReadLock)
                 {
-                    int bytesRead = stream.Read(header, readHeaderBytes, 5 - readHeaderBytes);
-                    if (bytesRead <= 0) return false;
-                    readHeaderBytes += bytesRead;
+                    byte[] header = new byte[5];
+                    int readHeaderBytes = 0;
+                    while (readHeaderBytes < 5)
+                    {
+                        int bytesRead = stream.Read(header, readHeaderBytes, 5 - readHeaderBytes);
+                        if (bytesRead <= 0) return false;
+                        readHeaderBytes += bytesRead;
+                    }
+
+                    pktType = header[0];
+                    int payloadLength = BitConverter.ToInt32(header, 1);
+
+                    if (payloadLength < 0 || payloadLength > 20971520) return false; // 20 MB safety cap
+
+                    payload = new byte[payloadLength];
+                    int readPayloadBytes = 0;
+                    while (readPayloadBytes < payloadLength)
+                    {
+                        int bytesRead = stream.Read(payload, readPayloadBytes, payloadLength - readPayloadBytes);
+                        if (bytesRead <= 0) return false;
+                        readPayloadBytes += bytesRead;
+                    }
+
+                    return true;
                 }
-
-                pktType = header[0];
-                int payloadLength = BitConverter.ToInt32(header, 1);
-
-                if (payloadLength < 0 || payloadLength > 20971520) return false; // 20 MB safety cap
-
-                payload = new byte[payloadLength];
-                int readPayloadBytes = 0;
-                while (readPayloadBytes < payloadLength)
-                {
-                    int bytesRead = stream.Read(payload, readPayloadBytes, payloadLength - readPayloadBytes);
-                    if (bytesRead <= 0) return false;
-                    readPayloadBytes += bytesRead;
-                }
-
-                return true;
             }
             catch
             {
@@ -147,23 +157,26 @@ namespace Conecting
             }
         }
 
-        public static bool SendPacket(NetworkStream stream, byte pktType, byte[] payload)
+        public static bool SendPacket(Stream stream, byte pktType, byte[] payload)
         {
             try
             {
-                int payloadLen = (payload != null) ? payload.Length : 0;
-                byte[] frame = new byte[5 + payloadLen];
-                frame[0] = pktType;
-                BitConverter.GetBytes(payloadLen).CopyTo(frame, 1);
-
-                if (payloadLen > 0)
+                lock (WriteLock)
                 {
-                    Buffer.BlockCopy(payload, 0, frame, 5, payloadLen);
-                }
+                    int payloadLen = (payload != null) ? payload.Length : 0;
+                    byte[] frame = new byte[5 + payloadLen];
+                    frame[0] = pktType;
+                    BitConverter.GetBytes(payloadLen).CopyTo(frame, 1);
 
-                stream.Write(frame, 0, frame.Length);
-                stream.Flush();
-                return true;
+                    if (payloadLen > 0)
+                    {
+                        Buffer.BlockCopy(payload, 0, frame, 5, payloadLen);
+                    }
+
+                    stream.Write(frame, 0, frame.Length);
+                    stream.Flush();
+                    return true;
+                }
             }
             catch
             {
@@ -177,10 +190,6 @@ namespace Conecting
 
 namespace Conecting
 {
-    /// <summary>
-    /// Peer Resolution Engine.
-    /// Manages node ID generation, PSK keys, relay server settings, and Windows service status.
-    /// </summary>
     public static class PeerResolver
     {
         private static readonly string AppDataDirectory = Path.Combine(
@@ -192,29 +201,45 @@ namespace Conecting
         public static string RelayServerDomain = "your-relay-server.com";
         public static int RelayServerPort = 8443;
 
-        public static string GetSavedLanguage()
+        private static bool ValidateServerCertificate(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors)
+        {
+            return true;
+        }
+
+        public static Stream GetSecuredStream(TcpClient client, string targetHost)
+        {
+            NetworkStream rawStream = client.GetStream();
+            SslStream sslStream = new SslStream(
+                rawStream, 
+                false, 
+                new RemoteCertificateValidationCallback(ValidateServerCertificate)
+            );
+            sslStream.AuthenticateAsClient(targetHost, null, SslProtocols.Tls12, false);
+            return sslStream;
+        }
+
+        public static string GetCustomRelayHost()
         {
             try
             {
                 EnsureDirectoryExists();
-                string path = Path.Combine(AppDataDirectory, "language.dat");
+                string path = Path.Combine(AppDataDirectory, "relayhost.dat");
                 if (File.Exists(path))
                 {
-                    string saved = File.ReadAllText(path).Trim().ToLower();
-                    if (saved == "en") return "en";
+                    return File.ReadAllText(path).Trim();
                 }
             }
             catch { }
-            return "es";
+            return "";
         }
 
-        public static void SaveLanguage(string languageCode)
+        public static void SaveCustomRelayHost(string host)
         {
             try
             {
                 EnsureDirectoryExists();
-                string path = Path.Combine(AppDataDirectory, "language.dat");
-                File.WriteAllText(path, languageCode.Trim().ToLower());
+                string path = Path.Combine(AppDataDirectory, "relayhost.dat");
+                File.WriteAllText(path, host == null ? "" : host.Trim());
             }
             catch { }
         }
@@ -237,18 +262,14 @@ namespace Conecting
                             if (saved.Contains(":"))
                             {
                                 string[] parts = saved.Split(':');
-                                string host = parts[0].Trim();
                                 int parsedPort;
-                                if (parts.Length > 1 && int.TryParse(parts[1].Trim(), out parsedPort) && parsedPort > 0)
+                                if (parts.Length > 1 && int.TryParse(parts[1], out parsedPort))
                                 {
                                     port = parsedPort;
                                 }
-                                if (!string.IsNullOrEmpty(host)) return host;
+                                return parts[0].Trim();
                             }
-                            else
-                            {
-                                return saved;
-                            }
+                            return saved;
                         }
                     }
                 }
@@ -263,75 +284,36 @@ namespace Conecting
             return GetRelayServerHost(out dummyPort);
         }
 
-        public static int GetRelayServerPort()
-        {
-            int port;
-            GetRelayServerHost(out port);
-            return port;
-        }
-
-        public static void SaveRelayServerHost(string host)
+        public static string GetPersistentId()
         {
             try
             {
                 EnsureDirectoryExists();
-                string path1 = Path.Combine(AppDataDirectory, "server_host.dat");
-                string path2 = Path.Combine(AppDataDirectory, "relayhost.dat");
-                string val = string.IsNullOrEmpty(host) ? "" : host.Trim();
-                File.WriteAllText(path1, val);
-                File.WriteAllText(path2, val);
-            }
-            catch { }
-        }
-
-        public static string GetCustomRelayHost()
-        {
-            try
-            {
-                EnsureDirectoryExists();
-                string[] files = new string[] { "relayhost.dat", "server_host.dat" };
-                foreach (string f in files)
-                {
-                    string path = Path.Combine(AppDataDirectory, f);
-                    if (File.Exists(path))
-                    {
-                        string saved = File.ReadAllText(path).Trim();
-                        if (!string.IsNullOrEmpty(saved)) return saved;
-                    }
-                }
-            }
-            catch { }
-            return RelayServerDomain;
-        }
-
-        public static void SaveCustomRelayHost(string host)
-        {
-            SaveRelayServerHost(host);
-        }
-
-        public static string GetUserDisplayName()
-        {
-            try
-            {
-                EnsureDirectoryExists();
-                string path = Path.Combine(AppDataDirectory, "display_name.dat");
+                string path = Path.Combine(AppDataDirectory, "node_id.dat");
                 if (File.Exists(path))
                 {
                     string saved = File.ReadAllText(path).Trim();
-                    if (!string.IsNullOrEmpty(saved)) return saved;
+                    long dummy;
+                    if (saved.Length == 9 && long.TryParse(saved, out dummy)) return saved;
                 }
+                
+                string newId = Generate9DigitId();
+                File.WriteAllText(path, newId);
+                return newId;
             }
-            catch { }
-            return Environment.UserName;
+            catch
+            {
+                return Generate9DigitId();
+            }
         }
 
-        public static void SaveUserDisplayName(string displayName)
+        public static void SavePersistentId(string id)
         {
             try
             {
                 EnsureDirectoryExists();
-                string path = Path.Combine(AppDataDirectory, "display_name.dat");
-                File.WriteAllText(path, string.IsNullOrEmpty(displayName) ? Environment.UserName : displayName.Trim());
+                string path = Path.Combine(AppDataDirectory, "node_id.dat");
+                File.WriteAllText(path, id.Trim());
             }
             catch { }
         }
@@ -363,81 +345,106 @@ namespace Conecting
             catch { }
         }
 
-        public static string GetPersistentId()
+        public static int GetSessionLimit()
         {
             try
             {
                 EnsureDirectoryExists();
-                string path = Path.Combine(AppDataDirectory, "node_id.dat");
+                string path = Path.Combine(AppDataDirectory, "session_limit.dat");
+                if (File.Exists(path))
+                {
+                    int limit;
+                    if (int.TryParse(File.ReadAllText(path).Trim(), out limit))
+                    {
+                        return Math.Max(1, limit);
+                    }
+                }
+            }
+            catch { }
+            return 1;
+        }
+
+        public static void SaveSessionLimit(int limit)
+        {
+            try
+            {
+                EnsureDirectoryExists();
+                string path = Path.Combine(AppDataDirectory, "session_limit.dat");
+                File.WriteAllText(path, Math.Max(1, limit).ToString());
+            }
+            catch { }
+        }
+
+        public static string GetSavedLanguage()
+        {
+            try
+            {
+                EnsureDirectoryExists();
+                string path = Path.Combine(AppDataDirectory, "language.dat");
                 if (File.Exists(path))
                 {
                     string saved = File.ReadAllText(path).Trim();
-                    long dummyVal;
-                    if (saved.Length == 9 && long.TryParse(saved, out dummyVal)) return saved;
+                    if (!string.IsNullOrEmpty(saved)) return saved;
                 }
-                string newId = GenerateRandom9DigitId();
-                File.WriteAllText(path, newId);
-                return newId;
             }
-            catch
-            {
-                return GenerateRandom9DigitId();
-            }
+            catch { }
+            return "es";
         }
 
-        public static void SavePersistentId(string nodeId)
+        public static void SaveLanguage(string lang)
         {
             try
             {
                 EnsureDirectoryExists();
-                string path = Path.Combine(AppDataDirectory, "node_id.dat");
-                File.WriteAllText(path, nodeId.Trim());
+                string path = Path.Combine(AppDataDirectory, "language.dat");
+                File.WriteAllText(path, lang == null ? "es" : lang.Trim().ToLower());
+            }
+            catch { }
+        }
+
+        public static string GetUserDisplayName()
+        {
+            try
+            {
+                EnsureDirectoryExists();
+                string path = Path.Combine(AppDataDirectory, "user_display_name.dat");
+                if (File.Exists(path))
+                {
+                    string saved = File.ReadAllText(path).Trim();
+                    if (!string.IsNullOrEmpty(saved)) return saved;
+                }
+            }
+            catch { }
+            return Environment.MachineName;
+        }
+
+        public static void SaveUserDisplayName(string name)
+        {
+            try
+            {
+                EnsureDirectoryExists();
+                string path = Path.Combine(AppDataDirectory, "user_display_name.dat");
+                File.WriteAllText(path, name == null ? Environment.MachineName : name.Trim());
             }
             catch { }
         }
 
         public static string GenerateRandom9DigitId()
         {
-            using (RNGCryptoServiceProvider rng = new RNGCryptoServiceProvider())
-            {
-                byte[] bytes = new byte[4];
-                rng.GetBytes(bytes);
-                uint val = BitConverter.ToUInt32(bytes, 0) % 900000000 + 100000000;
-                return val.ToString();
-            }
+            return Generate9DigitId();
         }
 
-        /// <summary>
-        /// Checks whether a Windows Service is installed by reading HKLM Registry directly.
-        /// Bypasses standard non-elevated OpenSCManager access denied errors.
-        /// </summary>
-        public static bool IsWindowsServiceInstalled(string serviceName)
+        public static bool IsWindowsServiceInstalled(string serviceName = "ConnectingService")
         {
             try
             {
-                using (RegistryKey key = Registry.LocalMachine.OpenSubKey(@"SYSTEM\CurrentControlSet\Services\" + serviceName))
+                using (RegistryKey key = Registry.LocalMachine.OpenSubKey(@"SYSTEM\CurrentControlSet\Services\" + (string.IsNullOrEmpty(serviceName) ? "ConnectingService" : serviceName)))
                 {
-                    if (key != null) return true;
+                    return key != null;
                 }
             }
             catch { }
-
-            try
-            {
-                using (Process p = new Process())
-                {
-                    p.StartInfo.FileName = "sc.exe";
-                    p.StartInfo.Arguments = "query \"" + serviceName + "\"";
-                    p.StartInfo.CreateNoWindow = true;
-                    p.StartInfo.UseShellExecute = false;
-                    p.StartInfo.RedirectStandardOutput = true;
-                    p.Start();
-                    string output = p.StandardOutput.ReadToEnd();
-                    p.WaitForExit();
-                    return output.Contains("SERVICE_NAME: " + serviceName) || output.Contains("STATE");
-                }
-            }
-            catch { return false; }
+            return false;
         }
 
         public static string ExtractRawDigitsId(string input)
@@ -451,10 +458,11 @@ namespace Conecting
             return sb.ToString();
         }
 
-        public static TcpClient DiscoverAndConnectPeer(string targetId, string myId, string pskKey, out string remoteHostname, out string errorMsg)
+        public static TcpClient DiscoverAndConnectPeer(string targetId, string myId, string pskKey, out string remoteHostname, out string errorMsg, out Stream securedStream)
         {
             remoteHostname = "PC-REMOTO";
             errorMsg = "";
+            securedStream = null;
             string cleanTargetId = ExtractRawDigitsId(targetId);
 
             if (cleanTargetId.Length != 9)
@@ -473,7 +481,7 @@ namespace Conecting
                 int targetPort;
                 string targetHost = GetRelayServerHost(out targetPort);
                 IAsyncResult ar = client.BeginConnect(targetHost, targetPort, null, null);
-                if (!ar.AsyncWaitHandle.WaitOne(3000) || !client.Connected)
+                if (!ar.AsyncWaitHandle.WaitOne(5000) || !client.Connected)
                 {
                     try { client.Close(); } catch { }
                     errorMsg = string.Format(AppI18n.T(
@@ -483,7 +491,7 @@ namespace Conecting
                     return null;
                 }
 
-                NetworkStream ns = client.GetStream();
+                Stream ns = GetSecuredStream(client, targetHost);
                 byte[] handshakeBytes = Encoding.UTF8.GetBytes(string.Format("CONNECT:{0}:{1}:{2}\n", myId, cleanTargetId, pskKey));
                 ns.Write(handshakeBytes, 0, handshakeBytes.Length);
                 ns.Flush();
@@ -498,39 +506,45 @@ namespace Conecting
                 }
 
                 string resp = Encoding.UTF8.GetString(responseBuf, 0, r).Trim();
+
                 if (resp.StartsWith("ACCEPT_OK"))
                 {
-                    if (resp.Contains(":"))
+                    string[] parts = resp.Split(':');
+                    if (parts.Length > 1 && !string.IsNullOrEmpty(parts[1]))
                     {
-                        remoteHostname = resp.Split(':')[1].Trim();
+                        remoteHostname = parts[1].Trim();
                     }
+                    securedStream = ns;
                     return client;
                 }
-                else if (resp.Contains("BUSY"))
+                else if (resp.StartsWith("REJECTED:INVALID_PSK"))
                 {
                     client.Close();
-                    errorMsg = AppI18n.T("El equipo remoto se encuentra en otra sesión activa.", "Remote computer is busy in another active session.");
+                    errorMsg = AppI18n.T("Clave PSK incorrecta. Acceso denegado por el host remoto.", "Incorrect PSK Key. Access denied by remote host.");
                     return null;
                 }
-                else if (resp.Contains("PSK_INVALID"))
+                else if (resp.StartsWith("REJECTED"))
                 {
                     client.Close();
-                    errorMsg = AppI18n.T("La Clave PSK introducida es incorrecta.", "The entered PSK Key is incorrect.");
+                    errorMsg = AppI18n.T("El usuario remoto rechazó la solicitud de conexión.", "The remote user rejected the connection request.");
+                    return null;
+                }
+                else if (resp.StartsWith("ERROR:"))
+                {
+                    client.Close();
+                    errorMsg = resp.Substring(6);
                     return null;
                 }
                 else
                 {
                     client.Close();
-                    errorMsg = string.Format(AppI18n.T(
-                        "El equipo remoto ID ({0}) está fuera de línea o rechazó la conexión.",
-                        "Remote computer ID ({0}) is offline or rejected connection."
-                    ), cleanTargetId);
+                    errorMsg = string.Format(AppI18n.T("Respuesta no válida del servidor: {0}", "Invalid response from server: {0}"), resp);
                     return null;
                 }
             }
             catch (Exception ex)
             {
-                errorMsg = AppI18n.T("Error de conexión: ", "Connection error: ") + ex.Message;
+                errorMsg = string.Format(AppI18n.T("Error de red: {0}", "Network error: {0}"), ex.Message);
                 return null;
             }
         }
@@ -541,6 +555,12 @@ namespace Conecting
             {
                 Directory.CreateDirectory(AppDataDirectory);
             }
+        }
+
+        private static string Generate9DigitId()
+        {
+            Random rng = new Random();
+            return rng.Next(100, 999).ToString() + rng.Next(100, 999).ToString() + rng.Next(100, 999).ToString();
         }
     }
 }
@@ -1377,9 +1397,9 @@ namespace Conecting
         private RichTextBox txtChatHistory;
         private TextBox txtChatMessage;
         private ModernButton btnSendChat;
-        private NetworkStream activeStream;
+        private Stream activeStream;
 
-        public HostSessionFloatingWidget(string requestingId, NetworkStream stream, Action onClose)
+        public HostSessionFloatingWidget(string requestingId, Stream stream, Action onClose)
         {
             this.activeStream = stream;
             this.onCloseCallback = onClose;
@@ -1664,6 +1684,21 @@ namespace Conecting
             this.BringToFront();
         }
 
+        protected override void OnFormClosed(FormClosedEventArgs e)
+        {
+            if (trayIcon != null)
+            {
+                try
+                {
+                    trayIcon.Visible = false;
+                    trayIcon.Dispose();
+                    trayIcon = null;
+                }
+                catch { }
+            }
+            base.OnFormClosed(e);
+        }
+
         private void GenerateMyCredentials(bool forceRegenerate)
         {
             if (forceRegenerate)
@@ -1713,7 +1748,7 @@ namespace Conecting
                         IAsyncResult ar = relayClient.BeginConnect(targetHost, targetPort, null, null);
                         if (ar.AsyncWaitHandle.WaitOne(2500) && relayClient.Connected)
                         {
-                            NetworkStream ns = relayClient.GetStream();
+                            Stream ns = PeerResolver.GetSecuredStream(relayClient, targetHost);
                             byte[] regBytes = Encoding.UTF8.GetBytes(string.Format("REGISTER:{0}\n", idToRegister));
                             ns.Write(regBytes, 0, regBytes.Length);
                             ns.Flush();
@@ -1727,7 +1762,10 @@ namespace Conecting
 
                                 if (msg.StartsWith("INCOMING:"))
                                 {
-                                    string requestingId = msg.Split(':')[1].Trim();
+                                    string[] incomingParts = msg.Split(':');
+                                    string requestingId = incomingParts.Length > 1 ? incomingParts[1].Trim() : "";
+                                    string clientPsk = incomingParts.Length > 2 ? incomingParts[2].Trim() : "";
+                                    string localPsk = PeerResolver.GetCustomPsk();
                                     bool accepted = false;
                                     bool isUnattended = false;
                                     this.Invoke((MethodInvoker)delegate
@@ -1737,6 +1775,12 @@ namespace Conecting
 
                                     if (isUnattended)
                                     {
+                                        if (!string.IsNullOrEmpty(localPsk) && !string.Equals(clientPsk, localPsk, StringComparison.Ordinal))
+                                        {
+                                            byte[] rejBytes = Encoding.UTF8.GetBytes("REJECTED:INVALID_PSK\n");
+                                            try { ns.Write(rejBytes, 0, rejBytes.Length); ns.Flush(); } catch { }
+                                            break;
+                                        }
                                         accepted = true;
                                     }
                                     else
@@ -1759,7 +1803,7 @@ namespace Conecting
 
                                         TcpClient activeRelayClient = relayClient;
                                         activeRelayClient.NoDelay = true;
-                                        NetworkStream activeStream = ns;
+                                        Stream activeStream = ns;
 
                                         this.Invoke((MethodInvoker)delegate
                                         {
@@ -2517,7 +2561,7 @@ namespace Conecting
             cardSec.Controls.Add(c4);
             cardSec.Controls.Add(cAudio);
 
-            cardService = new ModernCardPanel { Size = new Size(930, 220), Location = new Point(24, 415), BackColor = ColorCardBg, BorderRadius = 12, Padding = new Padding(24) };
+            cardService = new ModernCardPanel { Size = new Size(930, 190), Location = new Point(24, 415), BackColor = ColorCardBg, BorderRadius = 12, Padding = new Padding(24) };
             Label lblSvcHeader = new Label { Text = AppI18n.T("Servicio de Asistencia de Windows, Idioma y Relay Server", "Windows Assistance Service, Language & Relay Server"), Font = new Font("Segoe UI", 12F, FontStyle.Bold), Location = new Point(24, 16), AutoSize = true, ForeColor = ColorTextDark };
             
             Label lblLang = new Label { Text = AppI18n.T("Idioma de la Aplicación:", "Application Language:"), Location = new Point(24, 55), AutoSize = true, Font = new Font("Segoe UI", 9.5F, FontStyle.Bold) };
@@ -2536,53 +2580,6 @@ namespace Conecting
                     MessageBox.Show(AppI18n.T("La aplicación se reiniciará para aplicar los cambios de idioma.", "The application will restart to apply language changes."), "Connecting", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     Application.Restart();
                 }
-            };
-
-            Label lblRelayHostLabel = new Label { Text = AppI18n.T("Servidor Relay Personalizado (Dominio o IP):", "Custom Relay Server (Domain or IP):"), Location = new Point(24, 108), AutoSize = true, Font = new Font("Segoe UI", 9.5F, FontStyle.Bold) };
-            txtRelayHost = new TextBox
-            {
-                Location = new Point(370, 105),
-                Size = new Size(230, 28),
-                Font = new Font("Segoe UI", 10F),
-                Text = PeerResolver.GetCustomRelayHost()
-            };
-            txtRelayHost.Leave += (s, e) =>
-            {
-                string host = txtRelayHost.Text.Trim();
-                if (!string.IsNullOrEmpty(host))
-                {
-                    PeerResolver.SaveCustomRelayHost(host);
-                    try { if (currentHostRelayClient != null) currentHostRelayClient.Close(); } catch { }
-                }
-            };
-            ModernButton btnSaveRelay = new ModernButton
-            {
-                Text = AppI18n.T("Guardar Servidor", "Save Server"),
-                Location = new Point(610, 102),
-                Size = new Size(140, 32),
-                NormalColor = ColorCyanPrimary,
-                HoverColor = ColorCyanDark,
-                BorderRadius = 6
-            };
-            btnSaveRelay.Click += (s, e) =>
-            {
-                string host = txtRelayHost.Text.Trim();
-                PeerResolver.SaveCustomRelayHost(host);
-                try
-                {
-                    if (currentHostRelayClient != null)
-                    {
-                        currentHostRelayClient.Close();
-                    }
-                }
-                catch { }
-                MessageBox.Show(
-                    AppI18n.T("Servidor Relay personalizado guardado correctamente. Reconectando al nuevo servidor...", "Custom Relay Server saved successfully. Reconnecting to new server..."),
-                    "Connecting",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Information
-                );
-                StartRelayHostRegistration();
             };
 
             bool isSvcInstalled = PeerResolver.IsWindowsServiceInstalled("ConnectingService");
@@ -2648,13 +2645,60 @@ namespace Conecting
                 }
             };
 
+            Label lblRelayHostLabel = new Label { Text = AppI18n.T("Servidor Relay Personalizado (Dominio o IP):", "Custom Relay Server (Domain or IP):"), Location = new Point(24, 108), AutoSize = true, Font = new Font("Segoe UI", 9.5F, FontStyle.Bold) };
+            txtRelayHost = new TextBox
+            {
+                Location = new Point(370, 105),
+                Size = new Size(230, 28),
+                Font = new Font("Segoe UI", 10F),
+                Text = PeerResolver.GetCustomRelayHost()
+            };
+            txtRelayHost.Leave += (s, e) =>
+            {
+                string host = txtRelayHost.Text.Trim();
+                if (!string.IsNullOrEmpty(host))
+                {
+                    PeerResolver.SaveCustomRelayHost(host);
+                    try { if (currentHostRelayClient != null) currentHostRelayClient.Close(); } catch { }
+                }
+            };
+            ModernButton btnSaveRelay = new ModernButton
+            {
+                Text = AppI18n.T("Guardar Servidor", "Save Server"),
+                Location = new Point(610, 102),
+                Size = new Size(140, 32),
+                NormalColor = ColorCyanPrimary,
+                HoverColor = ColorCyanDark,
+                BorderRadius = 6
+            };
+            btnSaveRelay.Click += (s, e) =>
+            {
+                string host = txtRelayHost.Text.Trim();
+                PeerResolver.SaveCustomRelayHost(host);
+                try
+                {
+                    if (currentHostRelayClient != null)
+                    {
+                        currentHostRelayClient.Close();
+                    }
+                }
+                catch { }
+                MessageBox.Show(
+                    AppI18n.T("Servidor Relay personalizado guardado correctamente. Reconectando al nuevo servidor...", "Custom Relay Server saved successfully. Reconnecting to new server..."),
+                    "Connecting",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Information
+                );
+                StartRelayHostRegistration();
+            };
+
             cardService.Controls.Add(lblSvcHeader);
             cardService.Controls.Add(lblLang);
             cardService.Controls.Add(cboLang);
+            cardService.Controls.Add(btnInstallSvc);
             cardService.Controls.Add(lblRelayHostLabel);
             cardService.Controls.Add(txtRelayHost);
             cardService.Controls.Add(btnSaveRelay);
-            cardService.Controls.Add(btnInstallSvc);
 
             panelContentSettings.Controls.Add(cardSec);
             panelContentSettings.Controls.Add(cardService);
@@ -2695,6 +2739,8 @@ namespace Conecting
                         {
                             string requestingId = parts[1].Trim();
                             string targetId = PeerResolver.ExtractRawDigitsId(parts[2].Trim());
+                            string clientPsk = parts.Length >= 4 ? parts[3].Trim() : "";
+                            string localPsk = PeerResolver.GetCustomPsk();
 
                             if (targetId == rawNumId)
                             {
@@ -2707,6 +2753,13 @@ namespace Conecting
 
                                 if (isUnattended)
                                 {
+                                    if (!string.IsNullOrEmpty(localPsk) && !string.Equals(clientPsk, localPsk, StringComparison.Ordinal))
+                                    {
+                                        byte[] rejBuf = Encoding.UTF8.GetBytes("REJECTED:INVALID_PSK\n");
+                                        try { stream.Write(rejBuf, 0, rejBuf.Length); stream.Flush(); } catch { }
+                                        incomingClient.Close();
+                                        continue;
+                                    }
                                     accepted = true;
                                 }
                                 else
@@ -2867,7 +2920,8 @@ namespace Conecting
                 {
                     string errorMsg;
                     string remoteHostname;
-                    TcpClient client = PeerResolver.DiscoverAndConnectPeer(rawInput, rawNumId, pskInput, out remoteHostname, out errorMsg);
+                    Stream securedStream;
+                    TcpClient client = PeerResolver.DiscoverAndConnectPeer(rawInput, rawNumId, pskInput, out remoteHostname, out errorMsg, out securedStream);
 
                     if (client == null || !client.Connected)
                     {
@@ -2884,7 +2938,7 @@ namespace Conecting
                     this.Invoke((MethodInvoker)delegate
                     {
                         progressForm.Close();
-                        RemoteSessionView sessionView = new RemoteSessionView(rawInput, remoteHostname, pskInput, rawNumId, client);
+                        RemoteSessionView sessionView = new RemoteSessionView(rawInput, remoteHostname, pskInput, rawNumId, client, securedStream);
                         sessionTabControl.AddSessionTab(sessionView);
                         RefreshHistoryGrid();
                     });
@@ -3161,7 +3215,7 @@ namespace Conecting
         private ContextMenuStrip menuMainMenu;
 
         private TcpClient client;
-        private NetworkStream stream;
+        private Stream stream;
         private bool isSessionActive = true;
         private Thread receiveThread;
         private Thread clipboardThread;
@@ -3200,7 +3254,7 @@ namespace Conecting
         [DllImport("user32.dll")]
         private static extern IntPtr GetForegroundWindow();
 
-        public RemoteSessionView(string remoteId, string remoteHostname, string remotePskKey, string myNodeId, TcpClient client)
+        public RemoteSessionView(string remoteId, string remoteHostname, string remotePskKey, string myNodeId, TcpClient client, Stream securedStream)
         {
             this.TargetId = remoteId;
             this.Hostname = string.IsNullOrEmpty(remoteHostname) ? "PC-REMOTO" : remoteHostname;
@@ -3208,7 +3262,7 @@ namespace Conecting
             this.myNodeId = myNodeId;
             this.client = client;
             this.client.NoDelay = true;
-            this.stream = client.GetStream();
+            this.stream = securedStream ?? client.GetStream();
 
             this.Dock = DockStyle.Fill;
             this.BackColor = Color.FromArgb(245, 247, 250);
@@ -3851,13 +3905,14 @@ namespace Conecting
                     
                     string errorMsg;
                     string newHostname;
-                    TcpClient newClient = PeerResolver.DiscoverAndConnectPeer(TargetId, myNodeId, remotePskKey, out newHostname, out errorMsg);
+                    Stream newSecuredStream;
+                    TcpClient newClient = PeerResolver.DiscoverAndConnectPeer(TargetId, myNodeId, remotePskKey, out newHostname, out errorMsg, out newSecuredStream);
                     
                     if (newClient != null && newClient.Connected)
                     {
                         this.client = newClient;
                         this.client.NoDelay = true;
-                        this.stream = newClient.GetStream();
+                        this.stream = newSecuredStream ?? newClient.GetStream();
                         ShowReconnectingOverlay(false);
                         return true;
                     }

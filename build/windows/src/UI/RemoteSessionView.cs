@@ -37,7 +37,7 @@ namespace Conecting
         private ContextMenuStrip menuMainMenu;
 
         private TcpClient client;
-        private NetworkStream stream;
+        private Stream stream;
         private bool isSessionActive = true;
         private Thread receiveThread;
         private Thread clipboardThread;
@@ -76,7 +76,7 @@ namespace Conecting
         [DllImport("user32.dll")]
         private static extern IntPtr GetForegroundWindow();
 
-        public RemoteSessionView(string remoteId, string remoteHostname, string remotePskKey, string myNodeId, TcpClient client)
+        public RemoteSessionView(string remoteId, string remoteHostname, string remotePskKey, string myNodeId, TcpClient client, Stream securedStream)
         {
             this.TargetId = remoteId;
             this.Hostname = string.IsNullOrEmpty(remoteHostname) ? "PC-REMOTO" : remoteHostname;
@@ -84,7 +84,7 @@ namespace Conecting
             this.myNodeId = myNodeId;
             this.client = client;
             this.client.NoDelay = true;
-            this.stream = client.GetStream();
+            this.stream = securedStream ?? client.GetStream();
 
             this.Dock = DockStyle.Fill;
             this.BackColor = Color.FromArgb(245, 247, 250);
@@ -727,13 +727,14 @@ namespace Conecting
                     
                     string errorMsg;
                     string newHostname;
-                    TcpClient newClient = PeerResolver.DiscoverAndConnectPeer(TargetId, myNodeId, remotePskKey, out newHostname, out errorMsg);
+                    Stream newSecuredStream;
+                    TcpClient newClient = PeerResolver.DiscoverAndConnectPeer(TargetId, myNodeId, remotePskKey, out newHostname, out errorMsg, out newSecuredStream);
                     
                     if (newClient != null && newClient.Connected)
                     {
                         this.client = newClient;
                         this.client.NoDelay = true;
-                        this.stream = newClient.GetStream();
+                        this.stream = newSecuredStream ?? newClient.GetStream();
                         ShowReconnectingOverlay(false);
                         return true;
                     }

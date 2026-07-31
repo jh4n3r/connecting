@@ -113,6 +113,21 @@ namespace Conecting
             this.BringToFront();
         }
 
+        protected override void OnFormClosed(FormClosedEventArgs e)
+        {
+            if (trayIcon != null)
+            {
+                try
+                {
+                    trayIcon.Visible = false;
+                    trayIcon.Dispose();
+                    trayIcon = null;
+                }
+                catch { }
+            }
+            base.OnFormClosed(e);
+        }
+
         private void GenerateMyCredentials(bool forceRegenerate)
         {
             if (forceRegenerate)
@@ -162,7 +177,7 @@ namespace Conecting
                         IAsyncResult ar = relayClient.BeginConnect(targetHost, targetPort, null, null);
                         if (ar.AsyncWaitHandle.WaitOne(2500) && relayClient.Connected)
                         {
-                            NetworkStream ns = relayClient.GetStream();
+                            Stream ns = PeerResolver.GetSecuredStream(relayClient, targetHost);
                             byte[] regBytes = Encoding.UTF8.GetBytes(string.Format("REGISTER:{0}\n", idToRegister));
                             ns.Write(regBytes, 0, regBytes.Length);
                             ns.Flush();
@@ -176,7 +191,10 @@ namespace Conecting
 
                                 if (msg.StartsWith("INCOMING:"))
                                 {
-                                    string requestingId = msg.Split(':')[1].Trim();
+                                    string[] incomingParts = msg.Split(':');
+                                    string requestingId = incomingParts.Length > 1 ? incomingParts[1].Trim() : "";
+                                    string clientPsk = incomingParts.Length > 2 ? incomingParts[2].Trim() : "";
+                                    string localPsk = PeerResolver.GetCustomPsk();
                                     bool accepted = false;
                                     bool isUnattended = false;
                                     this.Invoke((MethodInvoker)delegate
@@ -186,6 +204,12 @@ namespace Conecting
 
                                     if (isUnattended)
                                     {
+                                        if (!string.IsNullOrEmpty(localPsk) && !string.Equals(clientPsk, localPsk, StringComparison.Ordinal))
+                                        {
+                                            byte[] rejBytes = Encoding.UTF8.GetBytes("REJECTED:INVALID_PSK\n");
+                                            try { ns.Write(rejBytes, 0, rejBytes.Length); ns.Flush(); } catch { }
+                                            break;
+                                        }
                                         accepted = true;
                                     }
                                     else
@@ -208,7 +232,7 @@ namespace Conecting
 
                                         TcpClient activeRelayClient = relayClient;
                                         activeRelayClient.NoDelay = true;
-                                        NetworkStream activeStream = ns;
+                                        Stream activeStream = ns;
 
                                         this.Invoke((MethodInvoker)delegate
                                         {
@@ -966,7 +990,7 @@ namespace Conecting
             cardSec.Controls.Add(c4);
             cardSec.Controls.Add(cAudio);
 
-            cardService = new ModernCardPanel { Size = new Size(930, 220), Location = new Point(24, 415), BackColor = ColorCardBg, BorderRadius = 12, Padding = new Padding(24) };
+            cardService = new ModernCardPanel { Size = new Size(930, 190), Location = new Point(24, 415), BackColor = ColorCardBg, BorderRadius = 12, Padding = new Padding(24) };
             Label lblSvcHeader = new Label { Text = AppI18n.T("Servicio de Asistencia de Windows, Idioma y Relay Server", "Windows Assistance Service, Language & Relay Server"), Font = new Font("Segoe UI", 12F, FontStyle.Bold), Location = new Point(24, 16), AutoSize = true, ForeColor = ColorTextDark };
             
             Label lblLang = new Label { Text = AppI18n.T("Idioma de la Aplicación:", "Application Language:"), Location = new Point(24, 55), AutoSize = true, Font = new Font("Segoe UI", 9.5F, FontStyle.Bold) };
@@ -985,53 +1009,6 @@ namespace Conecting
                     MessageBox.Show(AppI18n.T("La aplicación se reiniciará para aplicar los cambios de idioma.", "The application will restart to apply language changes."), "Connecting", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     Application.Restart();
                 }
-            };
-
-            Label lblRelayHostLabel = new Label { Text = AppI18n.T("Servidor Relay Personalizado (Dominio o IP):", "Custom Relay Server (Domain or IP):"), Location = new Point(24, 108), AutoSize = true, Font = new Font("Segoe UI", 9.5F, FontStyle.Bold) };
-            txtRelayHost = new TextBox
-            {
-                Location = new Point(370, 105),
-                Size = new Size(230, 28),
-                Font = new Font("Segoe UI", 10F),
-                Text = PeerResolver.GetCustomRelayHost()
-            };
-            txtRelayHost.Leave += (s, e) =>
-            {
-                string host = txtRelayHost.Text.Trim();
-                if (!string.IsNullOrEmpty(host))
-                {
-                    PeerResolver.SaveCustomRelayHost(host);
-                    try { if (currentHostRelayClient != null) currentHostRelayClient.Close(); } catch { }
-                }
-            };
-            ModernButton btnSaveRelay = new ModernButton
-            {
-                Text = AppI18n.T("Guardar Servidor", "Save Server"),
-                Location = new Point(610, 102),
-                Size = new Size(140, 32),
-                NormalColor = ColorCyanPrimary,
-                HoverColor = ColorCyanDark,
-                BorderRadius = 6
-            };
-            btnSaveRelay.Click += (s, e) =>
-            {
-                string host = txtRelayHost.Text.Trim();
-                PeerResolver.SaveCustomRelayHost(host);
-                try
-                {
-                    if (currentHostRelayClient != null)
-                    {
-                        currentHostRelayClient.Close();
-                    }
-                }
-                catch { }
-                MessageBox.Show(
-                    AppI18n.T("Servidor Relay personalizado guardado correctamente. Reconectando al nuevo servidor...", "Custom Relay Server saved successfully. Reconnecting to new server..."),
-                    "Connecting",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Information
-                );
-                StartRelayHostRegistration();
             };
 
             bool isSvcInstalled = PeerResolver.IsWindowsServiceInstalled("ConnectingService");
@@ -1097,13 +1074,60 @@ namespace Conecting
                 }
             };
 
+            Label lblRelayHostLabel = new Label { Text = AppI18n.T("Servidor Relay Personalizado (Dominio o IP):", "Custom Relay Server (Domain or IP):"), Location = new Point(24, 108), AutoSize = true, Font = new Font("Segoe UI", 9.5F, FontStyle.Bold) };
+            txtRelayHost = new TextBox
+            {
+                Location = new Point(370, 105),
+                Size = new Size(230, 28),
+                Font = new Font("Segoe UI", 10F),
+                Text = PeerResolver.GetCustomRelayHost()
+            };
+            txtRelayHost.Leave += (s, e) =>
+            {
+                string host = txtRelayHost.Text.Trim();
+                if (!string.IsNullOrEmpty(host))
+                {
+                    PeerResolver.SaveCustomRelayHost(host);
+                    try { if (currentHostRelayClient != null) currentHostRelayClient.Close(); } catch { }
+                }
+            };
+            ModernButton btnSaveRelay = new ModernButton
+            {
+                Text = AppI18n.T("Guardar Servidor", "Save Server"),
+                Location = new Point(610, 102),
+                Size = new Size(140, 32),
+                NormalColor = ColorCyanPrimary,
+                HoverColor = ColorCyanDark,
+                BorderRadius = 6
+            };
+            btnSaveRelay.Click += (s, e) =>
+            {
+                string host = txtRelayHost.Text.Trim();
+                PeerResolver.SaveCustomRelayHost(host);
+                try
+                {
+                    if (currentHostRelayClient != null)
+                    {
+                        currentHostRelayClient.Close();
+                    }
+                }
+                catch { }
+                MessageBox.Show(
+                    AppI18n.T("Servidor Relay personalizado guardado correctamente. Reconectando al nuevo servidor...", "Custom Relay Server saved successfully. Reconnecting to new server..."),
+                    "Connecting",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Information
+                );
+                StartRelayHostRegistration();
+            };
+
             cardService.Controls.Add(lblSvcHeader);
             cardService.Controls.Add(lblLang);
             cardService.Controls.Add(cboLang);
+            cardService.Controls.Add(btnInstallSvc);
             cardService.Controls.Add(lblRelayHostLabel);
             cardService.Controls.Add(txtRelayHost);
             cardService.Controls.Add(btnSaveRelay);
-            cardService.Controls.Add(btnInstallSvc);
 
             panelContentSettings.Controls.Add(cardSec);
             panelContentSettings.Controls.Add(cardService);
@@ -1144,6 +1168,8 @@ namespace Conecting
                         {
                             string requestingId = parts[1].Trim();
                             string targetId = PeerResolver.ExtractRawDigitsId(parts[2].Trim());
+                            string clientPsk = parts.Length >= 4 ? parts[3].Trim() : "";
+                            string localPsk = PeerResolver.GetCustomPsk();
 
                             if (targetId == rawNumId)
                             {
@@ -1156,6 +1182,13 @@ namespace Conecting
 
                                 if (isUnattended)
                                 {
+                                    if (!string.IsNullOrEmpty(localPsk) && !string.Equals(clientPsk, localPsk, StringComparison.Ordinal))
+                                    {
+                                        byte[] rejBuf = Encoding.UTF8.GetBytes("REJECTED:INVALID_PSK\n");
+                                        try { stream.Write(rejBuf, 0, rejBuf.Length); stream.Flush(); } catch { }
+                                        incomingClient.Close();
+                                        continue;
+                                    }
                                     accepted = true;
                                 }
                                 else
@@ -1316,7 +1349,8 @@ namespace Conecting
                 {
                     string errorMsg;
                     string remoteHostname;
-                    TcpClient client = PeerResolver.DiscoverAndConnectPeer(rawInput, rawNumId, pskInput, out remoteHostname, out errorMsg);
+                    Stream securedStream;
+                    TcpClient client = PeerResolver.DiscoverAndConnectPeer(rawInput, rawNumId, pskInput, out remoteHostname, out errorMsg, out securedStream);
 
                     if (client == null || !client.Connected)
                     {
@@ -1333,7 +1367,7 @@ namespace Conecting
                     this.Invoke((MethodInvoker)delegate
                     {
                         progressForm.Close();
-                        RemoteSessionView sessionView = new RemoteSessionView(rawInput, remoteHostname, pskInput, rawNumId, client);
+                        RemoteSessionView sessionView = new RemoteSessionView(rawInput, remoteHostname, pskInput, rawNumId, client, securedStream);
                         sessionTabControl.AddSessionTab(sessionView);
                         RefreshHistoryGrid();
                     });

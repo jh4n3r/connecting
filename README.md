@@ -18,16 +18,16 @@ Designed for **IT Support Engineers, System Administrators, and Enterprise IT De
 
 ## Application Screenshots
 
-![Connecting Main Interface](docs/app_preview.png)
+![Connecting Main Interface](docs/app_preview_en.png)
 *Main Interface: 9-Digit Permanent Access ID, PSK Security Key, and Recent Workstation History.*
 
-![Connecting Remote Session](docs/app_preview2.png)
+![Connecting Remote Session](docs/app_preview2_en.png)
 *Live Remote Session: Multi-tab desktop control, real-time clipboard sync, and integrated live chat.*
 
-![Reiniciar como Admin UAC](docs/admin_access.png)
-*Voluntary UAC Elevation: One-click "Reiniciar como Admin" for interacting with elevated system windows.*
+![Voluntary UAC Elevation](docs/admin_access_en.png)
+*Voluntary UAC Elevation: One-click "Restart as Admin" for interacting with elevated system windows.*
 
-![Servicio de Asistencia de Windows](docs/service_install.png)
+![Windows Service Integration](docs/service_install_en.png)
 *Windows Service Integration: Optional background service installation (`ConnectingService`).*
 
 ---

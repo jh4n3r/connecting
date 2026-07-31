@@ -21,9 +21,9 @@ namespace Conecting
         private RichTextBox txtChatHistory;
         private TextBox txtChatMessage;
         private ModernButton btnSendChat;
-        private NetworkStream activeStream;
+        private Stream activeStream;
 
-        public HostSessionFloatingWidget(string requestingId, NetworkStream stream, Action onClose)
+        public HostSessionFloatingWidget(string requestingId, Stream stream, Action onClose)
         {
             this.activeStream = stream;
             this.onCloseCallback = onClose;
