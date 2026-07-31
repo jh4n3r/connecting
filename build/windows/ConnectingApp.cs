@@ -32,9 +32,19 @@ namespace Conecting
     /// </summary>
     public static class Program
     {
+        private static Mutex appMutex = null;
+
         [STAThread]
         public static void Main(string[] args)
         {
+            bool createdNew;
+            appMutex = new Mutex(true, "Global\\Connecting_RemoteDesktop_SingleInstance_Mutex", out createdNew);
+
+            if (!createdNew)
+            {
+                return;
+            }
+
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
@@ -46,6 +56,14 @@ namespace Conecting
             catch (Exception ex)
             {
                 MessageBox.Show("Application Error: " + ex.Message, "Connecting", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            finally
+            {
+                if (appMutex != null)
+                {
+                    try { appMutex.ReleaseMutex(); } catch { }
+                    appMutex.Dispose();
+                }
             }
         }
     }
@@ -170,42 +188,9 @@ namespace Conecting
             "ConnectingNodes"
         );
 
-        // DEFAULT RELAY SERVER DOMAIN (Configured for internal Oracle Cloud server)
+        // DEFAULT RELAY SERVER DOMAIN (Generic Open Source Default)
         public static string RelayServerDomain = "your-relay-server.com";
         public static int RelayServerPort = 8443;
-
-        public static string GetCustomRelayHost()
-        {
-            try
-            {
-                EnsureDirectoryExists();
-                string path = Path.Combine(AppDataDirectory, "relayhost.dat");
-                if (File.Exists(path))
-                {
-                    return File.ReadAllText(path).Trim();
-                }
-            }
-            catch { }
-            return "";
-        }
-
-        public static void SaveCustomRelayHost(string host)
-        {
-            try
-            {
-                EnsureDirectoryExists();
-                string path = Path.Combine(AppDataDirectory, "relayhost.dat");
-                File.WriteAllText(path, host.Trim());
-            }
-            catch { }
-        }
-
-        public static string GetActiveRelayHost()
-        {
-            string custom = GetCustomRelayHost();
-            if (!string.IsNullOrEmpty(custom)) return custom;
-            return RelayServerDomain;
-        }
 
         public static string GetSavedLanguage()
         {
@@ -234,20 +219,55 @@ namespace Conecting
             catch { }
         }
 
-        public static string GetRelayServerHost()
+        public static string GetRelayServerHost(out int port)
         {
+            port = RelayServerPort;
             try
             {
                 EnsureDirectoryExists();
-                string path = Path.Combine(AppDataDirectory, "server_host.dat");
-                if (File.Exists(path))
+                string[] files = new string[] { "relayhost.dat", "server_host.dat" };
+                foreach (string f in files)
                 {
-                    string saved = File.ReadAllText(path).Trim();
-                    if (!string.IsNullOrEmpty(saved)) return saved;
+                    string path = Path.Combine(AppDataDirectory, f);
+                    if (File.Exists(path))
+                    {
+                        string saved = File.ReadAllText(path).Trim();
+                        if (!string.IsNullOrEmpty(saved))
+                        {
+                            if (saved.Contains(":"))
+                            {
+                                string[] parts = saved.Split(':');
+                                string host = parts[0].Trim();
+                                int parsedPort;
+                                if (parts.Length > 1 && int.TryParse(parts[1].Trim(), out parsedPort) && parsedPort > 0)
+                                {
+                                    port = parsedPort;
+                                }
+                                if (!string.IsNullOrEmpty(host)) return host;
+                            }
+                            else
+                            {
+                                return saved;
+                            }
+                        }
+                    }
                 }
             }
             catch { }
             return RelayServerDomain;
+        }
+
+        public static string GetRelayServerHost()
+        {
+            int dummyPort;
+            return GetRelayServerHost(out dummyPort);
+        }
+
+        public static int GetRelayServerPort()
+        {
+            int port;
+            GetRelayServerHost(out port);
+            return port;
         }
 
         public static void SaveRelayServerHost(string host)
@@ -255,10 +275,38 @@ namespace Conecting
             try
             {
                 EnsureDirectoryExists();
-                string path = Path.Combine(AppDataDirectory, "server_host.dat");
-                File.WriteAllText(path, string.IsNullOrEmpty(host) ? RelayServerDomain : host.Trim());
+                string path1 = Path.Combine(AppDataDirectory, "server_host.dat");
+                string path2 = Path.Combine(AppDataDirectory, "relayhost.dat");
+                string val = string.IsNullOrEmpty(host) ? "" : host.Trim();
+                File.WriteAllText(path1, val);
+                File.WriteAllText(path2, val);
             }
             catch { }
+        }
+
+        public static string GetCustomRelayHost()
+        {
+            try
+            {
+                EnsureDirectoryExists();
+                string[] files = new string[] { "relayhost.dat", "server_host.dat" };
+                foreach (string f in files)
+                {
+                    string path = Path.Combine(AppDataDirectory, f);
+                    if (File.Exists(path))
+                    {
+                        string saved = File.ReadAllText(path).Trim();
+                        if (!string.IsNullOrEmpty(saved)) return saved;
+                    }
+                }
+            }
+            catch { }
+            return RelayServerDomain;
+        }
+
+        public static void SaveCustomRelayHost(string host)
+        {
+            SaveRelayServerHost(host);
         }
 
         public static string GetUserDisplayName()
@@ -422,15 +470,16 @@ namespace Conecting
                 client.SendBufferSize = 262144;
                 client.ReceiveBufferSize = 262144;
 
-                string targetHost = GetRelayServerHost();
-                IAsyncResult ar = client.BeginConnect(targetHost, RelayServerPort, null, null);
+                int targetPort;
+                string targetHost = GetRelayServerHost(out targetPort);
+                IAsyncResult ar = client.BeginConnect(targetHost, targetPort, null, null);
                 if (!ar.AsyncWaitHandle.WaitOne(3000) || !client.Connected)
                 {
                     try { client.Close(); } catch { }
                     errorMsg = string.Format(AppI18n.T(
                         "No se pudo establecer conexión con el Servidor Relay ({0}:{1}).",
                         "Could not connect to Relay Server ({0}:{1})."
-                    ), targetHost, RelayServerPort);
+                    ), targetHost, targetPort);
                     return null;
                 }
 
@@ -1543,6 +1592,7 @@ namespace Conecting
         private TextBox txtRemoteId;
         private TextBox txtRemotePsk;
         private TextBox txtCustomPsk;
+        private TextBox txtRelayHost;
         private CheckBox chkUnattendedAccess;
         private FlowLayoutPanel flowHistory;
 
@@ -1658,8 +1708,9 @@ namespace Conecting
                         relayClient.ReceiveBufferSize = 262144;
                         currentHostRelayClient = relayClient;
 
-                        string targetHost = PeerResolver.GetRelayServerHost();
-                        IAsyncResult ar = relayClient.BeginConnect(targetHost, PeerResolver.RelayServerPort, null, null);
+                        int targetPort;
+                        string targetHost = PeerResolver.GetRelayServerHost(out targetPort);
+                        IAsyncResult ar = relayClient.BeginConnect(targetHost, targetPort, null, null);
                         if (ar.AsyncWaitHandle.WaitOne(2500) && relayClient.Connected)
                         {
                             NetworkStream ns = relayClient.GetStream();
@@ -2466,7 +2517,7 @@ namespace Conecting
             cardSec.Controls.Add(c4);
             cardSec.Controls.Add(cAudio);
 
-            cardService = new ModernCardPanel { Size = new Size(930, 190), Location = new Point(24, 415), BackColor = ColorCardBg, BorderRadius = 12, Padding = new Padding(24) };
+            cardService = new ModernCardPanel { Size = new Size(930, 220), Location = new Point(24, 415), BackColor = ColorCardBg, BorderRadius = 12, Padding = new Padding(24) };
             Label lblSvcHeader = new Label { Text = AppI18n.T("Servicio de Asistencia de Windows, Idioma y Relay Server", "Windows Assistance Service, Language & Relay Server"), Font = new Font("Segoe UI", 12F, FontStyle.Bold), Location = new Point(24, 16), AutoSize = true, ForeColor = ColorTextDark };
             
             Label lblLang = new Label { Text = AppI18n.T("Idioma de la Aplicación:", "Application Language:"), Location = new Point(24, 55), AutoSize = true, Font = new Font("Segoe UI", 9.5F, FontStyle.Bold) };
@@ -2487,18 +2538,27 @@ namespace Conecting
                 }
             };
 
-            Label lblRelayHostLabel = new Label { Text = AppI18n.T("Servidor Relay Personalizado (Dominio o IP):", "Custom Relay Server (Domain or IP):"), Location = new Point(24, 98), AutoSize = true, Font = new Font("Segoe UI", 9.5F, FontStyle.Bold) };
-            TextBox txtRelayHost = new TextBox
+            Label lblRelayHostLabel = new Label { Text = AppI18n.T("Servidor Relay Personalizado (Dominio o IP):", "Custom Relay Server (Domain or IP):"), Location = new Point(24, 108), AutoSize = true, Font = new Font("Segoe UI", 9.5F, FontStyle.Bold) };
+            txtRelayHost = new TextBox
             {
-                Location = new Point(370, 95),
+                Location = new Point(370, 105),
                 Size = new Size(230, 28),
                 Font = new Font("Segoe UI", 10F),
                 Text = PeerResolver.GetCustomRelayHost()
             };
+            txtRelayHost.Leave += (s, e) =>
+            {
+                string host = txtRelayHost.Text.Trim();
+                if (!string.IsNullOrEmpty(host))
+                {
+                    PeerResolver.SaveCustomRelayHost(host);
+                    try { if (currentHostRelayClient != null) currentHostRelayClient.Close(); } catch { }
+                }
+            };
             ModernButton btnSaveRelay = new ModernButton
             {
                 Text = AppI18n.T("Guardar Servidor", "Save Server"),
-                Location = new Point(610, 92),
+                Location = new Point(610, 102),
                 Size = new Size(140, 32),
                 NormalColor = ColorCyanPrimary,
                 HoverColor = ColorCyanDark,
@@ -2508,8 +2568,16 @@ namespace Conecting
             {
                 string host = txtRelayHost.Text.Trim();
                 PeerResolver.SaveCustomRelayHost(host);
+                try
+                {
+                    if (currentHostRelayClient != null)
+                    {
+                        currentHostRelayClient.Close();
+                    }
+                }
+                catch { }
                 MessageBox.Show(
-                    AppI18n.T("Servidor Relay personalizado guardado correctamente. La aplicación registrará el puesto en la nueva dirección.", "Custom Relay Server saved successfully. The app will register on the new address."),
+                    AppI18n.T("Servidor Relay personalizado guardado correctamente. Reconectando al nuevo servidor...", "Custom Relay Server saved successfully. Reconnecting to new server..."),
                     "Connecting",
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Information
@@ -2765,6 +2833,11 @@ namespace Conecting
 
         private void BtnConnect_Click(object sender, EventArgs e)
         {
+            if (txtRelayHost != null && !string.IsNullOrEmpty(txtRelayHost.Text.Trim()))
+            {
+                PeerResolver.SaveCustomRelayHost(txtRelayHost.Text.Trim());
+            }
+
             string rawInput = txtRemoteId.Text.Trim();
             if (string.IsNullOrEmpty(rawInput))
             {
@@ -3479,24 +3552,33 @@ namespace Conecting
 
                 if (!_isRenderingFrame)
                 {
+                    if (this.IsDisposed || !this.IsHandleCreated) return;
                     _isRenderingFrame = true;
-                    this.BeginInvoke((MethodInvoker)delegate
+                    try
                     {
-                        Image toRender = null;
-                        lock (this)
+                        this.BeginInvoke((MethodInvoker)delegate
                         {
-                            toRender = _pendingFrame;
-                            _pendingFrame = null;
-                        }
+                            if (this.IsDisposed || !this.IsHandleCreated) return;
+                            Image toRender = null;
+                            lock (this)
+                            {
+                                toRender = _pendingFrame;
+                                _pendingFrame = null;
+                            }
 
-                        if (toRender != null)
-                        {
-                            Image old = picRemoteDesktop.Image;
-                            picRemoteDesktop.Image = toRender;
-                            if (old != null) old.Dispose();
-                        }
+                            if (toRender != null)
+                            {
+                                Image old = picRemoteDesktop.Image;
+                                picRemoteDesktop.Image = toRender;
+                                if (old != null) old.Dispose();
+                            }
+                            _isRenderingFrame = false;
+                        });
+                    }
+                    catch
+                    {
                         _isRenderingFrame = false;
-                    });
+                    }
                 }
             }
             catch { }
@@ -3883,11 +3965,12 @@ namespace Conecting
 
         private void NotifyHostClosed()
         {
-            if (this.IsDisposed) return;
+            if (!isSessionActive || this.IsDisposed || !this.IsHandleCreated) return;
             try
             {
                 this.Invoke((MethodInvoker)delegate
                 {
+                    if (!isSessionActive || this.IsDisposed || !this.IsHandleCreated) return;
                     MessageBox.Show(
                         string.Format(AppI18n.T("El equipo remoto ({0}) ha finalizado la sesión.", "Remote computer ({0}) ended the session."), TargetId),
                         "Connecting",
@@ -4135,7 +4218,16 @@ namespace Conecting
 
             sessionView.OnCloseSessionRequested = () =>
             {
-                this.BeginInvoke((MethodInvoker)delegate { CloseSessionTab(tabItem); });
+                if (this.IsDisposed || !this.IsHandleCreated) return;
+                try
+                {
+                    this.BeginInvoke((MethodInvoker)delegate
+                    {
+                        if (this.IsDisposed || !this.IsHandleCreated) return;
+                        CloseSessionTab(tabItem);
+                    });
+                }
+                catch { }
             };
 
             tabCard.Controls.Add(btnTab);

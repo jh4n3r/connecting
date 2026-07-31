@@ -231,6 +231,7 @@
 
             <div class="nav-right" id="navMenu">
                 <a href="../" class="nav-link" id="nav-home">Inicio</a>
+                <a href="../download" class="nav-link" id="nav-download">Descargar</a>
                 <a href="../terms" class="nav-link" id="nav-terms">Términos Legales</a>
                 <select id="langSelector" class="lang-select" onchange="changeLanguage(this.value)">
                     <option value="es">Español</option>
@@ -577,8 +578,31 @@ powershell -ExecutionPolicy Bypass -File .\build.ps1
             const navHome = document.getElementById('nav-home');
             if (navHome) navHome.innerText = (lang === 'en') ? 'Home' : 'Inicio';
 
+            const navDownload = document.getElementById('nav-download');
+            if (navDownload) navDownload.innerText = (lang === 'en') ? 'Download' : 'Descargar';
+
             const navTerms = document.getElementById('nav-terms');
             if (navTerms) navTerms.innerText = (lang === 'en') ? 'Legal Terms' : 'Términos Legales';
+
+            updateImagesForLanguage(lang);
+        }
+
+        function updateImagesForLanguage(lang) {
+            const isEn = (lang === 'en');
+            const images = document.querySelectorAll('img');
+            images.forEach(img => {
+                let src = img.getAttribute('src');
+                if (!src) return;
+                if (isEn) {
+                    if (src.match(/(admin_access|app_preview|app_preview2|app_preview3|service_install)\.png$/)) {
+                        img.src = src.replace(/\.png$/, '_en.png');
+                    }
+                } else {
+                    if (src.match(/(admin_access|app_preview|app_preview2|app_preview3|service_install)_en\.png$/)) {
+                        img.src = src.replace(/_en\.png$/, '.png');
+                    }
+                }
+            });
         }
 
         document.addEventListener('DOMContentLoaded', () => {

@@ -1,6 +1,6 @@
 # Connecting Remote Desktop
 
-> **Lightweight, Portable, and Encrypted Real-Time Remote Assistance & Control Platform for Windows.**
+> **Lightweight, Portable, and Encrypted Real-Time Remote Assistance & Control Platform for Windows & Linux.**
 
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 [![Build Status](https://img.shields.io/badge/Build-Passing-brightgreen.svg)]()
@@ -10,97 +10,57 @@
 
 ## Overview
 
-**Connecting Remote Desktop** is a high-performance, open-source remote control solution written natively in **C# (.NET Framework 4.8 / Win32 Native API)** and routed through a lightweight **Node.js TCP relay server**.
+**Connecting Remote Desktop** is a high-performance, open-source remote control solution written natively in **C# (.NET Framework 4.8 / Win32 Native API)** and routed through a ultra-low latency **Node.js TCP relay server**.
 
-Designed for **IT Support Engineers, System Administrators, and Enterprise IT Departments**, Connecting allows instant remote assistance without installation, background services, or restrictive commercial licensing. It supports both public relay connections and self-hosted **On-Premise** deployments inside isolated corporate networks (VPN / Local LAN).
+Designed for **IT Support Engineers, System Administrators, and Enterprise IT Departments**, Connecting allows instant remote assistance without requiring administrator privileges (`asInvoker`), restrictive commercial licensing, or mandatory cloud dependencies. It supports both public relay routing and self-hosted **On-Premise** corporate deployments.
 
 ---
 
 ## Application Screenshots
 
-![Connecting Main Interface](app_preview.png)
-*Main Interface: Connection Dashboard, Persistent PSK Key, and Session History.*
+![Connecting Main Interface](docs/app_preview.png)
+*Main Interface: 9-Digit Permanent Access ID, PSK Security Key, and Recent Workstation History.*
 
-![Connecting Remote Session](app_preview2.png)
-*Live Remote Session: Ultra-low latency remote control with native system shortcuts and integrated live chat.*
+![Connecting Remote Session](docs/app_preview2.png)
+*Live Remote Session: Multi-tab desktop control, real-time clipboard sync, and integrated live chat.*
 
----
+![Reiniciar como Admin UAC](docs/admin_access.png)
+*Voluntary UAC Elevation: One-click "Reiniciar como Admin" for interacting with elevated system windows.*
 
-## Code Architecture & Clean Code Principles
-
-- **Client (`build/windows/ConnectingApp.cs`)**: C# (.NET Framework 4.8) compiled natively into a portable single `Connecting.exe` (~80 KB). Zero third-party runtime dependencies.
-- **Input Engine (`NativeInputInjector`)**: Native Win32 API (`SendInput` + `MapVirtualKey`) providing absolute mouse coordinates (0–65535) and physical keyboard scan codes for interacting with elevated system windows (UAC, Task Manager, CMD, PowerShell).
-- **Relay Server (`build/server/server.js`)**: Native Node.js TCP socket server (`net` module) providing fast, zero-dependency packet routing.
-
----
-
-## Building from Source
-
-`Connecting.exe` is built directly and deterministically from `build/windows/ConnectingApp.cs` without proprietary libraries or external binaries.
-
-### Compilation & Code Signing (Windows PowerShell):
-
-```powershell
-cd build/windows
-.\build.ps1
-```
-
----
-
-## Code Signing
-
-Code signing application for **Connecting Remote Desktop** is currently in progress for the **[SignPath Foundation](https://signpath.org/)** program for Open Source projects.
-
-Automated CI/CD build and signing pipeline configuration template is provided in `.github/workflows/signpath-signing.yml`.
-
----
-
-## On-Premise Deployment Guide
-
-For enterprise environments requiring a private, self-hosted relay server:
-
-### 1. Run the Automated Nginx + SSL Wizard
-
-```bash
-cd build/server
-chmod +x setup-nginx-ssl.sh
-sudo ./setup-nginx-ssl.sh
-```
-
-### 2. Run the Node.js Relay Server
-
-```bash
-cd build/server
-nohup node server.js > relay.log 2>&1 &
-```
+![Servicio de Asistencia de Windows](docs/service_install.png)
+*Windows Service Integration: Optional background service installation (`ConnectingService`).*
 
 ---
 
 ## Key Features
 
-1. **Extreme Portability**: Single ~80 KB executable file. No background service installation or administrator privileges required to start.
-2. **Unattended Access & Persistent PSK**: Configure a custom access key under Security Settings. Saved securely in `%APPDATA%\ConnectingNodes\custom_psk.dat`.
-3. **One-Click Connection**: Input the 9-digit Target ID or PSK Key and press `ENTER` to connect instantly.
-4. **Hostname & Alias History**: Automatically transmits the remote machine name (`Environment.MachineName`) with editable custom Aliases.
-5. **Native Keyboard Shortcuts**: Direct system key injection (`Win+R`, `Win+E`, `Ctrl+Alt+Del`, `Ctrl+Shift+Esc`) without local machine interference.
-6. **Bidirectional Clipboard & Live Chat**: Real-time text copy/paste and sidebar messaging during active sessions.
+1. **Extreme Portability**: Runs instantly as a portable ~100 KB executable (`asInvoker`). No installer or admin rights required.
+2. **Permanent 9-Digit ID**: Generates a unique, cryptographically secure 9-digit node ID persisted in `%APPDATA%\ConnectingNodes\node_id.dat`.
+3. **Customizable Relay Server UI**: Configure any custom or self-hosted Relay Server (`domain:port` e.g., `relay.yourdomain.com:8443`) directly from the Settings tab in the Open Source distribution (`build/windows`).
+4. **Voluntary UAC Elevation**: One-click elevation restart (`ProcessStartInfo.Verb = "runas"`) to interact with UAC dialogs, Task Manager, and administrative consoles.
+5. **Native Key Injection**: Full Win32 `SendInput` coordinate mapping (0–65535) and physical scan-code dispatching (`Win+R`, `Ctrl+Alt+Del`, `Ctrl+Shift+Esc`).
+6. **Single-Instance Safety**: Guarded by a System Mutex to prevent duplicate processes or orphaned system tray icons.
+7. **Windows Service Support**: Optional background service (`ConnectingService`) for uninterrupted corporate unattended access.
+8. **Multi-Tab Sessions & Live Chat**: Manage multiple concurrent remote desktops with tabbed navigation and real-time sidebar messaging.
+
+---
+
+## Building from Source
+
+The project includes clean PowerShell scripts to combine modular source files (`src/*.cs`) and compile deterministically without Visual Studio:
+
+```powershell
+cd build/windows
+
+# 1. Combine modular C# source files into ConnectingApp.cs
+powershell -ExecutionPolicy Bypass -File .\combine.ps1
+
+# 2. Compile Connecting.exe (with UTF-8 codepage 65001), embed manifest/icon, and sign
+powershell -ExecutionPolicy Bypass -File .\build.ps1
+```
 
 ---
 
 ## License & Legal Terms
 
 This project is 100% Open Source Software licensed under the **[GNU General Public License v3.0 (GPLv3)](LICENSE)**.
-
-- **Full Source Code**: The entire source code of the Windows C# client (`build/windows/ConnectingApp.cs`), Linux C# client (`build/linux/ConnectingApp.cs`), Node.js relay server (`build/server/server.js`), and deployment scripts (`build/server/setup-nginx-ssl.sh`) are publicly available.
-- **Trademarks**: Product names referenced (AnyDesk, TeamViewer, RustDesk) are used solely for descriptive comparison. All trademarks belong to their respective owners. Connecting is not affiliated with or endorsed by these entities.
-
----
-
-## Contact & Official Resources
-
-- **Lead Developer**: @jh4n3r
-- **Repository**: [https://github.com/jh4n3r/connecting](https://github.com/jh4n3r/connecting)
-- **Official Email**: jh4n3r@outlook.com
-- **Website**: [https://jh4n3r.github.io/connecting/](https://jh4n3r.github.io/connecting/)
-- **Documentation**: [https://jh4n3r.github.io/connecting/docs.html](https://jh4n3r.github.io/connecting/docs.html)
-- **Legal Terms**: [https://jh4n3r.github.io/connecting/terms.html](https://jh4n3r.github.io/connecting/terms.html)

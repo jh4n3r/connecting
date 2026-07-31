@@ -41,6 +41,7 @@ namespace Conecting
         private TextBox txtRemoteId;
         private TextBox txtRemotePsk;
         private TextBox txtCustomPsk;
+        private TextBox txtRelayHost;
         private CheckBox chkUnattendedAccess;
         private FlowLayoutPanel flowHistory;
 
@@ -156,8 +157,9 @@ namespace Conecting
                         relayClient.ReceiveBufferSize = 262144;
                         currentHostRelayClient = relayClient;
 
-                        string targetHost = PeerResolver.GetRelayServerHost();
-                        IAsyncResult ar = relayClient.BeginConnect(targetHost, PeerResolver.RelayServerPort, null, null);
+                        int targetPort;
+                        string targetHost = PeerResolver.GetRelayServerHost(out targetPort);
+                        IAsyncResult ar = relayClient.BeginConnect(targetHost, targetPort, null, null);
                         if (ar.AsyncWaitHandle.WaitOne(2500) && relayClient.Connected)
                         {
                             NetworkStream ns = relayClient.GetStream();
@@ -964,7 +966,7 @@ namespace Conecting
             cardSec.Controls.Add(c4);
             cardSec.Controls.Add(cAudio);
 
-            cardService = new ModernCardPanel { Size = new Size(930, 190), Location = new Point(24, 415), BackColor = ColorCardBg, BorderRadius = 12, Padding = new Padding(24) };
+            cardService = new ModernCardPanel { Size = new Size(930, 220), Location = new Point(24, 415), BackColor = ColorCardBg, BorderRadius = 12, Padding = new Padding(24) };
             Label lblSvcHeader = new Label { Text = AppI18n.T("Servicio de Asistencia de Windows, Idioma y Relay Server", "Windows Assistance Service, Language & Relay Server"), Font = new Font("Segoe UI", 12F, FontStyle.Bold), Location = new Point(24, 16), AutoSize = true, ForeColor = ColorTextDark };
             
             Label lblLang = new Label { Text = AppI18n.T("Idioma de la Aplicación:", "Application Language:"), Location = new Point(24, 55), AutoSize = true, Font = new Font("Segoe UI", 9.5F, FontStyle.Bold) };
@@ -985,18 +987,27 @@ namespace Conecting
                 }
             };
 
-            Label lblRelayHostLabel = new Label { Text = AppI18n.T("Servidor Relay Personalizado (Dominio o IP):", "Custom Relay Server (Domain or IP):"), Location = new Point(24, 98), AutoSize = true, Font = new Font("Segoe UI", 9.5F, FontStyle.Bold) };
-            TextBox txtRelayHost = new TextBox
+            Label lblRelayHostLabel = new Label { Text = AppI18n.T("Servidor Relay Personalizado (Dominio o IP):", "Custom Relay Server (Domain or IP):"), Location = new Point(24, 108), AutoSize = true, Font = new Font("Segoe UI", 9.5F, FontStyle.Bold) };
+            txtRelayHost = new TextBox
             {
-                Location = new Point(370, 95),
+                Location = new Point(370, 105),
                 Size = new Size(230, 28),
                 Font = new Font("Segoe UI", 10F),
                 Text = PeerResolver.GetCustomRelayHost()
             };
+            txtRelayHost.Leave += (s, e) =>
+            {
+                string host = txtRelayHost.Text.Trim();
+                if (!string.IsNullOrEmpty(host))
+                {
+                    PeerResolver.SaveCustomRelayHost(host);
+                    try { if (currentHostRelayClient != null) currentHostRelayClient.Close(); } catch { }
+                }
+            };
             ModernButton btnSaveRelay = new ModernButton
             {
                 Text = AppI18n.T("Guardar Servidor", "Save Server"),
-                Location = new Point(610, 92),
+                Location = new Point(610, 102),
                 Size = new Size(140, 32),
                 NormalColor = ColorCyanPrimary,
                 HoverColor = ColorCyanDark,
@@ -1006,8 +1017,16 @@ namespace Conecting
             {
                 string host = txtRelayHost.Text.Trim();
                 PeerResolver.SaveCustomRelayHost(host);
+                try
+                {
+                    if (currentHostRelayClient != null)
+                    {
+                        currentHostRelayClient.Close();
+                    }
+                }
+                catch { }
                 MessageBox.Show(
-                    AppI18n.T("Servidor Relay personalizado guardado correctamente. La aplicación registrará el puesto en la nueva dirección.", "Custom Relay Server saved successfully. The app will register on the new address."),
+                    AppI18n.T("Servidor Relay personalizado guardado correctamente. Reconectando al nuevo servidor...", "Custom Relay Server saved successfully. Reconnecting to new server..."),
                     "Connecting",
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Information
@@ -1263,6 +1282,11 @@ namespace Conecting
 
         private void BtnConnect_Click(object sender, EventArgs e)
         {
+            if (txtRelayHost != null && !string.IsNullOrEmpty(txtRelayHost.Text.Trim()))
+            {
+                PeerResolver.SaveCustomRelayHost(txtRelayHost.Text.Trim());
+            }
+
             string rawInput = txtRemoteId.Text.Trim();
             if (string.IsNullOrEmpty(rawInput))
             {

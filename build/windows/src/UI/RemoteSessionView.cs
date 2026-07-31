@@ -428,24 +428,33 @@ namespace Conecting
 
                 if (!_isRenderingFrame)
                 {
+                    if (this.IsDisposed || !this.IsHandleCreated) return;
                     _isRenderingFrame = true;
-                    this.BeginInvoke((MethodInvoker)delegate
+                    try
                     {
-                        Image toRender = null;
-                        lock (this)
+                        this.BeginInvoke((MethodInvoker)delegate
                         {
-                            toRender = _pendingFrame;
-                            _pendingFrame = null;
-                        }
+                            if (this.IsDisposed || !this.IsHandleCreated) return;
+                            Image toRender = null;
+                            lock (this)
+                            {
+                                toRender = _pendingFrame;
+                                _pendingFrame = null;
+                            }
 
-                        if (toRender != null)
-                        {
-                            Image old = picRemoteDesktop.Image;
-                            picRemoteDesktop.Image = toRender;
-                            if (old != null) old.Dispose();
-                        }
+                            if (toRender != null)
+                            {
+                                Image old = picRemoteDesktop.Image;
+                                picRemoteDesktop.Image = toRender;
+                                if (old != null) old.Dispose();
+                            }
+                            _isRenderingFrame = false;
+                        });
+                    }
+                    catch
+                    {
                         _isRenderingFrame = false;
-                    });
+                    }
                 }
             }
             catch { }
@@ -832,11 +841,12 @@ namespace Conecting
 
         private void NotifyHostClosed()
         {
-            if (this.IsDisposed) return;
+            if (!isSessionActive || this.IsDisposed || !this.IsHandleCreated) return;
             try
             {
                 this.Invoke((MethodInvoker)delegate
                 {
+                    if (!isSessionActive || this.IsDisposed || !this.IsHandleCreated) return;
                     MessageBox.Show(
                         string.Format(AppI18n.T("El equipo remoto ({0}) ha finalizado la sesión.", "Remote computer ({0}) ended the session."), TargetId),
                         "Connecting",

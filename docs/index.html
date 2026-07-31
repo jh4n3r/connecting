@@ -57,6 +57,7 @@
 
             <div class="nav-right" id="navMenu">
                 <a href="docs" class="nav-link" id="nav-docs">Documentación</a>
+                <a href="download" class="nav-link" id="nav-download">Descargar</a>
                 <a href="terms" class="nav-link" id="nav-terms">Términos Legales</a>
                 <select id="langSelector" class="lang-select" onchange="changeLanguage(this.value)">
                     <option value="es">Español</option>
@@ -83,7 +84,7 @@
             </p>
 
             <div class="hero-actions">
-                <a href="connecting.zip" download class="btn-hero" id="hero-btn">
+                <a href="download/" class="btn-hero" id="hero-btn">
                     <svg viewBox="0 0 24 24">
                         <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
                         <polyline points="7 10 12 15 17 10" />
@@ -287,45 +288,46 @@
         const translations = {
             es: {
                 navDocs: "Documentación",
+                navDownload: "Descargar",
                 navTerms: "Términos Legales",
                 badge1: "Listo para Usar al Instante",
                 badge2: "Opción de Servidor Interno On-Premise",
                 title: "Escritorio Remoto Ultra Rápido y Portátil",
                 subtitle: "Acceso y asistencia remota cifrada de ultra baja latencia. Descarga Connecting y conéctate inmediatamente a cualquier equipo, o despliega opcionalmente un servidor propio para uso interno de tu organización.",
-                btnDownload: "Descargar Connecting",
-                heroNote: "Ejecutable Portátil (~80 KB) • Windows 10 y 11 • Servidor privado On-Premise",
-                discreetNote: "* Solicitud de firma de código en proceso ante la Fundación SignPath (SmartScreen: <em>Más información → Ejecutar de todas formas</em>)",
-                mockup1: "Connecting • Interfaz Principal",
-                mockup2: "Connecting • Sesion de Control Remoto",
-                sec1Subtitle: "Flexible para Soporte Directo e Infraestructura de TI",
-                sec1Title: "Funciona al Instante o Alojado en Tu Red Interna",
-                sec1Desc: "Utilízalo de forma inmediata para asistencia remota rápida o implementa tu propio servidor de relevo privado (connecting-relay-server) para uso interno corporativo.",
-                card1Title: "Funciona al Instante (Uso Directo)",
-                card1Desc: "Descarga el ejecutable portátil de ~80 KB y comienza a conectarte inmediatamente a cualquier equipo introduciendo su ID de 9 dígitos sin configuraciones previas.",
-                card2Title: "Servidor Privado para Uso Interno",
-                card2Desc: "Para empresas o redes aisladas de TI, aloja el enrutador de sockets TCP en tu infraestructura local. Todo el tráfico de imágenes y comandos permanece dentro de tu red interna.",
+                btnDownload: "Descargar Connecting v1.0.2",
+                heroNote: "Ejecutable Portátil (~100 KB) • Windows 10 y 11 • Servidor valida con CA firmado",
+                discreetNote: "* Firma de código proporcionada por la Fundación SignPath (SmartScreen: <em>Más información → Ejecutar de todas formas</em>)",
+                mockup1: "Connecting • Panel Principal del Puesto de Trabajo",
+                mockup2: "Connecting • Sesión de Control Remoto en Vivo",
+                sec1Subtitle: "Flexible para Soporte Técnico Directo e Infraestructura TI Enterprise",
+                sec1Title: "Funciona al Instante o Alojado en tu Red Interna",
+                sec1Desc: "Utilízalo inmediatamente para soporte rápido o despliega tu propio servidor relay privado (connecting-relay-server) para uso exclusivo interno.",
+                card1Title: "Listo para Usar (Acceso Directo)",
+                card1Desc: "Descarga el ejecutable portátil de ~100 KB y comienza a conectarte inmediatamente a cualquier equipo introduciendo su ID de 9 dígitos sin configuraciones previas.",
+                card2Title: "Servidor Privado On-Premise",
+                card2Desc: "Para entornos corporativos o redes aisla TI, aloja el relay de sockets TCP en tu infraestructura local. Todo el tráfico de imágenes y comandos permanece en tu red interna.",
                 card3Title: "Acceso Desatendido y Gestión de Puestos",
-                card3Desc: "Configura tu propia Clave PSK Persistente en puestos clave para intervenciones rápidas y administra tu historial de conexiones con Hostname y Alias personalizados.",
-                techSubtitle: "Ingeniería & Stack de Programación",
-                techTitle: "¿Con qué tecnología fue creado Connecting?",
-                techDesc: "Diseño enfocado en velocidad nativa pura, cero dependencias pesadas y portabilidad extrema.",
-                tech1Title: "C# (.NET Framework 4.8)",
-                tech1Desc: "Aplicación cliente compilada de forma nativa a un solo ejecutable .EXE portátil de ~80 KB. Sin instaladores ni servicios de fondo.",
-                tech2Title: "Win32 Native API",
-                tech2Desc: "Inyección nativa SendInput con coordenadas absolutas de pantalla y mapeo de códigos de escaneo físico (MapVirtualKey).",
-                tech3Title: "Node.js TCP Sockets Engine",
-                tech3Desc: "Servidor Relay privado On-Premise ligero escrito en Node.js para enrutamiento directo de sockets con cero búfer.",
+                card3Desc: "Configura tu propia Clave PSK Persistente en servidores y equipos clave para soporte rápido, y gestiona tu historial de conexiones con Nombres de Equipo y Alias visuales.",
+                techSubtitle: "Stack de Ingeniería y Programación",
+                techTitle: "¿Con qué tecnología se construyó Connecting?",
+                techDesc: "Diseñado enfocándose en velocidad nativa pura, cero dependencias pesadas y máxima portabilidad.",
+                tech1Title: "C# (.NET Framework 4.8 / Win32 API)",
+                tech1Desc: "Cliente compilado nativamente en un único archivo ejecutable portátil de ~100 KB. Sin instaladores ni dependencias externas.",
+                tech2Title: "Inyección Nativa Win32 API",
+                tech2Desc: "Inyección SendInput con coordenadas absolutas de pantalla y mapeo de códigos de escaneo físico (MapVirtualKey).",
+                tech3Title: "Motor TCP Sockets en Node.js",
+                tech3Desc: "Servidor Relay privado On-Premise ultra liviano escrito en Node.js para enrutamiento directo de paquetes sin buffer.",
                 compSubtitle: "Tabla Comparativa",
                 compTitle: "¿Por qué elegir Connecting?",
-                compDesc: "Comparativa directa frente a alternativas comerciales tradicionales.",
-                thFeature: "Característica",
-                thOthers: "Otras Herramientas",
-                thTraditional: "Sistemas Tradicionales",
-                thSaas: "Servicios SaaS",
+                compDesc: "Comparativa directa frente a las alternativas comerciales tradicionales.",
+                thFeature: "Característica / Función",
+                thOthers: "Connecting",
+                thTraditional: "TeamViewer / AnyDesk",
+                thSaas: "Soluciones Cloud SaaS",
                 tableRows: [
-                    ["Precio / Licencia", "100% Gratuito / Libre", "Pago Mensual", "Open Source", "Pago Mensual"],
-                    ["Despliegue Privado On-Premise", "Incluido (Servidor propio)", "Solo Plan Enterprise", "Si", "No permitido"],
-                    ["Tamaño del Ejecutable", "~80 KB (Portátil)", "~15 MB", "~25 MB", "~60 MB"],
+                    ["Despliegue On-Premise", "Gratis / Incluido", "Solo Licencia Enterprise", "No disponible"],
+                    ["Código Fuente Abierto", "100% GPLv3", "Propietario / Cerrado", "Propietario / Cerrado"],
+                    ["Ejecutable Portátil (Sin Instalar)", "Si (~100 KB)", "Requiere Instalación", "Requiere Agente"],
                     ["Elevación Admin Automática", "Auto-elevación UAC", "Si (Servicio)", "Manual", "Si (Servicio)"],
                     ["Clave PSK Persistente", "Persistencia Guardada", "Limitada", "Si", "Aleatoria"],
                     ["Hostname + Alias en Historial", "Asignación Visual de 1 Clic", "Si", "Solo ID", "Solo ID"]
@@ -336,21 +338,22 @@
             },
             en: {
                 navDocs: "Documentation",
+                navDownload: "Download",
                 navTerms: "Legal Terms",
                 badge1: "Ready to Use Instantly",
                 badge2: "On-Premise Private Server Option",
                 title: "Ultra Fast & Portable Remote Desktop",
                 subtitle: "Encrypted remote assistance with ultra-low latency. Download Connecting and connect immediately to any device, or optionally deploy your own private relay server for internal organizational use.",
-                btnDownload: "Download Connecting",
-                heroNote: "Portable Executable (~80 KB) • Windows 10 & 11 • On-Premise Private Server",
-                discreetNote: "* Code signing application in progress with the SignPath Foundation (SmartScreen: <em>More info → Run anyway</em>)",
+                btnDownload: "Download Connecting v1.0.2",
+                heroNote: "Portable Executable (~100 KB) • Windows 10 & 11 • Server validates signed CA",
+                discreetNote: "* Code signing provided by SignPath Foundation (SmartScreen: <em>More info → Run anyway</em>)",
                 mockup1: "Connecting • Main Dashboard Interface",
                 mockup2: "Connecting • Live Remote Control Session",
                 sec1Subtitle: "Flexible for Direct Support and Enterprise IT Infrastructure",
                 sec1Title: "Works Instantly or Hosted on Your Internal Network",
                 sec1Desc: "Use it immediately for fast remote assistance or deploy your own private relay server (connecting-relay-server) for internal corporate use.",
                 card1Title: "Works Instantly (Direct Access)",
-                card1Desc: "Download the ~80 KB portable executable and start connecting immediately to any machine by entering its 9-digit ID with zero setup.",
+                card1Desc: "Download the ~100 KB portable executable and start connecting immediately to any machine by entering its 9-digit ID with zero setup.",
                 card2Title: "Private On-Premise Server",
                 card2Desc: "For corporate environments or isolated IT networks, host the TCP socket relay on your local infrastructure. All image and command traffic stays inside your internal network.",
                 card3Title: "Unattended Access & Station Management",
@@ -358,30 +361,30 @@
                 techSubtitle: "Engineering & Programming Stack",
                 techTitle: "What technology was Connecting built with?",
                 techDesc: "Designed focusing on pure native speed, zero heavy dependencies, and extreme portability.",
-                tech1Title: "C# (.NET Framework 4.8)",
-                tech1Desc: "Client app compiled natively into a single ~80 KB portable .EXE file. No installer or background services required.",
-                tech2Title: "Win32 Native API",
+                tech1Title: "C# (.NET Framework 4.8 / Win32 API)",
+                tech1Desc: "Client app compiled natively into a single ~100 KB portable .EXE file. No installer or background services required.",
+                tech2Title: "Win32 Native API Injection",
                 tech2Desc: "Native SendInput injection with absolute screen coordinates and physical scan code mapping (MapVirtualKey).",
                 tech3Title: "Node.js TCP Sockets Engine",
                 tech3Desc: "Lightweight On-Premise private relay server written in Node.js for direct zero-buffer socket routing.",
                 compSubtitle: "Comparison Table",
                 compTitle: "Why choose Connecting?",
                 compDesc: "Direct comparison against traditional commercial alternatives.",
-                thFeature: "Feature",
-                thOthers: "Other Tools",
-                thTraditional: "Traditional Systems",
-                thSaas: "SaaS Services",
+                thFeature: "Feature / Capability",
+                thOthers: "Connecting",
+                thTraditional: "TeamViewer / AnyDesk",
+                thSaas: "SaaS Cloud Solutions",
                 tableRows: [
-                    ["Price / License", "100% Free / Open", "Monthly Fee", "Open Source", "Monthly Fee"],
-                    ["Private On-Premise Deployment", "Included (Self-hosted)", "Enterprise Plan Only", "Yes", "Not Allowed"],
-                    ["Executable File Size", "~80 KB (Portable)", "~15 MB", "~25 MB", "~60 MB"],
-                    ["Automatic Admin Elevation", "UAC Auto-Elevation", "Yes (Service)", "Manual", "Yes (Service)"],
+                    ["On-Premise Deployment", "Free / Included", "Enterprise License Only", "Not Available"],
+                    ["Open Source Codebase", "100% GPLv3", "Proprietary / Closed", "Proprietary / Closed"],
+                    ["Portable Executable (No Install)", "Yes (~100 KB)", "Requires Installer", "Requires Agent"],
+                    ["Admin UAC Elevation", "Auto-elevation UAC", "Yes (Service)", "Manual", "Yes (Service)"],
                     ["Persistent PSK Key", "Saved Persistence", "Limited", "Yes", "Random"],
-                    ["Hostname + History Alias", "1-Click Visual Assignment", "Yes", "ID Only", "ID Only"]
+                    ["Hostname + Alias History", "1-Click Visual Assignment", "Yes", "ID Only", "ID Only"]
                 ],
                 footerText: "© 2026 Connecting Remote Desktop • Developed by <strong>@jh4n3r</strong>",
-                footerDocs: "View Full Technical Documentation",
-                footerTerms: "Legal License Terms & Contact"
+                footerDocs: "View Complete Technical Documentation",
+                footerTerms: "Legal License & Contact Terms"
             }
         };
 
@@ -401,9 +404,10 @@
 
             // Nav links
             const navLinks = document.querySelectorAll('.nav-link');
-            if (navLinks.length >= 2) {
+            if (navLinks.length >= 3) {
                 navLinks[0].innerText = t.navDocs;
-                navLinks[1].innerText = t.navTerms;
+                navLinks[1].innerText = t.navDownload;
+                navLinks[2].innerText = t.navTerms;
             }
 
             // Hero section
@@ -501,6 +505,27 @@
                     }
                 }
             }
+
+            // Update images for language
+            updateImagesForLanguage(lang);
+        }
+
+        function updateImagesForLanguage(lang) {
+            const isEn = (lang === 'en');
+            const images = document.querySelectorAll('img');
+            images.forEach(img => {
+                let src = img.getAttribute('src');
+                if (!src) return;
+                if (isEn) {
+                    if (src.match(/(admin_access|app_preview|app_preview2|app_preview3|service_install)\.png$/)) {
+                        img.src = src.replace(/\.png$/, '_en.png');
+                    }
+                } else {
+                    if (src.match(/(admin_access|app_preview|app_preview2|app_preview3|service_install)_en\.png$/)) {
+                        img.src = src.replace(/_en\.png$/, '.png');
+                    }
+                }
+            });
         }
 
         document.addEventListener('DOMContentLoaded', () => {

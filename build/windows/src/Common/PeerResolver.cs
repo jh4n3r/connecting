@@ -23,39 +23,6 @@ namespace Conecting
         public static string RelayServerDomain = "your-relay-server.com";
         public static int RelayServerPort = 8443;
 
-        public static string GetCustomRelayHost()
-        {
-            try
-            {
-                EnsureDirectoryExists();
-                string path = Path.Combine(AppDataDirectory, "relayhost.dat");
-                if (File.Exists(path))
-                {
-                    return File.ReadAllText(path).Trim();
-                }
-            }
-            catch { }
-            return "";
-        }
-
-        public static void SaveCustomRelayHost(string host)
-        {
-            try
-            {
-                EnsureDirectoryExists();
-                string path = Path.Combine(AppDataDirectory, "relayhost.dat");
-                File.WriteAllText(path, host.Trim());
-            }
-            catch { }
-        }
-
-        public static string GetActiveRelayHost()
-        {
-            string custom = GetCustomRelayHost();
-            if (!string.IsNullOrEmpty(custom)) return custom;
-            return RelayServerDomain;
-        }
-
         public static string GetSavedLanguage()
         {
             try
@@ -83,20 +50,55 @@ namespace Conecting
             catch { }
         }
 
-        public static string GetRelayServerHost()
+        public static string GetRelayServerHost(out int port)
         {
+            port = RelayServerPort;
             try
             {
                 EnsureDirectoryExists();
-                string path = Path.Combine(AppDataDirectory, "server_host.dat");
-                if (File.Exists(path))
+                string[] files = new string[] { "relayhost.dat", "server_host.dat" };
+                foreach (string f in files)
                 {
-                    string saved = File.ReadAllText(path).Trim();
-                    if (!string.IsNullOrEmpty(saved)) return saved;
+                    string path = Path.Combine(AppDataDirectory, f);
+                    if (File.Exists(path))
+                    {
+                        string saved = File.ReadAllText(path).Trim();
+                        if (!string.IsNullOrEmpty(saved))
+                        {
+                            if (saved.Contains(":"))
+                            {
+                                string[] parts = saved.Split(':');
+                                string host = parts[0].Trim();
+                                int parsedPort;
+                                if (parts.Length > 1 && int.TryParse(parts[1].Trim(), out parsedPort) && parsedPort > 0)
+                                {
+                                    port = parsedPort;
+                                }
+                                if (!string.IsNullOrEmpty(host)) return host;
+                            }
+                            else
+                            {
+                                return saved;
+                            }
+                        }
+                    }
                 }
             }
             catch { }
             return RelayServerDomain;
+        }
+
+        public static string GetRelayServerHost()
+        {
+            int dummyPort;
+            return GetRelayServerHost(out dummyPort);
+        }
+
+        public static int GetRelayServerPort()
+        {
+            int port;
+            GetRelayServerHost(out port);
+            return port;
         }
 
         public static void SaveRelayServerHost(string host)
@@ -104,10 +106,38 @@ namespace Conecting
             try
             {
                 EnsureDirectoryExists();
-                string path = Path.Combine(AppDataDirectory, "server_host.dat");
-                File.WriteAllText(path, string.IsNullOrEmpty(host) ? RelayServerDomain : host.Trim());
+                string path1 = Path.Combine(AppDataDirectory, "server_host.dat");
+                string path2 = Path.Combine(AppDataDirectory, "relayhost.dat");
+                string val = string.IsNullOrEmpty(host) ? "" : host.Trim();
+                File.WriteAllText(path1, val);
+                File.WriteAllText(path2, val);
             }
             catch { }
+        }
+
+        public static string GetCustomRelayHost()
+        {
+            try
+            {
+                EnsureDirectoryExists();
+                string[] files = new string[] { "relayhost.dat", "server_host.dat" };
+                foreach (string f in files)
+                {
+                    string path = Path.Combine(AppDataDirectory, f);
+                    if (File.Exists(path))
+                    {
+                        string saved = File.ReadAllText(path).Trim();
+                        if (!string.IsNullOrEmpty(saved)) return saved;
+                    }
+                }
+            }
+            catch { }
+            return RelayServerDomain;
+        }
+
+        public static void SaveCustomRelayHost(string host)
+        {
+            SaveRelayServerHost(host);
         }
 
         public static string GetUserDisplayName()
@@ -271,15 +301,16 @@ namespace Conecting
                 client.SendBufferSize = 262144;
                 client.ReceiveBufferSize = 262144;
 
-                string targetHost = GetRelayServerHost();
-                IAsyncResult ar = client.BeginConnect(targetHost, RelayServerPort, null, null);
+                int targetPort;
+                string targetHost = GetRelayServerHost(out targetPort);
+                IAsyncResult ar = client.BeginConnect(targetHost, targetPort, null, null);
                 if (!ar.AsyncWaitHandle.WaitOne(3000) || !client.Connected)
                 {
                     try { client.Close(); } catch { }
                     errorMsg = string.Format(AppI18n.T(
                         "No se pudo establecer conexión con el Servidor Relay ({0}:{1}).",
                         "Could not connect to Relay Server ({0}:{1})."
-                    ), targetHost, RelayServerPort);
+                    ), targetHost, targetPort);
                     return null;
                 }
 

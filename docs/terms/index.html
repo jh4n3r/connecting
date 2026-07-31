@@ -105,6 +105,7 @@
             <div class="nav-right" id="navMenu">
                 <a href="../" class="nav-link" id="nav-home">Inicio</a>
                 <a href="../docs/" class="nav-link" id="nav-docs">Documentación</a>
+                <a href="../download" class="nav-link" id="nav-download">Descargar</a>
                 <select id="langSelector" class="lang-select" onchange="changeLanguage(this.value)">
                     <option value="es">Español</option>
                     <option value="en">English</option>
@@ -307,8 +308,9 @@
             if (selector) selector.value = lang;
             const t = termsTranslations[lang] || termsTranslations.es;
 
-            if (document.getElementById('nav-home')) document.getElementById('nav-home').innerText = t.home;
-            if (document.getElementById('nav-docs')) document.getElementById('nav-docs').innerText = t.docs;
+            if (document.getElementById('nav-home')) document.getElementById('nav-home').innerText = (lang === 'en') ? 'Home' : 'Inicio';
+            if (document.getElementById('nav-docs')) document.getElementById('nav-docs').innerText = (lang === 'en') ? 'Documentation' : 'Documentación';
+            if (document.getElementById('nav-download')) document.getElementById('nav-download').innerText = (lang === 'en') ? 'Download' : 'Descargar';
             const titleEl = document.querySelector('.terms-title');
             if (titleEl) titleEl.innerText = t.title;
             const dateEl = document.querySelector('.terms-date');

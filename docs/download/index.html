@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <title>Descargar Connecting - Control de Escritorio Remoto para Windows y Linux</title>
+    <meta name="description" content="Descarga Connecting Remote Desktop para Windows y Linux. Plataforma portátil de asistencia técnica y escritorio remoto seguro sin instalación.">
+    <meta name="keywords" content="Descargar Connecting, escritorio remoto Windows, cliente Linux escritorio remoto, software asistencia tecnica, download Connecting">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://labs.connecting.gaiatech.com.py/download/">
+
+    <link rel="icon" href="../favicon.ico" type="image/x-icon">
+    <link rel="shortcut icon" href="../favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="../styles.css">
+
+    <style>
+        .download-hero {
+            padding: 140px 24px 60px;
+            text-align: center;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .download-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 16px;
+            background-color: var(--cyan-light);
+            color: var(--cyan-dark);
+            font-size: 0.9rem;
+            font-weight: 700;
+            border-radius: 50px;
+            margin-bottom: 20px;
+        }
+
+        .download-title {
+            font-family: var(--font-heading);
+            font-size: 2.6rem;
+            font-weight: 800;
+            color: var(--text-primary);
+            margin-bottom: 16px;
+            line-height: 1.2;
+        }
+
+        .download-subtitle {
+            font-size: 1.15rem;
+            color: var(--text-muted);
+            margin-bottom: 40px;
+            line-height: 1.6;
+        }
+
+        .platform-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+            max-width: 1000px;
+            margin: 0 auto 60px;
+            padding: 0 24px;
+        }
+
+        .platform-card {
+            background-color: var(--bg-card);
+            border: 2px solid var(--border-color);
+            border-radius: 16px;
+            padding: 32px 24px;
+            text-align: center;
+            transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+            position: relative;
+        }
+
+        .platform-card.recommended {
+            border-color: var(--cyan-primary);
+            box-shadow: 0 10px 30px var(--cyan-glow);
+        }
+
+        .platform-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .recommended-tag {
+            position: absolute;
+            top: -14px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: var(--cyan-primary);
+            color: #ffffff;
+            font-size: 0.75rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 4px 14px;
+            border-radius: 20px;
+        }
+
+        .platform-icon {
+            width: 56px;
+            height: 56px;
+            margin: 0 auto 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: var(--cyan-light);
+            color: var(--cyan-dark);
+            border-radius: 14px;
+        }
+
+        .platform-name {
+            font-family: var(--font-heading);
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: var(--text-primary);
+        }
+
+        .platform-desc {
+            font-size: 0.92rem;
+            color: var(--text-muted);
+            margin-bottom: 24px;
+            min-height: 48px;
+        }
+
+        .btn-download-primary {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            width: 100%;
+            padding: 14px 24px;
+            background-color: var(--cyan-primary);
+            color: #ffffff;
+            font-weight: 700;
+            font-size: 1rem;
+            border-radius: 10px;
+            text-decoration: none;
+            transition: background-color 0.2s ease;
+        }
+
+        .btn-download-primary:hover {
+            background-color: var(--cyan-dark);
+        }
+
+        .btn-disabled {
+            background-color: var(--border-color);
+            color: var(--text-light);
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+
+        .platform-meta {
+            margin-top: 14px;
+            font-size: 0.82rem;
+            color: var(--text-light);
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- BARRA DE NAVEGACIÓN -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="../" class="logo-brand">
+                <img src="../favicon.ico" alt="Connecting Logo" class="logo-img" />
+                Connecting
+            </a>
+
+            <button class="mobile-toggle" id="mobileToggle" aria-label="Abrir menú de navegación">
+                <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none">
+                    <line x1="3" y1="6" x2="21" y2="6"></line>
+                    <line x1="3" y1="12" x2="21" y2="12"></line>
+                    <line x1="3" y1="18" x2="21" y2="18"></line>
+                </svg>
+            </button>
+
+            <div class="nav-right" id="navMenu">
+                <a href="../" class="nav-link" id="nav-home">Inicio</a>
+                <a href="../docs/" class="nav-link" id="nav-docs">Documentación</a>
+                <a href="../terms/" class="nav-link" id="nav-terms">Términos Legales</a>
+                <select id="langSelector" class="lang-select" onchange="changeLanguage(this.value)">
+                    <option value="es">Español</option>
+                    <option value="en">English</option>
+                </select>
+            </div>
+        </div>
+    </nav>
+
+    <!-- HEADER DE DESCARGA -->
+    <header class="download-hero">
+        <div class="download-badge" id="detected-badge">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="8" x2="12" y2="12"></line>
+                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+            </svg>
+            <span id="detected-os-text">Detectando tu sistema operativo...</span>
+        </div>
+        <h1 class="download-title" id="dl-title">Descarga Connecting para tu Sistema</h1>
+        <p class="download-subtitle" id="dl-subtitle">Plataforma portátil de control remoto cifrada. Selecciona tu sistema operativo o descarga la versión recomendada a continuación.</p>
+    </header>
+
+    <!-- GRID DE PLATAFORMAS -->
+    <div class="platform-grid">
+        <!-- WINDOWS CARD -->
+        <div class="platform-card" id="card-windows">
+            <div class="recommended-tag" id="tag-windows" style="display: none;">Recomendado</div>
+            <div class="platform-icon">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M0 3.449L9.75 2.1v9.451H0m10.949-9.602L24 0v11.4H10.949M0 12.6h9.75v9.451L0 20.699M10.949 12.6H24V24l-13.051-1.851"/>
+                </svg>
+            </div>
+            <h3 class="platform-name">Windows</h3>
+            <p class="platform-desc" id="desc-win">Ejecutable portátil nativo C# sin instalación. Compatible con Windows 10 y Windows 11 (64-bit).</p>
+            <a href="../Connecting.zip" class="btn-download-primary" id="btn-win">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                    <polyline points="7 10 12 15 17 10"></polyline>
+                    <line x1="12" y1="15" x2="12" y2="3"></line>
+                </svg>
+                <span id="btn-win-text">Descargar para Windows (.zip)</span>
+            </a>
+            <div class="platform-meta" id="meta-win">v1.0.2 • Portátil • ~100 KB</div>
+        </div>
+
+        <!-- LINUX CARD -->
+        <div class="platform-card" id="card-linux">
+            <div class="recommended-tag" id="tag-linux" style="display: none;">Recomendado</div>
+            <div class="platform-icon">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12.002 0c-3.13 0-5.67 2.54-5.67 5.67 0 1.25.41 2.4 1.1 3.34-.14.47-.36 1.05-.66 1.7-.42.92-.97 1.94-1.63 2.92-.66.98-1.39 1.87-2.14 2.57-.38.35-.74.65-1.07.89-.33.24-.62.41-.85.52-.23.11-.38.16-.38.16l.16.31s.17-.03.44-.13c.27-.1.63-.27 1.05-.53.42-.26.91-.61 1.44-1.05.53-.44 1.11-1.01 1.7-1.67.59-.66 1.17-1.42 1.72-2.25.55-.83 1.05-1.74 1.48-2.65.21-.45.4-.9.56-1.33.64.44 1.42.7 2.26.7s1.62-.26 2.26-.7c.16.43.35.88.56 1.33.43.91.93 1.82 1.48 2.65.55.83 1.13 1.59 1.72 2.25.59.66 1.17 1.23 1.7 1.67.53.44 1.02.79 1.44 1.05.42.26.78.43 1.05.53.27.1.44.13.44.13l.16-.31s-.15-.05-.38-.16c-.23-.11-.52-.28-.85-.52-.33-.24-.69-.54-1.07-.89-.75-.7-1.48-1.59-2.14-2.57-.66-.98-1.21-2-1.63-2.92-.3-.65-.52-1.23-.66-1.7.69-.94 1.1-2.09 1.1-3.34C17.672 2.54 15.132 0 12.002 0z"/>
+                </svg>
+            </div>
+            <h3 class="platform-name">Linux</h3>
+            <p class="platform-desc" id="desc-linux">Cliente nativo para distribuciones Linux (X11 / Wayland / SSH Direct Launcher).</p>
+            <a href="https://github.com/jh4n3r/connecting" target="_blank" class="btn-download-primary" id="btn-linux">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                    <polyline points="15 3 21 3 21 9"></polyline>
+                    <line x1="10" y1="14" x2="21" y2="3"></line>
+                </svg>
+                <span id="btn-linux-text">Ver en GitHub / Linux</span>
+            </a>
+            <div class="platform-meta" id="meta-linux">v1.0.2 • Open Source • GitHub</div>
+        </div>
+
+        <!-- MACOS CARD -->
+        <div class="platform-card" id="card-macos">
+            <div class="platform-icon" style="background-color: #f1f5f9; color: #94a3b8;">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 6.35c.67-.82 1.13-1.97.99-3.11-.98.04-2.19.65-2.88 1.47-.61.71-1.14 1.88-.99 3.01 1.1.09 2.22-.54 2.88-1.37z"/>
+                </svg>
+            </div>
+            <h3 class="platform-name">macOS</h3>
+            <p class="platform-desc" id="desc-mac">Cliente para macOS (Apple Silicon / Intel). Actualmente en desarrollo.</p>
+            <a href="#" class="btn-download-primary btn-disabled" id="btn-mac">
+                <span id="btn-mac-text">Próximamente (En Desarrollo)</span>
+            </a>
+            <div class="platform-meta" id="meta-mac">En desarrollo</div>
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+        <p>&copy; 2026 Connecting Remote Desktop • Desarrollado por <strong>@jh4n3r</strong></p>
+    </footer>
+
+    <script>
+        function getInitialLanguage() {
+            const saved = localStorage.getItem('connecting_lang');
+            if (saved === 'es' || saved === 'en') return saved;
+            const userLang = (navigator.language || navigator.userLanguage || 'es').toLowerCase();
+            return userLang.startsWith('es') ? 'es' : 'en';
+        }
+
+        const downloadTranslations = {
+            es: {
+                home: "Inicio",
+                docs: "Documentación",
+                terms: "Términos Legales",
+                title: "Descarga Connecting para tu Sistema",
+                subtitle: "Plataforma portátil de control remoto cifrada. Selecciona tu sistema operativo o descarga la versión recomendada a continuación.",
+                detectedWin: "Sistema detectado: Windows (Recomendado)",
+                detectedLin: "Sistema detectado: Linux (Recomendado)",
+                detectedOther: "Selecciona tu sistema operativo para continuar",
+                descWin: "Ejecutable portátil nativo C# sin instalación. Compatible con Windows 10 y Windows 11 (64-bit).",
+                descLin: "Cliente nativo para distribuciones Linux (X11 / Wayland / SSH Direct Launcher).",
+                descMac: "Cliente para macOS (Apple Silicon / Intel). Actualmente en desarrollo.",
+                btnWin: "Descargar para Windows (.zip)",
+                btnLin: "Ver en GitHub / Linux",
+                btnMac: "Próximamente (En Desarrollo)",
+                tagRec: "Recomendado"
+            },
+            en: {
+                home: "Home",
+                docs: "Documentation",
+                terms: "Legal Terms",
+                title: "Download Connecting for your System",
+                subtitle: "Encrypted portable remote desktop platform. Select your operating system or download the recommended build below.",
+                detectedWin: "Detected OS: Windows (Recommended)",
+                detectedLin: "Detected OS: Linux (Recommended)",
+                detectedOther: "Select your operating system to proceed",
+                descWin: "Portable C# native executable without installation. Compatible with Windows 10 & 11 (64-bit).",
+                descLin: "Native client for Linux distributions (X11 / Wayland / SSH Direct Launcher).",
+                descMac: "Client for macOS (Apple Silicon / Intel). Currently in active development.",
+                btnWin: "Download for Windows (.zip)",
+                btnLin: "View on GitHub / Linux",
+                btnMac: "Coming Soon (In Development)",
+                tagRec: "Recommended"
+            }
+        };
+
+        function changeLanguage(lang) {
+            localStorage.setItem('connecting_lang', lang);
+            const selector = document.getElementById('langSelector');
+            if (selector) selector.value = lang;
+            const t = downloadTranslations[lang] || downloadTranslations.es;
+
+            if (document.getElementById('nav-home')) document.getElementById('nav-home').innerText = t.home;
+            if (document.getElementById('nav-docs')) document.getElementById('nav-docs').innerText = t.docs;
+            if (document.getElementById('nav-terms')) document.getElementById('nav-terms').innerText = t.terms;
+
+            if (document.getElementById('dl-title')) document.getElementById('dl-title').innerText = t.title;
+            if (document.getElementById('dl-subtitle')) document.getElementById('dl-subtitle').innerText = t.subtitle;
+
+            if (document.getElementById('desc-win')) document.getElementById('desc-win').innerText = t.descWin;
+            if (document.getElementById('desc-linux')) document.getElementById('desc-linux').innerText = t.descLin;
+            if (document.getElementById('desc-mac')) document.getElementById('desc-mac').innerText = t.descMac;
+
+            if (document.getElementById('btn-win-text')) document.getElementById('btn-win-text').innerText = t.btnWin;
+            if (document.getElementById('btn-linux-text')) document.getElementById('btn-linux-text').innerText = t.btnLin;
+            if (document.getElementById('btn-mac-text')) document.getElementById('btn-mac-text').innerText = t.btnMac;
+
+            document.querySelectorAll('.recommended-tag').forEach(tag => tag.innerText = t.tagRec);
+
+            detectOS(lang);
+        }
+
+        function detectOS(lang) {
+            const ua = navigator.userAgent.toLowerCase();
+            const platform = (navigator.platform || '').toLowerCase();
+            const t = downloadTranslations[lang] || downloadTranslations.es;
+
+            const isWin = ua.includes('win') || platform.includes('win');
+            const isLin = ua.includes('linux') || ua.includes('x11') || platform.includes('linux');
+
+            const tagWin = document.getElementById('tag-windows');
+            const tagLin = document.getElementById('tag-linux');
+            const cardWin = document.getElementById('card-windows');
+            const cardLin = document.getElementById('card-linux');
+            const badgeText = document.getElementById('detected-os-text');
+
+            if (isWin) {
+                if (tagWin) tagWin.style.display = 'block';
+                if (tagLin) tagLin.style.display = 'none';
+                if (cardWin) cardWin.classList.add('recommended');
+                if (cardLin) cardLin.classList.remove('recommended');
+                if (badgeText) badgeText.innerText = t.detectedWin;
+            } else if (isLin) {
+                if (tagLin) tagLin.style.display = 'block';
+                if (tagWin) tagWin.style.display = 'none';
+                if (cardLin) cardLin.classList.add('recommended');
+                if (cardWin) cardWin.classList.remove('recommended');
+                if (badgeText) badgeText.innerText = t.detectedLin;
+            } else {
+                if (tagWin) tagWin.style.display = 'block'; // Fallback to Windows
+                if (cardWin) cardWin.classList.add('recommended');
+                if (badgeText) badgeText.innerText = t.detectedOther;
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            changeLanguage(getInitialLanguage());
+
+            const mobileToggle = document.getElementById('mobileToggle');
+            const navMenu = document.getElementById('navMenu');
+            if (mobileToggle && navMenu) {
+                mobileToggle.addEventListener('click', () => {
+                    navMenu.classList.toggle('active');
+                });
+            }
+        });
+    </script>
+</body>
+</html>

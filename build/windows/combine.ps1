@@ -1,5 +1,5 @@
-$srcDir = "C:\Users\gea\Desktop\Desk\Proyectos\conecting\local-nogit\windows\src"
-$target = "C:\Users\gea\Desktop\Desk\Proyectos\conecting\build\windows\ConnectingApp.cs"
+$srcDir = "$PSScriptRoot\src"
+$target = "$PSScriptRoot\ConnectingApp.cs"
 
 $files = Get-ChildItem -Path $srcDir -Filter "*.cs" -Recurse | Select-Object -ExpandProperty FullName
 

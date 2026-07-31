@@ -207,7 +207,16 @@ namespace Conecting
 
             sessionView.OnCloseSessionRequested = () =>
             {
-                this.BeginInvoke((MethodInvoker)delegate { CloseSessionTab(tabItem); });
+                if (this.IsDisposed || !this.IsHandleCreated) return;
+                try
+                {
+                    this.BeginInvoke((MethodInvoker)delegate
+                    {
+                        if (this.IsDisposed || !this.IsHandleCreated) return;
+                        CloseSessionTab(tabItem);
+                    });
+                }
+                catch { }
             };
 
             tabCard.Controls.Add(btnTab);
