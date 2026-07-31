@@ -17,7 +17,7 @@ console.log(`  CONNECTING TLS RELAY SERVER (ENTERPRISE HARDENED & NATIVE SSL)`);
 console.log(`=================================================================`);
 
 // SSL certificate paths (Let's Encrypt or custom)
-// Replace "your-relay-server.com" with your actual domain
+// Replace "your-relay-server.com" or pass RELAY_DOMAIN, CERT_PATH, KEY_PATH env vars
 const domain = process.env.RELAY_DOMAIN || "your-relay-server.com";
 const certPath = process.env.CERT_PATH || `/etc/letsencrypt/live/${domain}/fullchain.pem`;
 const keyPath = process.env.KEY_PATH || `/etc/letsencrypt/live/${domain}/privkey.pem`;

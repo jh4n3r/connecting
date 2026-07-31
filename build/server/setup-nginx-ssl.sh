@@ -1,36 +1,30 @@
 #!/bin/bash
 # ============================================================
-#  Connecting Remote Desktop - Enterprise Setup Wizard v1.0.1
-#  Servidor Relay On-Premise (Nginx + SSL / OpenSSL + Systemd)
+#  Connecting - Setup TLS para TCP Relay en puerto 8443
+#  Usa nginx stream module como TLS terminator
+#  Cliente (TLS:8443) → nginx → node (TCP:8444 localhost)
 # ============================================================
 
 set -e
 
-# Variables globales
-DOMAIN=""
-RELAY_PORT="8443"
-WEB_ROOT=""
-CONF_NAME=""
-NGINX_CONF=""
-NGINX_LINK=""
-SSL_MODE="1" # 1 = Let's Encrypt (Dominio Público), 2 = OpenSSL (Red Privada / IP)
+DOMAIN="${1:-your-relay-server.com}"
+TLS_PORT="8443"
+NODE_PORT="8444"
+INSTALL_DIR="/opt/connecting-relay-server"
+SYSTEMD_FILE="/etc/systemd/system/connecting-relay.service"
 
-# Colores
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 RED='\033[0;31m'
 CYAN='\033[0;36m'
-NC='\033[0m' # Sin color
+NC='\033[0m'
 
 banner() {
   echo ""
   echo -e "${CYAN}╔══════════════════════════════════════════════════════╗${NC}"
-  echo -e "${CYAN}║   🚀 Connecting Remote Desktop - Enterprise Wizard   ║${NC}"
-  if [ -n "$DOMAIN" ]; then
-    echo -e "${CYAN}║   Dominio / IP: ${YELLOW}$DOMAIN${CYAN}                     ║${NC}"
-  else
-    echo -e "${CYAN}║   Dominio / IP: ${YELLOW}(No configurado)${CYAN}                 ║${NC}"
-  fi
+  echo -e "${CYAN}║   Connecting - TLS TCP Relay Setup Wizard           ║${NC}"
+  echo -e "${CYAN}║   Domain: ${YELLOW}$DOMAIN${CYAN}          ║${NC}"
+  echo -e "${CYAN}║   TLS Port: ${YELLOW}$TLS_PORT${CYAN} → Node Internal: ${YELLOW}$NODE_PORT${CYAN}          ║${NC}"
   echo -e "${CYAN}╚══════════════════════════════════════════════════════╝${NC}"
   echo ""
 }
@@ -42,325 +36,202 @@ check_root() {
   fi
 }
 
-# ─────────────────────────────────────────────────
-# Solicitar Datos al Usuario (Dual: Web + WebSocket Relay Port)
-# ─────────────────────────────────────────────────
-preguntar_datos() {
-  echo -e "${CYAN}━━━ 📝 INGRESO DE DATOS ━━━${NC}"
+ejecutar_todo_auto() {
+  banner
+  echo -e "${CYAN}━━━ 🚀 INICIANDO CONFIGURACIÓN AUTOMÁTICA COMPLETA ━━━${NC}"
   
-  if [ -z "$DOMAIN" ]; then
-    read -p "🌐 Ingrese el dominio o subdominio (ej: tu-dominio.com): " DOMAIN
+  cambiar_puerto_node
+  
+  if [ ! -d "/etc/letsencrypt/live/$DOMAIN" ]; then
+    obtener_ssl
   else
-    read -p "🌐 Ingrese el dominio o subdominio [$DOMAIN]: " INPUT_DOMAIN
-    DOMAIN=${INPUT_DOMAIN:-$DOMAIN}
+    echo -e "  ${GREEN}✅ Certificado SSL encontrado para $DOMAIN${NC}"
   fi
+  
+  configurar_tls_proxy
 
-  WEB_DEFAULT="/var/www/$DOMAIN"
-  read -p "📁 Directorio raíz de la Landing Page Web [$WEB_DEFAULT]: " INPUT_WEB
-  WEB_ROOT=${INPUT_WEB:-$WEB_DEFAULT}
-
-  read -p "🔌 Puerto interno del Servidor de Relevo WebSocket [$RELAY_PORT]: " INPUT_PORT
-  RELAY_PORT=${INPUT_PORT:-$RELAY_PORT}
-
-  if [ -z "$CONF_NAME" ]; then
-    read -p "📄 Nombre del archivo de configuración en Nginx [$DOMAIN]: " INPUT_CONF
-    CONF_NAME=${INPUT_CONF:-$DOMAIN}
-  else
-    read -p "📄 Nombre del archivo de configuración en Nginx [$CONF_NAME]: " INPUT_CONF
-    CONF_NAME=${INPUT_CONF:-$CONF_NAME}
-  fi
-
-  NGINX_CONF="/etc/nginx/sites-available/$CONF_NAME"
-  NGINX_LINK="/etc/nginx/sites-enabled/$CONF_NAME"
-  echo ""
+  echo -e "${GREEN}🎉 ¡CONFIGURACIÓN AUTOMÁTICA FINALIZADA CON ÉXITO!${NC}"
+  exit 0
 }
 
-verificar_nginx() {
-  if ! command -v nginx &> /dev/null; then
-    echo -e "${YELLOW}⚠️  Nginx NO está instalado.${NC}"
-    read -p "   ¿Deseas instalar Nginx ahora? (s/n): " resp_nginx
-    if [[ "$resp_nginx" == "s" || "$resp_nginx" == "S" ]]; then
-      echo -e "  📦 Instalando Nginx..."
-      apt update && apt install -y nginx
-      echo -e "  ${GREEN}✅ Nginx instalado correctamente.${NC}"
-    else
-      echo -e "${RED}❌ Nginx es requerido para continuar. Saliendo...${NC}"
-      exit 1
-    fi
-  else
-    echo -e "  ${GREEN}✅ Nginx ya está instalado. Pasando a configuración...${NC}"
-  fi
-}
-
-# ─────────────────────────────────────────────────
-# 1. Diagnóstico
-# ─────────────────────────────────────────────────
 diagnostico() {
   echo -e "${CYAN}━━━ 🔍 DIAGNÓSTICO DEL SISTEMA ━━━${NC}"
-  preguntar_datos
 
-  # Nginx instalado?
   if command -v nginx &> /dev/null; then
     echo -e "  ${GREEN}✅ Nginx instalado${NC} ($(nginx -v 2>&1 | cut -d'/' -f2))"
   else
     echo -e "  ${RED}❌ Nginx NO instalado${NC}"
   fi
 
-  # Nginx corriendo?
+  if nginx -V 2>&1 | grep -q "with-stream"; then
+    echo -e "  ${GREEN}✅ Nginx stream module disponible${NC}"
+  else
+    echo -e "  ${RED}❌ Nginx stream module NO disponible${NC}"
+  fi
+
   if systemctl is-active --quiet nginx; then
     echo -e "  ${GREEN}✅ Nginx activo y corriendo${NC}"
   else
     echo -e "  ${YELLOW}⚠️  Nginx NO está corriendo${NC}"
   fi
 
-  # Config de sitio existe?
-  if [ -f "$NGINX_CONF" ]; then
-    echo -e "  ${GREEN}✅ Configuración de sitio encontrada${NC} ($NGINX_CONF)"
-  else
-    echo -e "  ${YELLOW}⚠️  Sin configuración para $DOMAIN${NC}"
-  fi
-
-  # Symlink habilitado?
-  if [ -L "$NGINX_LINK" ]; then
-    echo -e "  ${GREEN}✅ Sitio habilitado (symlink activo)${NC}"
-  else
-    echo -e "  ${YELLOW}⚠️  Sitio NO habilitado en sites-enabled${NC}"
-  fi
-
-  # Certbot instalado?
-  if command -v certbot &> /dev/null; then
-    echo -e "  ${GREEN}✅ Certbot instalado${NC}"
-  else
-    echo -e "  ${RED}❌ Certbot NO instalado${NC}"
-  fi
-
-  # Certificado SSL existe?
   if [ -d "/etc/letsencrypt/live/$DOMAIN" ]; then
     echo -e "  ${GREEN}✅ Certificado SSL encontrado${NC} para $DOMAIN"
-    EXPIRY=$(openssl x509 -enddate -noout -in "/etc/letsencrypt/live/$DOMAIN/fullchain.pem" 2>/dev/null | cut -d= -f2)
-    echo -e "     Expira: ${YELLOW}$EXPIRY${NC}"
   else
     echo -e "  ${YELLOW}⚠️  Sin certificado SSL para $DOMAIN${NC}"
   fi
 
-  # Puerto escuchando?
-  if ss -tlnp | grep -q ":$RELAY_PORT"; then
-    echo -e "  ${GREEN}✅ Puerto $RELAY_PORT activo (Relay Server)${NC}"
+  if ss -tlnp | grep -q ":$NODE_PORT"; then
+    echo -e "  ${GREEN}✅ Node relay escuchando en puerto interno $NODE_PORT${NC}"
+  elif ss -tlnp | grep -q ":$TLS_PORT"; then
+    echo -e "  ${YELLOW}⚠️  Puerto $TLS_PORT ocupado (¿node sigue en 8443?)${NC}"
+  fi
+
+  if ss -tlnp | grep -q ":$TLS_PORT.*nginx"; then
+    echo -e "  ${GREEN}✅ Nginx TLS proxy activo en puerto $TLS_PORT${NC}"
   else
-    echo -e "  ${YELLOW}⚠️  Puerto $RELAY_PORT NO escuchando (¿Servidor de Relevo apagado?)${NC}"
+    echo -e "  ${YELLOW}⚠️  Nginx NO está escuchando en $TLS_PORT${NC}"
   fi
-
   echo ""
 }
 
-# ─────────────────────────────────────────────────
-# 2. Configurar Nginx Dual (Web + WebSocket Proxy)
-# ─────────────────────────────────────────────────
-configurar_nginx() {
-  echo -e "${CYAN}━━━ 🔧 CONFIGURANDO NGINX ━━━${NC}"
-  verificar_nginx
-  preguntar_datos
-
-  # Asegurar directorio web
-  mkdir -p "$WEB_ROOT"
-  if [ -d "./website" ]; then
-    cp -rf ./website/* "$WEB_ROOT/" 2>/dev/null || true
-  fi
-  chown -R www-data:www-data "$WEB_ROOT" 2>/dev/null || true
-  chmod -R 755 "$WEB_ROOT" 2>/dev/null || true
-
-  if [ -f "$NGINX_CONF" ]; then
-    echo -e "${YELLOW}⚠️  Ya existe una configuración en $NGINX_CONF.${NC}"
-    read -p "   ¿Deseas SOBREESCRIBIRLA? (s/n): " respuesta
-    if [[ "$respuesta" != "s" && "$respuesta" != "S" ]]; then
-      echo -e "${YELLOW}   Cancelado. No se modificó la configuración.${NC}"
-      return
-    fi
-    cp "$NGINX_CONF" "${NGINX_CONF}.bak.$(date +%Y%m%d%H%M%S)"
-    echo -e "  ${GREEN}📋 Backup creado${NC}"
-  fi
-
-  # Generar bloque Nginx Dual: Landing Web (location /) + WebSockets (location /ws)
-  cat > "$NGINX_CONF" << NGINX_EOF
-# Configuración Dual generada por setup-nginx-ssl.sh
-# Web: $DOMAIN → $WEB_ROOT
-# WebSocket Relay: $DOMAIN/ws → localhost:$RELAY_PORT
-
-server {
-    listen 80;
-    server_name $DOMAIN;
-
-    root $WEB_ROOT;
-    index index.html;
-
-    # 1. Servidor Web (Landing Page + Descargas)
-    location / {
-        try_files \$uri \$uri/ =404;
-    }
-
-    # 2. Proxy de WebSockets para el Servidor de Relevo
-    location /ws {
-        proxy_pass http://127.0.0.1:$RELAY_PORT;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade \$http_upgrade;
-        proxy_set_header Connection 'upgrade';
-        proxy_set_header Host \$host;
-        proxy_set_header X-Real-IP \$remote_addr;
-        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto \$scheme;
-        proxy_cache_bypass \$http_upgrade;
-
-        proxy_read_timeout 86400s;
-        proxy_send_timeout 86400s;
-    }
-}
-NGINX_EOF
-
-  echo -e "  ${GREEN}✅ Archivo de configuración creado${NC}"
-
-  if [ ! -L "$NGINX_LINK" ]; then
-    ln -s "$NGINX_CONF" "$NGINX_LINK"
-    echo -e "  ${GREEN}✅ Sitio habilitado (symlink creado)${NC}"
-  fi
-
-  echo -e "  🔍 Verificando sintaxis de Nginx..."
-  if nginx -t 2>&1; then
-    echo -e "  ${GREEN}✅ Sintaxis OK${NC}"
-    systemctl restart nginx
-    echo -e "  ${GREEN}✅ Nginx reiniciado exitosamente${NC}"
-  else
-    echo -e "  ${RED}❌ Error de sintaxis. Revisa manualmente: sudo nginx -t${NC}"
-  fi
-
-  echo ""
-  echo -e "${GREEN}🎉 Nginx configurado exitosamente:${NC}"
-  echo -e "   🌐 Web: ${YELLOW}http://$DOMAIN${NC} → Servidor de archivos ($WEB_ROOT)"
-  echo -e "   🔌 WebSocket Relay: ${YELLOW}http://$DOMAIN/ws${NC} → Proxy a localhost:$RELAY_PORT"
-  echo ""
-}
-
-# ─────────────────────────────────────────────────
-# 3. Instalar / Renovar Certificado SSL (Let's Encrypt u OpenSSL)
-# ─────────────────────────────────────────────────
-instalar_ssl() {
-  echo -e "${CYAN}━━━ 🔒 CERTIFICADO SSL (Enterprise / Let's Encrypt) ━━━${NC}"
-  preguntar_datos
-
-  echo -e "  Selecciona el tipo de certificado:"
-  echo -e "  ${YELLOW}1)${NC} Let's Encrypt (Dominio Público con Certbot)"
-  echo -e "  ${YELLOW}2)${NC} OpenSSL CA Auto-firmada (Red Privada / IP Local On-Premise)"
-  read -p "  Elige modo [1-2] (predeterminado 1): " SSL_MODE
-  SSL_MODE=${SSL_MODE:-1}
-
-  if [ "$SSL_MODE" == "2" ]; then
-    echo -e "  ${CYAN}🔐 Generando Autoridad Certificadora (CA) y Certificado SSL con OpenSSL...${NC}"
-    mkdir -p /etc/ssl/connecting
-    openssl req -x509 -nodes -days 3650 -newkey rsa:2048 \
-      -keyout /etc/ssl/connecting/server.key \
-      -out /etc/ssl/connecting/server.crt \
-      -subj "/C=ES/ST=Local/L=Enterprise/O=Connecting/CN=$DOMAIN"
-    chmod 600 /etc/ssl/connecting/server.key
-    echo -e "  ${GREEN}✅ Certificado SSL generado en /etc/ssl/connecting/server.crt${NC}"
-    systemctl restart nginx
-    return
-  fi
+obtener_ssl() {
+  echo -e "${CYAN}━━━ 🔒 OBTENER CERTIFICADO SSL (Let's Encrypt) ━━━${NC}"
 
   if ! command -v certbot &> /dev/null; then
-    echo -e "${YELLOW}  Certbot no encontrado. Instalando...${NC}"
-    apt update && apt install -y certbot python3-certbot-nginx
-    echo -e "  ${GREEN}✅ Certbot instalado${NC}"
-  fi
-
-  if [ ! -f "$NGINX_CONF" ]; then
-    echo -e "${RED}❌ Primero debes configurar Nginx (Opción 2) para el archivo $CONF_NAME.${NC}"
-    return
+    apt update && apt install -y certbot
   fi
 
   if [ -d "/etc/letsencrypt/live/$DOMAIN" ]; then
-    echo -e "${YELLOW}⚠️  Ya existe un certificado para $DOMAIN.${NC}"
-    EXPIRY=$(openssl x509 -enddate -noout -in "/etc/letsencrypt/live/$DOMAIN/fullchain.pem" 2>/dev/null | cut -d= -f2)
-    echo -e "   Expira: ${YELLOW}$EXPIRY${NC}"
-    read -p "   ¿Deseas RENOVARLO/REINSTALARLO ahora? (s/n): " respuesta
-    if [[ "$respuesta" != "s" && "$respuesta" != "S" ]]; then
-      echo -e "${YELLOW}   Cancelado.${NC}"
-      return
-    fi
-    echo -e "  🔄 Reinstalando certificado y redirección HTTPS..."
-    certbot --nginx -d "$DOMAIN" --redirect --reinstall --non-interactive || certbot --nginx -d "$DOMAIN" --redirect
-  else
-    echo -e "  🆕 Solicitando nuevo certificado SSL para ${YELLOW}$DOMAIN${NC}..."
-    echo ""
-    certbot --nginx -d "$DOMAIN" --redirect
+    echo -e "${GREEN}✅ Certificado ya existe.${NC}"
+    return
   fi
 
-  systemctl restart nginx
-  echo ""
-  echo -e "${GREEN}🎉 SSL configurado y servicio reiniciado. Ahora puedes acceder a:${NC}"
-  echo -e "   ${YELLOW}https://$DOMAIN${NC}"
-  echo ""
+  systemctl stop nginx 2>/dev/null || true
+  certbot certonly --standalone -d "$DOMAIN" --non-interactive --agree-tos --register-unsafely-without-email || \
+  certbot certonly --standalone -d "$DOMAIN" --agree-tos
+  systemctl start nginx 2>/dev/null || true
 }
 
-# ─────────────────────────────────────────────────
-# 4. Instalar Servicio Systemd (connecting-relay.service)
-# ─────────────────────────────────────────────────
-instalar_servicio_relay() {
-  echo -e "${CYAN}━━━ ⚙️ INSTALANDO SERVICIO SYSTEMD RELAY ━━━${NC}"
-  preguntar_datos
+configurar_tls_proxy() {
+  echo -e "${CYAN}━━━ 🔧 CONFIGURANDO NGINX STREAM TLS PROXY ━━━${NC}"
 
-  cat > /etc/systemd/system/connecting-relay.service << SERVICE_EOF
-[Unit]
-Description=Connecting Remote Desktop - Relay Server
-After=network.target
+  if ! command -v nginx &> /dev/null; then
+    apt update && apt install -y nginx nginx-extras || apt install -y nginx
+  fi
 
-[Service]
-Type=simple
-User=root
-WorkingDirectory=/opt/connecting-relay-server
-ExecStart=/usr/bin/node /opt/connecting-relay-server/server.js
-Restart=always
-RestartSec=5
-Environment=PORT=$RELAY_PORT
+  mkdir -p /etc/nginx/streams-available
+  mkdir -p /etc/nginx/streams-enabled
 
-[Install]
-WantedBy=multi-user.target
-SERVICE_EOF
+  STREAM_CONF="/etc/nginx/streams-available/connecting-relay.conf"
+  STREAM_LINK="/etc/nginx/streams-enabled/connecting-relay.conf"
 
-  systemctl daemon-reload
-  systemctl enable connecting-relay.service
-  systemctl restart connecting-relay.service 2>/dev/null || true
-  echo -e "  ${GREEN}✅ Servicio connecting-relay.service instalado y habilitado.${NC}"
+  cat > "$STREAM_CONF" << STREAM_EOF
+upstream connecting_relay {
+    server 127.0.0.1:$NODE_PORT;
 }
 
-# ─────────────────────────────────────────────────
-# Menú Principal
-# ─────────────────────────────────────────────────
+server {
+    listen $TLS_PORT ssl;
+
+    ssl_certificate     /etc/letsencrypt/live/$DOMAIN/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/$DOMAIN/privkey.pem;
+
+    ssl_protocols       TLSv1.2 TLSv1.3;
+    ssl_ciphers         HIGH:!aNULL:!MD5:!RC4;
+    ssl_prefer_server_ciphers on;
+    ssl_session_cache   shared:RELAY_SSL:10m;
+    ssl_session_timeout 10m;
+
+    proxy_pass          connecting_relay;
+    proxy_timeout       86400s;
+    proxy_connect_timeout 10s;
+}
+STREAM_EOF
+
+  rm -f "$STREAM_LINK"
+  ln -s "$STREAM_CONF" "$STREAM_LINK"
+
+  if ! grep -q "streams-enabled" /etc/nginx/nginx.conf; then
+    cat >> /etc/nginx/nginx.conf << INCLUDE_EOF
+
+stream {
+    include /etc/nginx/streams-enabled/*.conf;
+}
+INCLUDE_EOF
+  fi
+
+  if nginx -t 2>&1; then
+    systemctl restart nginx
+    echo -e "  ${GREEN}✅ Nginx TLS proxy activo en puerto $TLS_PORT${NC}"
+  else
+    echo -e "  ${RED}❌ Error de sintaxis en Nginx.${NC}"
+    return 1
+  fi
+}
+
+cambiar_puerto_node() {
+  echo -e "${CYAN}━━━ 🔌 CAMBIAR PUERTO DEL NODE RELAY EN /opt ━━━${NC}"
+
+  # 1. Actualizar server.js en /opt y locales
+  TARGET_SERVERS=(
+    "$INSTALL_DIR/server.js"
+    "$HOME/connecting/connecting-relay-server/server.js"
+    "./server.js"
+  )
+
+  for s in "${TARGET_SERVERS[@]}"; do
+    if [ -f "$s" ]; then
+      sed -i "s/|| 8443/|| $NODE_PORT/" "$s"
+      echo -e "  ${GREEN}✅ Puerto cambiado a $NODE_PORT en $s${NC}"
+    fi
+  done
+
+  # 2. Actualizar /etc/systemd/system/connecting-relay.service
+  if [ -f "$SYSTEMD_FILE" ]; then
+    sed -i "s/PORT=8443/PORT=$NODE_PORT/" "$SYSTEMD_FILE"
+    systemctl daemon-reload
+    echo -e "  ${GREEN}✅ Variable PORT=$NODE_PORT actualizada en systemd service${NC}"
+  fi
+
+  # 3. Detener servicio de node y matar cualquier proceso en el 8443
+  systemctl stop connecting-relay 2>/dev/null || true
+  fuser -k 8443/tcp 2>/dev/null || true
+  sleep 1
+  
+  # 4. Iniciar servicio node en puerto interno 8444
+  systemctl start connecting-relay 2>/dev/null || true
+  echo -e "  ${GREEN}✅ Node relay iniciado en puerto interno $NODE_PORT${NC}"
+}
+
 menu() {
+  if [ "$1" == "--auto" ]; then
+    ejecutar_todo_auto
+  fi
+
   while true; do
     banner
     echo -e "  ${YELLOW}1)${NC} 🔍 Diagnóstico (ver estado actual)"
-    echo -e "  ${YELLOW}2)${NC} 🔧 Configurar Nginx (Web + WebSocket Proxy)"
-    echo -e "  ${YELLOW}3)${NC} 🔒 Instalar Certificado SSL (Let's Encrypt / OpenSSL)"
-    echo -e "  ${YELLOW}4)${NC} ⚙️ Instalar Servicio Systemd (connecting-relay)"
-    echo -e "  ${YELLOW}5)${NC} 🚪 Salir"
+    echo -e "  ${YELLOW}2)${NC} 🔒 Obtener Certificado SSL"
+    echo -e "  ${YELLOW}3)${NC} 🔧 Configurar Nginx TLS Proxy"
+    echo -e "  ${YELLOW}4)${NC} 🔌 Cambiar puerto de Node a 8444"
+    echo -e "  ${YELLOW}5)${NC} 🚀 Ejecutar Todo Automático (--auto)"
+    echo -e "  ${YELLOW}6)${NC} 🚪 Salir"
     echo ""
-    read -p "  Elige una opción [1-5]: " opcion
+    read -p "  Elige una opción [1-6]: " opcion
 
     case $opcion in
       1) diagnostico ;;
-      2) configurar_nginx ;;
-      3) instalar_ssl ;;
-      4) instalar_servicio_relay ;;
-      5) echo -e "${GREEN}👋 ¡Hasta luego!${NC}"; exit 0 ;;
-      *) echo -e "${RED}Opción inválida. Intenta de nuevo.${NC}" ;;
+      2) obtener_ssl ;;
+      3) configurar_tls_proxy ;;
+      4) cambiar_puerto_node ;;
+      5) ejecutar_todo_auto ;;
+      6) exit 0 ;;
+      *) echo -e "${RED}Opción inválida.${NC}" ;;
     esac
-
-    echo ""
-    read -p "  Presiona [Enter] para volver al menú..."
+    read -p "  Presiona [Enter] para continuar..."
   done
 }
 
-# ─────────────────────────────────────────────────
-# INICIO
-# ─────────────────────────────────────────────────
 check_root
-menu
+menu "$1"
