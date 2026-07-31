@@ -466,6 +466,11 @@ public static int RelayServerPort = 8443;
             <h3>B) Configuración Dinámica desde la Interfaz Visual (GUI):</h3>
             <p>Dentro de la aplicación, navega a la pestaña de <strong>Configuración &amp; Seguridad</strong> en la parte inferior. En la sección <strong>Servidor Relay Personalizado (Dominio o IP)</strong>, ingresa la dirección de tu servidor y presiona el botón <strong>Guardar Servidor</strong>. La aplicación persistirá este cambio en <code>%APPDATA%\ConnectingNodes\relayhost.dat</code> y reiniciará el registro de puesto automáticamente.</p>
 
+            <div class="callout-info">
+                <strong>Nota sobre la Especificación del Puerto del Servidor Relay:</strong><br>
+                El campo <strong>Servidor Relay Personalizado (Dominio o IP)</strong> soporta tanto el nombre de dominio/IP sin puerto (ejemplo: <code>midominio.com</code> o <code>192.168.1.50</code>, el cual utilizará el puerto TCP <code>8443</code> por defecto), como también el formato con puerto explícito (ejemplo: <code>midominio.com:8443</code> o <code>192.168.1.50:8443</code>). El motor de resolución (<code>PeerResolver.cs</code>) analiza y extrae automáticamente el host y el puerto ingresado.
+            </div>
+
             <h3>¿Por qué la conexión remota funciona aunque no se configure una clave personalizada?</h3>
             <p>Connecting genera automáticamente una clave PSK de 6 dígitos aleatorios almacenada en <code>node_psk.dat</code> (mostrada en pantalla como <code>Clave PSK Segura</code>). Si el campo de contraseña personalizada (<code>txtCustomPsk</code> / <code>unattended_psk.dat</code>) se deja vacío, la aplicación utiliza la clave PSK dinámica generada, garantizando acceso desatendido seguro de inmediato.</p>
 
@@ -515,17 +520,36 @@ sc start "ConnectingService"
             <p>La firma Authenticode pública permitirá declarar la bandera <code>uiAccess="true"</code> en el manifiesto de la aplicación, habilitando la captura nativa de la pantalla de seguridad de UAC (<code>Winlogon</code> / SecureDesktop) sin requerir que la aplicación sea instalada previamente en <code>Program Files</code>.</p>
 
             <!-- 8. INSTRUCCIONES DE COMPILACIÓN -->
-            <h2 id="guia-compilacion">8. Instrucciones de Compilación del Código Fuente</h2>
-            <p>El proyecto incluye scripts en PowerShell para compilar el código fuente modular o monolítico sin necesidad de instalar la suite completa de Visual Studio. Todos los ejecutables se compilan con el parámetro de codepage UTF-8 (<code>-codepage:65001</code>) para preservar la integridad visual de los textos e interfaz gráfica:</p>
+            <h2 id="guia-compilacion">8. Instrucciones de Compilación y Funcionamiento de los Scripts de Build</h2>
+            <p>El proyecto incluye scripts automatizados en PowerShell para compilar el código fuente sin necesidad de instalar Visual Studio completo. A continuación se detalla exactamente qué realiza cada script dentro del flujo de compilación:</p>
 
+            <h3>A) Script de Combinación de Código Fuente (<code>combine.ps1</code>):</h3>
+            <p>Este script se encarga de transformar la arquitectura modular de desarrollo (ubicada en <code>src/</code>) en un único archivo C# monolítico listo para compilación limpia (<code>ConnectingApp.cs</code>):</p>
+            <ul>
+                <li><strong>Exploración Recursiva:</strong> Escanea automáticamente todas las subcarpetas del código fuente (<code>src/Common/</code>, <code>src/Core/</code>, <code>src/Dialogs/</code>, <code>src/UI/</code>).</li>
+                <li><strong>Lectura UTF-8 Pura:</strong> Lee cada archivo C# forzando la codificación UTF-8 (<code>[System.Text.Encoding]::UTF8</code>) para evitar la corrupción de caracteres acentuados en español.</li>
+                <li><strong>Consolidación de Usings:</strong> Extrae todas las declaraciones de espacio de nombres (<code>using System;</code>, <code>using System.Windows.Forms;</code>, etc.), elimina duplicados y las organiza en la cabecera.</li>
+                <li><strong>Ensamblado Monolítico:</strong> Elimina directivas <code>using</code> internas de los bloques individuales para prevenir conflictos circulares de compilación (<code>CS0234</code> / <code>CS0246</code>) y escribe el resultado en <code>ConnectingApp.cs</code>.</li>
+            </ul>
+
+            <h3>B) Script de Compilación y Firma Digital (<code>build.ps1</code>):</h3>
+            <p>Este script ejecuta el proceso de compilación nativa del sistema, empaquetado de recursos y firma de seguridad Authenticode:</p>
+            <ul>
+                <li><strong>Finalización de Procesos Previos:</strong> Cierra cualquier instancia activa en ejecución de <code>Connecting.exe</code> mediante <code>taskkill</code> para liberar bloqueos de archivo en disco.</li>
+                <li><strong>Compilación C# con Codepage UTF-8:</strong> Invoca al compilador nativo de Microsoft .NET Framework (<code>csc.exe</code>) aplicando la bandera <code>-codepage:65001</code> junto a todas las librerías necesarias de WinForms (<code>System.dll</code>, <code>System.Drawing.dll</code>, <code>System.Windows.Forms.dll</code>, <code>System.Management.dll</code>).</li>
+                <li><strong>Embebido de Manifiesto UAC e Icono:</strong> Integra el manifiesto de privilegios normales (<code>Connecting.manifest</code> con <code>asInvoker</code> y soporte DPI <code>pm</code>) y el icono principal (<code>icon.ico</code>) dentro de los recursos del ejecutable binario.</li>
+                <li><strong>Generación de Certificado y Firma Authenticode:</strong> Crea automáticamente un certificado digital autofirmado x509 si no existe en el sistema y firma el binario <code>Connecting.exe</code> aplicando sellado de tiempo de DigiCert (<code>http://timestamp.digicert.com</code>).</li>
+            </ul>
+
+            <h3>Comandos para Ejecutar la Compilación:</h3>
             <div class="code-block">
-# 1. Navega al directorio de compilación
+# 1. Navega al directorio del proyecto (build/windows o local-nogit/windows)
 cd build/windows
 
-# 2. Ensambla la estructura modular src/*.cs en ConnectingApp.cs
+# 2. Genera el archivo monolítico ConnectingApp.cs a partir de src/*.cs
 powershell -ExecutionPolicy Bypass -File .\combine.ps1
 
-# 3. Compila el ejecutable Connecting.exe y aplica la firma digital local
+# 3. Compila Connecting.exe, incrusta el manifiesto/icono y firma el binario
 powershell -ExecutionPolicy Bypass -File .\build.ps1
             </div>
 
