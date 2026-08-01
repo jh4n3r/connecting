@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
-    <title>Manual Técnico de Arquitectura &amp; Código Fuente - Connecting Remote Desktop</title>
+    <title>Connecting Remote Desktop OpenSource</title>
     <meta name="description" content="Documentación técnica detallada de la arquitectura interna de Connecting: captura de pantalla GDI, compresión JPEG adaptativa, inyección SendInput, protocolo binario TCP y configuración de servidores Relay.">
     <meta name="robots" content="index, follow">
     <link rel="canonical" href="https://jh4n3r.github.io/connecting/docs">
@@ -353,7 +353,7 @@
                 <li id="sec2-li-3"><strong>Compresión JPEG con Calidad Adaptativa</strong>: La imagen capturada se comprime en memoria usando el códec nativo de Windows (<code>System.Drawing.Imaging.Encoder.Quality</code>) y se convierte en un arreglo de bytes JPEG.</li>
             </ol>
 
-            <div class="code-block">
+            <div class="code-block" id="code-block-1">
 // Fragmento de configuración de calidad JPEG en DesktopCapturer.cs
 EncoderParameters encoderParams = new EncoderParameters(1);
 encoderParams.Param[0] = new EncoderParameter(System.Drawing.Imaging.Encoder.Quality, qualityLevel); // 90L, 75L, o 60L
@@ -382,7 +382,7 @@ return ms.ToArray();
             <h3 id="sec3-sub1">Mapeo y Normalización de Coordenadas:</h3>
             <p id="sec3-desc2">Los clics y movimientos de ratón recibidos en el cliente se transmiten como valores flotantes normalizados entre <code>0.0</code> y <code>1.0</code>. En el host, <code>NativeInputInjector</code> convierte estas coordenadas al espacio absoluto de Win32 (de <code>0</code> a <code>65535</code>):</p>
 
-            <div class="code-block">
+            <div class="code-block" id="code-block-2">
 // Conversión de coordenadas de ratón normalizadas a absolutas Win32
 int absoluteX = (int)(normalizedX * 65535.0f);
 int absoluteY = (int)(normalizedY * 65535.0f);
@@ -399,7 +399,7 @@ SendInput(1, ref input, Marshal.SizeOf(typeof(INPUT)));
             <h2 id="protocolo-paquetes"><span id="sec4-title">4. Protocolo Binario de Enmarcado TCP (Framing)</span></h2>
             <p id="sec4-desc">La comunicación entre cliente, host y servidor de relevo se gestiona en <code>src/Common/PacketProtocol.cs</code> a través de un protocolo binario ligero estructurado de la siguiente forma:</p>
 
-            <div class="code-block">
+            <div class="code-block" id="code-block-3">
 +--------------------+--------------------------------+--------------------------------+
 |  Tipo (1 Byte)     |  Longitud Payload (4 Bytes)   |  Payload de Datos (N Bytes)   |
 +--------------------+--------------------------------+--------------------------------+
@@ -459,7 +459,7 @@ SendInput(1, ref input, Marshal.SizeOf(typeof(INPUT)));
 
             <h3 id="sec5-sub1">Configuración del Dominio y Certificados SSL:</h3>
             <p id="sec5-p1">El servidor soporta configuración mediante variables de entorno para máxima flexibilidad de despliegue:</p>
-            <div class="code-block">
+            <div class="code-block" id="code-block-4">
 # Variables de entorno soportadas por server.js:
 RELAY_DOMAIN="your-relay-server.com"    # Dominio del certificado SSL
 CERT_PATH="/etc/letsencrypt/live/your-domain/fullchain.pem"  # Ruta al certificado
@@ -468,7 +468,7 @@ PORT=8443                                # Puerto de escucha (default: 8443)
             </div>
 
             <h3 id="sec5-sub2">Flujo de Conexión TLS:</h3>
-            <div class="code-block">
+            <div class="code-block" id="code-block-5">
 ┌─────────────────┐      TLS 1.2       ┌─────────────────┐      TLS 1.2       ┌─────────────────┐
 │   Host (C#)     │ ◄──────────────── │  Relay Server   │ ──────────────── │  Client (C#)    │
 │  SslStream      │     Puerto 8443    │  tls.createServer│    Puerto 8443    │  SslStream      │
@@ -478,7 +478,7 @@ PORT=8443                                # Puerto de escucha (default: 8443)
 
             <h3 id="sec5-sub3">A) Modificación Directa en el Código Fuente C#:</h3>
             <p id="sec5-p2">Abre el archivo <code>src/Common/PeerResolver.cs</code> y modifica las siguientes variables estáticas:</p>
-            <div class="code-block">
+            <div class="code-block" id="code-block-6">
 // src/Common/PeerResolver.cs (Líneas 23 - 24)
 public static string RelayServerDomain = "tu-servidor-relay.com"; // Modifica por la IP o dominio de tu servidor Relay
 public static int RelayServerPort = 8443;
@@ -503,7 +503,7 @@ public static int RelayServerPort = 8443;
 
             <h3 id="sec6-sub2">Reinicio con Elevación UAC Voluntaria:</h3>
             <p id="sec6-p2">Si el técnico necesita interactuar con ventanas administrativas (tales como el Administrador de Tareas, consolas de comandos o ejecutables de instalación), se utiliza el botón <strong>Reiniciar como Admin</strong> ubicado en la interfaz. Este botón reinicia la aplicación invocando la API de Windows con el verbo de elevación:</p>
-            <div class="code-block">
+            <div class="code-block" id="code-block-7">
 ProcessStartInfo psi = new ProcessStartInfo
 {
     FileName = Application.ExecutablePath,
@@ -522,7 +522,7 @@ Application.Exit();
             <h3 id="servicio-windows"><span id="sec6-sub3">Instalación del Servicio de Asistencia de Windows (`ConnectingService`):</span></h3>
             <p id="sec6-p3">Para soporte desatendido continuo en equipos corporativos, la aplicación permite la instalación como Servicio de Windows (ejecutado bajo la cuenta <code>NT AUTHORITY\SYSTEM</code> en Sesión 0). La gestión se realiza directamente desde el panel de Configuración de la app o mediante la consola de comandos:</p>
 
-            <div class="code-block">
+            <div class="code-block" id="code-block-8">
 # Instalación manual del Servicio de Windows mediante consola de comandos (cmd as admin)
 sc stop "ConnectingService" 2>nul
 sc delete "ConnectingService" 2>nul
@@ -542,7 +542,7 @@ sc start "ConnectingService"
 
             <!-- 8. INSTRUCCIONES DE COMPILACIÓN -->
             <h2 id="guia-compilacion"><span id="sec8-title">8. Instrucciones de Compilación y Funcionamiento de los Scripts de Build</span></h2>
-            <p id="sec8-p1">El proyecto incluye scripts automatizados en PowerShell para compilar el código fuente sin necesidad de instalar Visual Studio completo. A continuación se detalla exactamente qué realiza cada script dentro del flujo de compilación:</p>
+            <p id="sec8-p1">El proyecto includes scripts automatizados en PowerShell para compilar el código fuente sin necesidad de instalar Visual Studio completo. A continuación se detalla exactamente qué realiza cada script dentro del flujo de compilación:</p>
 
             <h3 id="sec8-sub1">A) Script de Combinación de Código Fuente (<code>combine.ps1</code>):</h3>
             <p id="sec8-p2">Este script se encarga de transformar la arquitectura modular de desarrollo (ubicada en <code>src/</code>) en un único archivo C# monolítico listo para compilación limpia (<code>ConnectingApp.cs</code>):</p>
@@ -563,7 +563,7 @@ sc start "ConnectingService"
             </ul>
 
             <h3 id="sec8-sub3">Comandos para Ejecutar la Compilación:</h3>
-            <div class="code-block">
+            <div class="code-block" id="code-block-9">
 # 1. Navega al directorio del proyecto (build/windows o local-nogit/windows)
 cd build/windows
 
@@ -683,6 +683,60 @@ powershell -ExecutionPolicy Bypass -File .\build.ps1
                 sec8Li7: "<strong>Embebido de Manifiesto UAC e Icono:</strong> Integra el manifiesto de privilegios normales (<code>Connecting.manifest</code> con <code>asInvoker</code> y soporte DPI <code>pm</code>) y el icono principal (<code>icon.ico</code>) dentro de los recursos del ejecutable binario.",
                 sec8Li8: "<strong>Generación de Certificado y Firma Authenticode:</strong> Crea automáticamente un certificado digital autofirmado x509 si no existe en el sistema y firma el binario <code>Connecting.exe</code> aplicando sellado de tiempo de DigiCert (<code>http://timestamp.digicert.com</code>).",
                 sec8Sub3: "Comandos para Ejecutar la Compilación:",
+                codeBlock1: `// Fragmento de configuración de calidad JPEG en DesktopCapturer.cs
+EncoderParameters encoderParams = new EncoderParameters(1);
+encoderParams.Param[0] = new EncoderParameter(System.Drawing.Imaging.Encoder.Quality, qualityLevel); // 90L, 75L, o 60L
+ImageCodecInfo jpegCodec = GetEncoder(ImageFormat.Jpeg);
+MemoryStream ms = new MemoryStream();
+_captureBitmap.Save(ms, jpegCodec, encoderParams);
+return ms.ToArray();`,
+                codeBlock2: `// Conversión de coordenadas de ratón normalizadas a absolutas Win32
+int absoluteX = (int)(normalizedX * 65535.0f);
+int absoluteY = (int)(normalizedY * 65535.0f);
+
+INPUT input = new INPUT();
+input.type = INPUT_MOUSE;
+input.union.mi.dx = absoluteX;
+input.union.mi.dy = absoluteY;
+input.union.mi.dwFlags = MOUSEEVENTF_ABSOLUTE | MOUSEEVENTF_VIRTUALDESK | MOUSEEVENTF_MOVE;
+SendInput(1, ref input, Marshal.SizeOf(typeof(INPUT)));`,
+                codeBlock3: `+--------------------+--------------------------------+--------------------------------+
+|  Tipo (1 Byte)     |  Longitud Payload (4 Bytes)   |  Payload de Datos (N Bytes)   |
++--------------------+--------------------------------+--------------------------------+`,
+                codeBlock4: `# Variables de entorno soportadas por server.js:
+RELAY_DOMAIN="your-relay-server.com"    # Dominio del certificado SSL
+CERT_PATH="/etc/letsencrypt/live/your-domain/fullchain.pem"  # Ruta al certificado
+KEY_PATH="/etc/letsencrypt/live/your-domain/privkey.pem"      # Ruta a la clave privada
+PORT=8443                                # Puerto de escucha (default: 8443)`,
+                codeBlock5: `┌─────────────────┐      TLS 1.2       ┌─────────────────┐      TLS 1.2       ┌─────────────────┐
+│   Host (C#)     │ ◄──────────────── │  Relay Server   │ ──────────────── │  Client (C#)    │
+│  SslStream      │     Puerto 8443    │  tls.createServer│    Puerto 8443    │  SslStream      │
+│  TLS 1.2        │                    │  Node.js        │                    │  TLS 1.2        │
+└─────────────────┘                    └─────────────────┘                    └─────────────────┘`,
+                codeBlock6: `// src/Common/PeerResolver.cs (Líneas 23 - 24)
+public static string RelayServerDomain = "tu-servidor-relay.com"; // Modifica por la IP o dominio de tu servidor Relay
+public static int RelayServerPort = 8443;`,
+                codeBlock7: `ProcessStartInfo psi = new ProcessStartInfo
+{
+    FileName = Application.ExecutablePath,
+    Verb = "runas", // Solicita elevación UAC a Windows
+    UseShellExecute = true
+};
+Process.Start(psi);
+Application.Exit();`,
+                codeBlock8: `# Instalación manual del Servicio de Windows mediante consola de comandos (cmd as admin)
+sc stop "ConnectingService" 2>nul
+sc delete "ConnectingService" 2>nul
+sc create "ConnectingService" binPath= "C:\\Ruta\\Connecting.exe --service" start= auto
+sc start "ConnectingService"`,
+                codeBlock9: `# 1. Navega al directorio del proyecto (build/windows o local-nogit/windows)
+cd build/windows
+
+# 2. Genera el archivo monolítico ConnectingApp.cs a partir de src/*.cs
+powershell -ExecutionPolicy Bypass -File .\\combine.ps1
+
+# 3. Compila Connecting.exe, incrusta el manifiesto/icono y firma el binario
+powershell -ExecutionPolicy Bypass -File .\\build.ps1`,
                 footerText: "&copy; 2026 Connecting Remote Desktop • Desarrollado por <strong>@jh4n3r</strong>"
             },
             en: {
@@ -784,6 +838,60 @@ powershell -ExecutionPolicy Bypass -File .\build.ps1
                 sec8Li7: "<strong>UAC Manifest & Icon Embedding:</strong> Embeds normal privilege manifest (<code>Connecting.manifest</code> with <code>asInvoker</code> and DPI awareness) and application icon (<code>icon.ico</code>).",
                 sec8Li8: "<strong>Authenticode Certificate & Signing:</strong> Automatically creates a self-signed x509 certificate if missing and signs <code>Connecting.exe</code> with DigiCert timestamping (<code>http://timestamp.digicert.com</code>).",
                 sec8Sub3: "Compilation Commands:",
+                codeBlock1: `// JPEG quality configuration snippet in DesktopCapturer.cs
+EncoderParameters encoderParams = new EncoderParameters(1);
+encoderParams.Param[0] = new EncoderParameter(System.Drawing.Imaging.Encoder.Quality, qualityLevel); // 90L, 75L, or 60L
+ImageCodecInfo jpegCodec = GetEncoder(ImageFormat.Jpeg);
+MemoryStream ms = new MemoryStream();
+_captureBitmap.Save(ms, jpegCodec, encoderParams);
+return ms.ToArray();`,
+                codeBlock2: `// Conversion of normalized mouse coordinates to absolute Win32 space
+int absoluteX = (int)(normalizedX * 65535.0f);
+int absoluteY = (int)(normalizedY * 65535.0f);
+
+INPUT input = new INPUT();
+input.type = INPUT_MOUSE;
+input.union.mi.dx = absoluteX;
+input.union.mi.dy = absoluteY;
+input.union.mi.dwFlags = MOUSEEVENTF_ABSOLUTE | MOUSEEVENTF_VIRTUALDESK | MOUSEEVENTF_MOVE;
+SendInput(1, ref input, Marshal.SizeOf(typeof(INPUT)));`,
+                codeBlock3: `+--------------------+--------------------------------+--------------------------------+
+|  Type (1 Byte)     |  Payload Length (4 Bytes)      |  Data Payload (N Bytes)        |
++--------------------+--------------------------------+--------------------------------+`,
+                codeBlock4: `# Environment variables supported by server.js:
+RELAY_DOMAIN="your-relay-server.com"    # SSL certificate domain
+CERT_PATH="/etc/letsencrypt/live/your-domain/fullchain.pem"  # Path to SSL certificate
+KEY_PATH="/etc/letsencrypt/live/your-domain/privkey.pem"      # Path to private key
+PORT=8443                                # Listening port (default: 8443)`,
+                codeBlock5: `┌─────────────────┐      TLS 1.2       ┌─────────────────┐      TLS 1.2       ┌─────────────────┐
+│   Host (C#)     │ ◄──────────────── │  Relay Server   │ ──────────────── │  Client (C#)    │
+│  SslStream      │     Port 8443      │  tls.createServer│    Port 8443      │  SslStream      │
+│  TLS 1.2        │                    │  Node.js        │                    │  TLS 1.2        │
+└─────────────────┘                    └─────────────────┘                    └─────────────────┘`,
+                codeBlock6: `// src/Common/PeerResolver.cs (Lines 23 - 24)
+public static string RelayServerDomain = "your-relay-server.com"; // Modify with your Relay server IP or domain
+public static int RelayServerPort = 8443;`,
+                codeBlock7: `ProcessStartInfo psi = new ProcessStartInfo
+{
+    FileName = Application.ExecutablePath,
+    Verb = "runas", // Requests Windows UAC elevation
+    UseShellExecute = true
+};
+Process.Start(psi);
+Application.Exit();`,
+                codeBlock8: `# Manual installation of Windows Service via command prompt (cmd as admin)
+sc stop "ConnectingService" 2>nul
+sc delete "ConnectingService" 2>nul
+sc create "ConnectingService" binPath= "C:\\Path\\Connecting.exe --service" start= auto
+sc start "ConnectingService"`,
+                codeBlock9: `# 1. Navigate to project directory (build/windows or local-nogit/windows)
+cd build/windows
+
+# 2. Generate monolithic ConnectingApp.cs file from src/*.cs
+powershell -ExecutionPolicy Bypass -File .\\combine.ps1
+
+# 3. Compile Connecting.exe, embed manifest/icon and sign binary
+powershell -ExecutionPolicy Bypass -File .\\build.ps1`,
                 footerText: "&copy; 2026 Connecting Remote Desktop • Developed by <strong>@jh4n3r</strong>"
             }
         };
@@ -921,6 +1029,17 @@ powershell -ExecutionPolicy Bypass -File .\build.ps1
             setInner('sec8-li-7', t.sec8Li7);
             setInner('sec8-li-8', t.sec8Li8);
             setInner('sec8-sub3', t.sec8Sub3);
+
+            // Code blocks
+            setInner('code-block-1', t.codeBlock1);
+            setInner('code-block-2', t.codeBlock2);
+            setInner('code-block-3', t.codeBlock3);
+            setInner('code-block-4', t.codeBlock4);
+            setInner('code-block-5', t.codeBlock5);
+            setInner('code-block-6', t.codeBlock6);
+            setInner('code-block-7', t.codeBlock7);
+            setInner('code-block-8', t.codeBlock8);
+            setInner('code-block-9', t.codeBlock9);
 
             setInner('footer-text', t.footerText);
 
