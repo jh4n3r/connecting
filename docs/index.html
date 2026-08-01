@@ -21,14 +21,18 @@
     {
       "@context": "https://schema.org",
       "@type": "SoftwareApplication",
-      "name": "Connecting Remote Desktop",
-      "operatingSystem": "Windows 10, Windows 11, Linux",
-      "applicationCategory": "BusinessApplication",
+      "name": "Connecting",
+      "alternateName": ["Connecting Remote Desktop", "Connecting Remote Access", "Remote Desktop Software"],
+      "operatingSystem": "Windows 10, Windows 11",
+      "applicationCategory": "UtilitiesApplication",
       "offers": {
         "@type": "Offer",
         "price": "0",
         "priceCurrency": "USD"
-      }
+      },
+      "description": "Plataforma portátil de control y asistencia remota en tiempo real cifrada. Alternativa liviana y rápida para acceso remoto directo o servidores privados.",
+      "softwareVersion": "1.0.1",
+      "downloadUrl": "https://jh4n3r.github.io/connecting/connecting.zip"
     }
     </script>
 </head>
@@ -38,7 +42,7 @@
     <!-- BARRA DE NAVEGACIÓN -->
     <nav class="navbar">
         <div class="nav-container">
-            <a href="./" class="logo-brand">
+            <a href="#" class="logo-brand">
                 <img src="favicon.ico" alt="Connecting Logo" class="logo-img" />
                 Connecting
             </a>
@@ -52,9 +56,9 @@
             </button>
 
             <div class="nav-right" id="navMenu">
-                <a href="docs" class="nav-link">Documentación</a>
-                <a href="download" class="nav-link">Descargar</a>
-                <a href="terms" class="nav-link">Términos Legales</a>
+                <a href="docs" class="nav-link" id="nav-docs">Documentación</a>
+                <a href="download" class="nav-link" id="nav-download">Descargar</a>
+                <a href="terms" class="nav-link" id="nav-terms">Términos Legales</a>
                 <select id="langSelector" class="lang-select" onchange="changeLanguage(this.value)">
                     <option value="es">Español</option>
                     <option value="en">English</option>
@@ -65,147 +69,136 @@
 
     <!-- HERO SECTION -->
     <section class="hero">
-        <div class="container">
-            <div class="hero-content">
-                <div class="badge-container">
-                    <span class="badge badge-cyan" id="badge1">Listo para Usar al Instante</span>
-                    <span class="badge badge-purple" id="badge2">Opción de Servidor Interno On-Premise</span>
-                </div>
-                <h1 class="hero-title" id="hero-title">Escritorio Remoto Ultra Rápido y Portátil</h1>
-                <p class="hero-subtitle" id="hero-subtitle">
-                    Acceso y asistencia remota cifrada de ultra baja latencia. Descarga Connecting y conéctate inmediatamente a cualquier equipo, o despliega opcionalmente un servidor propio para uso interno de tu organización.
-                </p>
+        <div class="hero-container">
+            <div class="badge-open-source">
+                <span id="badge1">Listo para Usar al Instante</span>
+                <span>|</span>
+                <span id="badge2">Opción de Servidor Interno On-Premise</span>
+            </div>
 
-                <div class="hero-ctas">
-                    <a href="download" class="btn btn-primary btn-large btn-glow" id="hero-btn">
-                        <svg viewBox="0 0 24 24" width="22" height="22" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none">
-                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                            <polyline points="7 10 12 15 17 10"></polyline>
-                            <line x1="12" y1="15" x2="12" y2="3"></line>
-                        </svg>
-                        <span>Descargar Connecting v1.0.2</span>
-                    </a>
-                </div>
+            <h1 class="hero-title" id="hero-title">Escritorio Remoto Ultra Rápido y Portátil</h1>
+            <p class="hero-subtitle" id="hero-subtitle">
+                Acceso y asistencia remota cifrada de ultra baja latencia. Descarga Connecting y conéctate
+                inmediatamente a cualquier equipo, o despliega opcionalmente un servidor propio para uso interno de tu
+                organización.
+            </p>
 
-                <div class="hero-guarantee" id="hero-note">
+            <div class="hero-actions">
+                <a href="download/" class="btn-hero" id="hero-btn">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                        <polyline points="7 10 12 15 17 10" />
+                        <line x1="12" y1="15" x2="12" y2="3" />
+                    </svg>
+                    <span>Descargar Connecting v1.0.2</span>
+                </a>
+                <div class="hero-note" id="hero-note">
                     Ejecutable Portátil (~100 KB) • Windows 10 y 11 • Servidor valida con CA firmado
                 </div>
-                <div style="margin-top: 10px; font-size: 0.8rem; color: var(--text-muted);" id="hero-discreet-note">
+                <div class="hero-discreet-note" id="hero-discreet-note" style="margin-top: 4px; font-size: 0.75rem; color: #94a3b8;">
                     * Firma de código proporcionada por la Fundación SignPath (SmartScreen: <em>Más información → Ejecutar de todas formas</em>)
                 </div>
             </div>
 
-            <!-- MOCKUP APP PREVIEW -->
-            <div class="mockup-wrapper">
-                <div class="window-mockup">
-                    <div class="window-header">
+            <!-- CAPTURAS DE PANTALLA REALES DE LA APLICACIÓN -->
+            <div class="mockup-grid">
+
+                <!-- CAPTURA 1: VENTANA PRINCIPAL DE PUESTO -->
+                <div class="app-window-mockup">
+                    <div class="window-titlebar">
                         <div class="window-controls">
-                            <span class="control-dot close"></span>
-                            <span class="control-dot minimize"></span>
-                            <span class="control-dot maximize"></span>
+                            <div class="dot dot-red"></div>
+                            <div class="dot dot-yellow"></div>
+                            <div class="dot dot-green"></div>
                         </div>
-                        <div class="window-title">Connecting • Panel Principal del Puesto de Trabajo</div>
+                        <span class="window-title">Connecting • Interfaz Principal</span>
+                        <div style="width:20px;"></div>
                     </div>
                     <div class="window-body">
-                        <img src="app_preview.png" alt="Connecting Remote Desktop App Screenshot" class="app-screenshot" />
+                        <img src="app_preview.png" alt="Connecting Panel Principal">
                     </div>
                 </div>
+
+                <!-- CAPTURA 2: SESIÓN REMOTA EN VIVO -->
+                <div class="app-window-mockup">
+                    <div class="window-titlebar">
+                        <div class="window-controls">
+                            <div class="dot dot-red"></div>
+                            <div class="dot dot-yellow"></div>
+                            <div class="dot dot-green"></div>
+                        </div>
+                        <span class="window-title">Connecting • Sesion de Control Remoto</span>
+                        <div style="width:20px;"></div>
+                    </div>
+                    <div class="window-body">
+                        <img src="app_preview2.png" alt="Connecting Sesion Remota Activa">
+                    </div>
+                </div>
+
             </div>
         </div>
     </section>
 
-    <!-- ENTERPRISE / ON-PREMISE SECTION -->
+    <!-- MODO DE USO: DIRECTO O PARA USO INTERNO -->
     <section class="section-enterprise">
         <div class="container">
             <div class="section-header">
-                <div class="section-subtitle">Flexible para Soporte Técnico Directo e Infraestructura TI Enterprise</div>
-                <h2 class="section-title">Funciona al Instante o Alojado en tu Red Interna</h2>
-                <p class="section-desc">
-                    Utilízalo inmediatamente para soporte rápido o despliega tu propio servidor relay privado (connecting-relay-server) para uso exclusivo interno.
-                </p>
+                <div class="section-subtitle">Flexible para Soporte Directo e Infraestructura de TI</div>
+                <h2 class="section-title">Funciona al Instante o Alojado en Tu Red Interna</h2>
+                <p class="section-desc">Utilízalo de forma inmediata para asistencia remota rápida o implementa tu
+                    propio servidor de relevo privado (connecting-relay-server) para uso interno corporativo.</p>
             </div>
 
             <div class="grid-3">
                 <div class="feature-card">
-                    <div class="feature-icon icon-cyan">
-                        <svg viewBox="0 0 24 24" width="28" height="28" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none">
-                            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
-                        </svg>
-                    </div>
-                    <h3 class="feature-title">Listo para Usar (Acceso Directo)</h3>
-                    <p class="feature-desc">Descarga el ejecutable portátil de ~100 KB y comienza a conectarte inmediatamente a cualquier equipo introduciendo su ID de 9 dígitos sin configuraciones previas.</p>
+                    <h3 class="feature-title">Funciona al Instante (Uso Directo)</h3>
+                    <p class="feature-desc">Descarga el ejecutable portátil de ~80 KB y comienza a conectarte
+                        inmediatamente a cualquier equipo introduciendo su ID de 9 dígitos sin configuraciones previas.
+                    </p>
                 </div>
 
                 <div class="feature-card">
-                    <div class="feature-icon icon-purple">
-                        <svg viewBox="0 0 24 24" width="28" height="28" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none">
-                            <rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect>
-                            <rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect>
-                            <line x1="6" y1="6" x2="6.01" y2="6"></line>
-                            <line x1="6" y1="18" x2="6.01" y2="18"></line>
-                        </svg>
-                    </div>
-                    <h3 class="feature-title">Servidor Privado On-Premise</h3>
-                    <p class="feature-desc">Para entornos corporativos o redes aisladas, aloja el relay de sockets TCP en tu infraestructura local. Todo el tráfico de imágenes y comandos permanece en tu red interna.</p>
+                    <h3 class="feature-title">Servidor Privado para Uso Interno</h3>
+                    <p class="feature-desc">Para empresas o redes aisladas de TI, aloja el enrutador de sockets TCP en
+                        tu infraestructura local. Todo el tráfico de imágenes y comandos permanece dentro de tu red
+                        interna.</p>
                 </div>
 
                 <div class="feature-card">
-                    <div class="feature-icon icon-emerald">
-                        <svg viewBox="0 0 24 24" width="28" height="28" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none">
-                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-                            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-                        </svg>
-                    </div>
                     <h3 class="feature-title">Acceso Desatendido y Gestión de Puestos</h3>
-                    <p class="feature-desc">Configura tu propia Clave PSK Persistente en servidores y equipos clave para soporte rápido, y gestiona tu historial de conexiones con Nombres de Equipo y Alias visuales.</p>
-                </div>
-            </div>
-
-            <!-- SECOND MOCKUP -->
-            <div class="mockup-wrapper" style="margin-top: 50px;">
-                <div class="window-mockup">
-                    <div class="window-header">
-                        <div class="window-controls">
-                            <span class="control-dot close"></span>
-                            <span class="control-dot minimize"></span>
-                            <span class="control-dot maximize"></span>
-                        </div>
-                        <div class="window-title">Connecting • Sesión de Control Remoto en Vivo</div>
-                    </div>
-                    <div class="window-body">
-                        <img src="app_preview2.png" alt="Connecting Remote Control Session Screenshot" class="app-screenshot" />
-                    </div>
+                    <p class="feature-desc">Configura tu propia Clave PSK Persistente en puestos clave para
+                        intervenciones rápidas y administra tu historial de conexiones con Hostname y Alias
+                        personalizados.</p>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- TECH STACK SECTION -->
+    <!-- TECNOLOGÍA Y LENGUAJES DE PROGRAMACIÓN -->
     <section class="section-tech">
         <div class="container">
             <div class="section-header">
-                <div class="section-subtitle">Stack de Ingeniería y Programación</div>
-                <h2 class="section-title">¿Con qué tecnología se construyó Connecting?</h2>
-                <p class="section-desc">Diseñado enfocándose en velocidad nativa pura, cero dependencias pesadas y máxima portabilidad.</p>
+                <div class="section-subtitle">Ingenieria &amp; Stack de Programacion</div>
+                <h2 class="section-title">¿Con que tecnologia fue creado Connecting?</h2>
+                <p class="section-desc">Diseño enfocado en velocidad nativa pura, cero dependencias pesadas y
+                    portabilidad extrema.</p>
             </div>
 
-            <div class="grid-3">
+            <div class="tech-grid" style="grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));">
                 <div class="tech-card">
-                    <div class="tech-badge">Cliente Nativo</div>
-                    <h4>C# (.NET Framework 4.8 / Win32 API)</h4>
-                    <p>Cliente compilado nativamente en un único archivo ejecutable portátil de ~100 KB. Sin instaladores ni dependencias externas.</p>
+                    <h4>C# (.NET Framework 4.8)</h4>
+                    <p>Aplicacion cliente compilada de forma nativa a un solo ejecutable .EXE portatil de ~80 KB. Sin
+                        instaladores ni servicios de fondo.</p>
                 </div>
-
                 <div class="tech-card">
-                    <div class="tech-badge">Entrada y Eventos</div>
-                    <h4>Inyección Nativa Win32 API</h4>
-                    <p>Inyección SendInput con coordenadas absolutas de pantalla y mapeo de códigos de escaneo físico (MapVirtualKey).</p>
+                    <h4>Win32 Native API</h4>
+                    <p>Inyeccion nativa SendInput con coordenadas absolutas de pantalla y mapeo de codigos de escaneo
+                        fisico (MapVirtualKey).</p>
                 </div>
-
                 <div class="tech-card">
-                    <div class="tech-badge">Servidor Relay</div>
-                    <h4>Motor TCP Sockets en Node.js</h4>
-                    <p>Servidor Relay privado On-Premise ligero escrito en Node.js para enrutamiento directo de sockets con cero bufer.</p>
+                    <h4>Node.js TCP Sockets Engine</h4>
+                    <p>Servidor Relay privado On-Premise ligero escrito en Node.js para enrutamiento directo de sockets
+                        con cero bufer.</p>
                 </div>
             </div>
         </div>
@@ -216,7 +209,7 @@
         <div class="container">
             <div class="section-header">
                 <div class="section-subtitle">Tabla Comparativa</div>
-                <h2 class="section-title">¿Por qué elegir Connecting?</h2>
+                <h2 class="section-title">¿Por que elegir Connecting?</h2>
                 <p class="section-desc">Comparativa directa frente a alternativas comerciales tradicionales.</p>
             </div>
 
@@ -224,46 +217,53 @@
                 <table class="comparison-table">
                     <thead>
                         <tr>
-                            <th>Característica / Función</th>
+                            <th>Característica</th>
                             <th class="highlight-col">Connecting</th>
-                            <th>Soluciones Similares</th>
-                            <th>Soluciones Cloud SaaS</th>
+                            <th>Otras Herramientas</th>
+                            <th>Sistemas Tradicionales</th>
+                            <th>Servicios SaaS</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr>
-                            <td><strong>Despliegue On-Premise</strong></td>
-                            <td class="highlight-col check-yes">Gratis / Incluido</td>
-                            <td class="check-no">Solo Plan Enterprise / De Pago</td>
-                            <td class="check-no">No disponible</td>
+                            <td><strong>Precio / Licencia</strong></td>
+                            <td class="highlight-col check-yes">100% Gratuito / Libre</td>
+                            <td class="check-no">Pago Mensual</td>
+                            <td class="check-yes">Open Source</td>
+                            <td class="check-no">Pago Mensual</td>
                         </tr>
                         <tr>
-                            <td><strong>Código Fuente Abierto</strong></td>
-                            <td class="highlight-col check-yes">100% GPLv3 Libre</td>
-                            <td class="check-no">Propietario / Cerrado</td>
-                            <td class="check-no">Propietario / Cerrado</td>
+                            <td><strong>Despliegue Privado On-Premise</strong></td>
+                            <td class="highlight-col check-yes">Incluido (Servidor propio)</td>
+                            <td class="check-no">Solo Plan Enterprise</td>
+                            <td class="check-yes">Si</td>
+                            <td class="check-no">No permitido</td>
                         </tr>
                         <tr>
-                            <td><strong>Ejecutable Portátil (Sin Instalar)</strong></td>
-                            <td class="highlight-col check-yes">Sí (~100 KB)</td>
-                            <td class="check-no">Requiere Instalador</td>
-                            <td class="check-no">Requiere Agente</td>
+                            <td><strong>Tamaño del Ejecutable</strong></td>
+                            <td class="highlight-col check-yes">~80 KB (Portatil)</td>
+                            <td class="check-no">~15 MB</td>
+                            <td class="check-no">~25 MB</td>
+                            <td class="check-no">~60 MB</td>
                         </tr>
                         <tr>
                             <td><strong>Elevación Admin Automática</strong></td>
                             <td class="highlight-col check-yes">Auto-elevación UAC</td>
-                            <td class="check-no">Manual / Limitada</td>
-                            <td class="check-yes">Sí (Servicio)</td>
+                            <td class="check-yes">Si (Servicio)</td>
+                            <td class="check-no">Manual</td>
+                            <td class="check-yes">Si (Servicio)</td>
                         </tr>
                         <tr>
                             <td><strong>Clave PSK Persistente</strong></td>
                             <td class="highlight-col check-yes">Persistencia Guardada</td>
                             <td class="check-no">Limitada</td>
+                            <td class="check-yes">Si</td>
                             <td class="check-no">Aleatoria</td>
                         </tr>
                         <tr>
                             <td><strong>Hostname + Alias en Historial</strong></td>
-                            <td class="highlight-col check-yes">Asignación Visual de 1 Clic</td>
+                            <td class="highlight-col check-yes">Asignacion Visual de 1 Clic</td>
+                            <td class="check-yes">Si</td>
                             <td class="check-no">Solo ID</td>
                             <td class="check-no">Solo ID</td>
                         </tr>
@@ -321,16 +321,16 @@
                 compTitle: "¿Por qué elegir Connecting?",
                 compDesc: "Comparativa directa frente a las alternativas comerciales tradicionales.",
                 thFeature: "Característica / Función",
-                thConnecting: "Connecting",
-                thSimilar: "Soluciones Similares",
+                thOthers: "Connecting",
+                thTraditional: "TeamViewer / AnyDesk",
                 thSaas: "Soluciones Cloud SaaS",
                 tableRows: [
-                    ["Despliegue On-Premise", "Gratis / Incluido", "Solo Licencia Enterprise / De Pago", "No disponible"],
-                    ["Código Fuente Abierto", "100% GPLv3 Libre", "Propietario / Cerrado", "Propietario / Cerrado"],
-                    ["Ejecutable Portátil (Sin Instalar)", "Sí (~100 KB)", "Requiere Instalador", "Requiere Agente"],
-                    ["Elevación Admin Automática", "Auto-elevación UAC", "Manual / Limitada", "Sí (Servicio)"],
-                    ["Clave PSK Persistente", "Persistencia Guardada", "Limitada", "Aleatoria"],
-                    ["Hostname + Alias en Historial", "Asignación Visual de 1 Clic", "Solo ID", "Solo ID"]
+                    ["Despliegue On-Premise", "Gratis / Incluido", "Solo Licencia Enterprise", "No disponible"],
+                    ["Código Fuente Abierto", "100% GPLv3", "Propietario / Cerrado", "Propietario / Cerrado"],
+                    ["Ejecutable Portátil (Sin Instalar)", "Si (~100 KB)", "Requiere Instalación", "Requiere Agente"],
+                    ["Elevación Admin Automática", "Auto-elevación UAC", "Si (Servicio)", "Manual", "Si (Servicio)"],
+                    ["Clave PSK Persistente", "Persistencia Guardada", "Limitada", "Si", "Aleatoria"],
+                    ["Hostname + Alias en Historial", "Asignación Visual de 1 Clic", "Si", "Solo ID", "Solo ID"]
                 ],
                 footerText: "© 2026 Connecting Remote Desktop • Desarrollado por <strong>@jh4n3r</strong>",
                 footerDocs: "Ver Documentación Técnica Completa",
@@ -371,16 +371,16 @@
                 compTitle: "Why choose Connecting?",
                 compDesc: "Direct comparison against traditional commercial alternatives.",
                 thFeature: "Feature / Capability",
-                thConnecting: "Connecting",
-                thSimilar: "Similar Solutions",
+                thOthers: "Connecting",
+                thTraditional: "TeamViewer / AnyDesk",
                 thSaas: "SaaS Cloud Solutions",
                 tableRows: [
-                    ["On-Premise Deployment", "Free / Included", "Enterprise Plan / Paid Only", "Not Available"],
+                    ["On-Premise Deployment", "Free / Included", "Enterprise License Only", "Not Available"],
                     ["Open Source Codebase", "100% GPLv3", "Proprietary / Closed", "Proprietary / Closed"],
                     ["Portable Executable (No Install)", "Yes (~100 KB)", "Requires Installer", "Requires Agent"],
-                    ["Admin UAC Elevation", "Auto-elevation UAC", "Manual / Limited", "Yes (Service)"],
-                    ["Persistent PSK Key", "Saved Persistence", "Limited", "Random"],
-                    ["Hostname + Alias History", "1-Click Visual Assignment", "ID Only", "ID Only"]
+                    ["Admin UAC Elevation", "Auto-elevation UAC", "Yes (Service)", "Manual", "Yes (Service)"],
+                    ["Persistent PSK Key", "Saved Persistence", "Limited", "Yes", "Random"],
+                    ["Hostname + Alias History", "1-Click Visual Assignment", "Yes", "ID Only", "ID Only"]
                 ],
                 footerText: "© 2026 Connecting Remote Desktop • Developed by <strong>@jh4n3r</strong>",
                 footerDocs: "View Complete Technical Documentation",
@@ -485,22 +485,23 @@
             if (document.getElementById('footer-terms')) document.getElementById('footer-terms').innerText = t.footerTerms;
 
             const ths = document.querySelectorAll('.comparison-table th');
-            if (ths.length >= 4) {
+            if (ths.length >= 5) {
                 ths[0].innerText = t.thFeature;
-                ths[1].innerText = t.thConnecting || "Connecting";
-                ths[2].innerText = t.thSimilar;
-                ths[3].innerText = t.thSaas;
+                ths[2].innerText = t.thOthers;
+                ths[3].innerText = t.thTraditional;
+                ths[4].innerText = t.thSaas;
             }
 
             const trs = document.querySelectorAll('.comparison-table tbody tr');
             if (trs.length >= 6 && t.tableRows) {
                 for (let i = 0; i < 6; i++) {
                     const tds = trs[i].querySelectorAll('td');
-                    if (tds.length >= 4 && t.tableRows[i]) {
+                    if (tds.length >= 5 && t.tableRows[i]) {
                         tds[0].innerHTML = `<strong>${t.tableRows[i][0]}</strong>`;
                         tds[1].innerText = t.tableRows[i][1];
                         tds[2].innerText = t.tableRows[i][2];
                         tds[3].innerText = t.tableRows[i][3];
+                        tds[4].innerText = t.tableRows[i][4];
                     }
                 }
             }
