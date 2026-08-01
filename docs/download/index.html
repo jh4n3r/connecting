@@ -5,11 +5,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
-    <title>Descargar Connecting - Control de Escritorio Remoto para Windows y Linux</title>
+    <title>Connecting Remote Desktop OpenSource</title>
     <meta name="description" content="Descarga Connecting Remote Desktop para Windows y Linux. Plataforma portátil de asistencia técnica y escritorio remoto seguro sin instalación.">
     <meta name="keywords" content="Descargar Connecting, escritorio remoto Windows, cliente Linux escritorio remoto, software asistencia tecnica, download Connecting">
     <meta name="robots" content="index, follow">
-    <link rel="canonical" href="https://labs.connecting.gaiatech.com.py/download/">
+    <link rel="canonical" href="https://jh4n3r.github.io/connecting/download/">
 
     <link rel="icon" href="../favicon.ico" type="image/x-icon">
     <link rel="shortcut icon" href="../favicon.ico" type="image/x-icon">
@@ -155,6 +155,94 @@
             font-size: 0.82rem;
             color: var(--text-light);
         }
+
+        /* --- LINUX CLI GUIDE --- */
+        .linux-cli-section {
+            max-width: 860px;
+            margin: 0 auto 70px;
+            padding: 0 24px;
+        }
+
+        .linux-cli-header {
+            text-align: center;
+            margin-bottom: 28px;
+        }
+
+        .linux-cli-badge {
+            display: inline-block;
+            padding: 4px 14px;
+            background: var(--cyan-light);
+            color: var(--cyan-dark);
+            font-size: 0.8rem;
+            font-weight: 700;
+            border-radius: 20px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 12px;
+        }
+
+        .linux-cli-header h2 {
+            font-family: var(--font-heading);
+            font-size: 1.75rem;
+            font-weight: 800;
+            color: var(--text-primary);
+            margin-bottom: 10px;
+        }
+
+        .linux-cli-header p {
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            line-height: 1.6;
+        }
+
+        .linux-cli-card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
+            padding: 30px 28px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .cli-step-label {
+            font-weight: 700;
+            font-size: 0.92rem;
+            color: var(--text-primary);
+            margin: 20px 0 8px;
+        }
+
+        .cli-step-label:first-child {
+            margin-top: 0;
+        }
+
+        .cli-code {
+            background: #0f172a;
+            color: #e2e8f0;
+            font-family: 'Consolas', 'Courier New', monospace;
+            font-size: 0.87rem;
+            padding: 14px 18px;
+            border-radius: 8px;
+            overflow-x: auto;
+            white-space: pre;
+            line-height: 1.55;
+        }
+
+        .cli-code .comment { color: #64748b; }
+
+        .cli-note {
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+            background: var(--cyan-light);
+            border-left: 4px solid var(--cyan-primary);
+            border-radius: 0 8px 8px 0;
+            padding: 14px 16px;
+            margin-top: 22px;
+            font-size: 0.88rem;
+            color: var(--cyan-dark);
+            line-height: 1.6;
+        }
+
+        .cli-note svg { flex-shrink: 0; margin-top: 2px; }
     </style>
 </head>
 
@@ -263,6 +351,47 @@
         </div>
     </div>
 
+    <!-- GUÍA LINUX CLI -->
+    <section class="linux-cli-section" id="linux-cli-section">
+        <div class="linux-cli-header">
+            <span class="linux-cli-badge" id="cli-badge">Guía de instalación Linux</span>
+            <h2 id="cli-title">Compilar e instalar desde el código fuente (Linux)</h2>
+            <p id="cli-subtitle">Clona el repositorio, asigna permisos de ejecución a los scripts y compila el cliente nativo para Linux en minutos.</p>
+        </div>
+
+        <div class="linux-cli-card">
+            <div class="cli-step-label" id="cli-step1">1. Clonar el repositorio y navegar a <code>build/linux</code>:</div>
+            <div class="cli-code">git clone https://github.com/jh4n3r/connecting.git
+cd connecting/build/linux</div>
+
+            <div class="cli-step-label" id="cli-step2">2. Dar permisos de ejecución a los scripts (<code>chmod +x</code>):</div>
+            <div class="cli-code">chmod +x combine.sh build.sh</div>
+
+            <div class="cli-step-label" id="cli-step3">3. Ejecutar los scripts de combinación y compilación:</div>
+            <div class="cli-code">./combine.sh
+./build.sh</div>
+
+            <div class="cli-step-label" id="cli-step4">4. Lanzar la aplicación cliente <code>ConnectingApp</code>:</div>
+            <div class="cli-code"><span class="comment"># Ejecutar en modo cliente / GUI:</span>
+./ConnectingApp
+
+<span class="comment"># Ver todos los comandos de ayuda disponibles:</span>
+./ConnectingApp --help
+
+<span class="comment"># Ejecutar como servicio de fondo (connecting-service):</span>
+./ConnectingApp --service</div>
+
+            <div class="cli-note">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="8" x2="12" y2="12"></line>
+                    <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                </svg>
+                <span id="cli-note-text"><strong>Servicio Linux &amp; comandos:</strong> El binario compilado se lanza como <code>ConnectingApp</code> en modo cliente, o como daemon en segundo plano con <code>--service</code> (<code>connecting-service</code>). Ejecuta <code>./ConnectingApp --help</code> para ver todas las opciones disponibles.</span>
+            </div>
+        </div>
+    </section>
+
     <!-- FOOTER -->
     <footer class="footer">
         <p>&copy; 2026 Connecting Remote Desktop • Desarrollado por <strong>@jh4n3r</strong></p>
@@ -287,12 +416,20 @@
                 detectedLin: "Sistema detectado: Linux (Recomendado)",
                 detectedOther: "Selecciona tu sistema operativo para continuar",
                 descWin: "Ejecutable portátil nativo C# sin instalación. Compatible con Windows 10 y Windows 11 (64-bit).",
-                descLin: "Cliente nativo para distribuciones Linux (X11 / Wayland / SSH Direct Launcher).",
+                descLin: "Cliente nativo para distribuciones Linux (X11 / Wayland / SSH Direct Launcher). Actualmente en desarrollo.",
                 descMac: "Cliente para macOS (Apple Silicon / Intel). Actualmente en desarrollo.",
                 btnWin: "Descargar para Windows (.zip)",
                 btnLin: "Ver en GitHub / Linux",
                 btnMac: "Próximamente (En Desarrollo)",
-                tagRec: "Recomendado"
+                tagRec: "Recomendado",
+                cliBadge: "Guía de instalación Linux",
+                cliTitle: "Compilar e instalar desde el código fuente (Linux)",
+                cliSubtitle: "Clona el repositorio, asigna permisos de ejecución a los scripts y compila el cliente nativo para Linux en minutos.",
+                cliStep1: "1. Clonar el repositorio y navegar a build/linux:",
+                cliStep2: "2. Dar permisos de ejecución a los scripts (chmod +x):",
+                cliStep3: "3. Ejecutar los scripts de combinación y compilación:",
+                cliStep4: "4. Lanzar la aplicación cliente ConnectingApp:",
+                cliNote: "<strong>Servicio Linux &amp; comandos:</strong> El binario compilado se lanza como <code>ConnectingApp</code> en modo cliente, o como daemon en segundo plano con <code>--service</code> (<code>connecting-service</code>). Ejecuta <code>./ConnectingApp --help</code> para ver todas las opciones disponibles."
             },
             en: {
                 home: "Home",
@@ -304,12 +441,20 @@
                 detectedLin: "Detected OS: Linux (Recommended)",
                 detectedOther: "Select your operating system to proceed",
                 descWin: "Portable C# native executable without installation. Compatible with Windows 10 & 11 (64-bit).",
-                descLin: "Native client for Linux distributions (X11 / Wayland / SSH Direct Launcher).",
+                descLin: "Native client for Linux distributions (X11 / Wayland / SSH Direct Launcher). Currently in development.",
                 descMac: "Client for macOS (Apple Silicon / Intel). Currently in active development.",
                 btnWin: "Download for Windows (.zip)",
                 btnLin: "View on GitHub / Linux",
                 btnMac: "Coming Soon (In Development)",
-                tagRec: "Recommended"
+                tagRec: "Recommended",
+                cliBadge: "Linux Installation Guide",
+                cliTitle: "Build & Install from Source Code (Linux)",
+                cliSubtitle: "Clone the repository, grant execution permissions to the build scripts, and compile the native Linux client in minutes.",
+                cliStep1: "1. Clone repository and navigate to build/linux:",
+                cliStep2: "2. Grant execution permissions to scripts (chmod +x):",
+                cliStep3: "3. Run source combination and build scripts:",
+                cliStep4: "4. Launch the client application ConnectingApp:",
+                cliNote: "<strong>Linux Service &amp; Commands:</strong> The compiled binary runs as <code>ConnectingApp</code> in client mode, or as a background daemon with <code>--service</code> (<code>connecting-service</code>). Run <code>./ConnectingApp --help</code> to display all available options."
             }
         };
 
@@ -334,6 +479,16 @@
             if (document.getElementById('btn-linux-text')) document.getElementById('btn-linux-text').innerText = t.btnLin;
             if (document.getElementById('btn-mac-text')) document.getElementById('btn-mac-text').innerText = t.btnMac;
 
+            // CLI section
+            if (document.getElementById('cli-badge')) document.getElementById('cli-badge').innerText = t.cliBadge;
+            if (document.getElementById('cli-title')) document.getElementById('cli-title').innerText = t.cliTitle;
+            if (document.getElementById('cli-subtitle')) document.getElementById('cli-subtitle').innerText = t.cliSubtitle;
+            if (document.getElementById('cli-step1')) document.getElementById('cli-step1').innerText = t.cliStep1;
+            if (document.getElementById('cli-step2')) document.getElementById('cli-step2').innerText = t.cliStep2;
+            if (document.getElementById('cli-step3')) document.getElementById('cli-step3').innerText = t.cliStep3;
+            if (document.getElementById('cli-step4')) document.getElementById('cli-step4').innerText = t.cliStep4;
+            if (document.getElementById('cli-note-text')) document.getElementById('cli-note-text').innerHTML = t.cliNote;
+
             document.querySelectorAll('.recommended-tag').forEach(tag => tag.innerText = t.tagRec);
 
             detectOS(lang);
@@ -352,6 +507,7 @@
             const cardWin = document.getElementById('card-windows');
             const cardLin = document.getElementById('card-linux');
             const badgeText = document.getElementById('detected-os-text');
+            const cliSection = document.getElementById('linux-cli-section');
 
             if (isWin) {
                 if (tagWin) tagWin.style.display = 'block';
@@ -359,6 +515,7 @@
                 if (cardWin) cardWin.classList.add('recommended');
                 if (cardLin) cardLin.classList.remove('recommended');
                 if (badgeText) badgeText.innerText = t.detectedWin;
+                // Show Linux CLI section but not highlighted (always visible)
             } else if (isLin) {
                 if (tagLin) tagLin.style.display = 'block';
                 if (tagWin) tagWin.style.display = 'none';
@@ -366,7 +523,7 @@
                 if (cardWin) cardWin.classList.remove('recommended');
                 if (badgeText) badgeText.innerText = t.detectedLin;
             } else {
-                if (tagWin) tagWin.style.display = 'block'; // Fallback to Windows
+                if (tagWin) tagWin.style.display = 'block';
                 if (cardWin) cardWin.classList.add('recommended');
                 if (badgeText) badgeText.innerText = t.detectedOther;
             }
