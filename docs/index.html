@@ -97,7 +97,7 @@
                     Ejecutable Portátil (~100 KB) • Windows 10 y 11 • Servidor valida con CA firmado
                 </div>
                 <div class="hero-discreet-note" id="hero-discreet-note" style="margin-top: 4px; font-size: 0.75rem; color: #94a3b8;">
-                    * Firma de código proporcionada por la Fundación SignPath (SmartScreen: <em>Más información → Ejecutar de todas formas</em>)
+                    * Firma de código en trámite con la Fundación SignPath (Pendiente de aprobación — SmartScreen: <em>Más información → Ejecutar de todas formas</em>)
                 </div>
             </div>
 
@@ -263,21 +263,18 @@
                         </tr>
                     </tbody>
                 </table>
-            </div>
-        </div>
-    </section>
-
     <!-- FOOTER -->
     <footer class="footer">
         <div class="container">
-            <p id="footer-copy">&copy; 2026 Connecting Remote Desktop • Desarrollado por <strong>@jh4n3r</strong></p>
-            <p style="margin-top:8px; font-size:0.85rem;">
-                <a href="docs" class="nav-link" id="footer-docs">Ver Documentación Técnica Completa</a> |
-                <a href="terms" class="nav-link" id="footer-terms">Términos Legales de Licencia y Contacto</a>
-            </p>
+            <p id="footer-copy">&copy; 2026 Connecting Remote Desktop • Desarrollado por <strong>@jh4n3r</strong> | Paraguay</p>
+            <div class="footer-links">
+                <a href="docs/" id="footer-docs">Ver Documentación Técnica Completa</a>
+                <a href="terms/" id="footer-terms">Términos Legales de Licencia y Contacto</a>
+            </div>
         </div>
     </footer>
 
+    <!-- SCRIPT DE TRADUCCIÓN MULTILENGUAJE -->
     <script>
         const translations = {
             es: {
@@ -290,7 +287,7 @@
                 subtitle: "Acceso y asistencia remota cifrada de ultra baja latencia. Descarga Connecting y conéctate inmediatamente a cualquier equipo, o despliega opcionalmente un servidor propio para uso interno de tu organización.",
                 btnDownload: "Descargar Connecting v1.0.2",
                 heroNote: "Ejecutable Portátil (~100 KB) • Windows 10 y 11 • Servidor valida con CA firmado",
-                discreetNote: "* Firma de código proporcionada por la Fundación SignPath (SmartScreen: <em>Más información → Ejecutar de todas formas</em>)",
+                discreetNote: "* Firma de código en trámite con la Fundación SignPath (Pendiente de aprobación — SmartScreen: <em>Más información → Ejecutar de todas formas</em>)",
                 mockup1: "Connecting • Panel Principal del Puesto de Trabajo",
                 mockup2: "Connecting • Sesión de Control Remoto en Vivo",
                 sec1Subtitle: "Flexible para Soporte Técnico Directo e Infraestructura TI Enterprise",
@@ -299,7 +296,7 @@
                 card1Title: "Listo para Usar (Acceso Directo)",
                 card1Desc: "Descarga el ejecutable portátil de ~100 KB y comienza a conectarte inmediatamente a cualquier equipo introduciendo su ID de 9 dígitos sin configuraciones previas.",
                 card2Title: "Servidor Privado On-Premise",
-                card2Desc: "Para entornos corporativos o redes aisla TI, aloja el relay de sockets TCP en tu infraestructura local. Todo el tráfico de imágenes y comandos permanece en tu red interna.",
+                card2Desc: "Para entornos corporativos o redes aisladas de TI, aloja el relay de sockets TCP en tu infraestructura local. Todo el tráfico de imágenes y comandos permanece en tu red interna.",
                 card3Title: "Acceso Desatendido y Gestión de Puestos",
                 card3Desc: "Configura tu propia Clave PSK Persistente en servidores y equipos clave para soporte rápido, y gestiona tu historial de conexiones con Nombres de Equipo y Alias visuales.",
                 techSubtitle: "Stack de Ingeniería y Programación",
@@ -326,7 +323,7 @@
                     ["Clave PSK Persistente", "Persistencia Guardada", "Limitada", "Aleatoria"],
                     ["Hostname + Alias en Historial", "Asignación Visual de 1 Clic", "Solo ID", "Solo ID"]
                 ],
-                footerText: "© 2026 Connecting Remote Desktop • Desarrollado por <strong>@jh4n3r</strong>",
+                footerText: "© 2026 Connecting Remote Desktop • Desarrollado por <strong>@jh4n3r</strong> | Paraguay",
                 footerDocs: "Ver Documentación Técnica Completa",
                 footerTerms: "Términos Legales de Licencia y Contacto"
             },
@@ -340,7 +337,7 @@
                 subtitle: "Encrypted remote assistance with ultra-low latency. Download Connecting and connect immediately to any device, or optionally deploy your own private relay server for internal organizational use.",
                 btnDownload: "Download Connecting v1.0.2",
                 heroNote: "Portable Executable (~100 KB) • Windows 10 & 11 • Server validates signed CA",
-                discreetNote: "* Code signing provided by SignPath Foundation (SmartScreen: <em>More info → Run anyway</em>)",
+                discreetNote: "* Code signing requested from SignPath Foundation (Pending approval — SmartScreen: <em>More info → Run anyway</em>)",
                 mockup1: "Connecting • Main Dashboard Interface",
                 mockup2: "Connecting • Live Remote Control Session",
                 sec1Subtitle: "Flexible for Direct Support and Enterprise IT Infrastructure",
@@ -354,13 +351,13 @@
                 card3Desc: "Configure your own Persistent PSK Key on key machines for rapid support and manage your connection history with custom Hostnames and Aliases.",
                 techSubtitle: "Engineering & Programming Stack",
                 techTitle: "What technology was Connecting built with?",
-                techDesc: "Designed focusing on pure native speed, zero heavy dependencies, and extreme portability.",
+                techDesc: "Designed with a focus on pure native speed, zero heavy dependencies, and maximum portability.",
                 tech1Title: "C# (.NET Framework 4.8 / Win32 API)",
-                tech1Desc: "Client app compiled natively into a single ~100 KB portable .EXE file. No installer or background services required.",
-                tech2Title: "Win32 Native API Injection",
-                tech2Desc: "Native SendInput injection with absolute screen coordinates and physical scan code mapping (MapVirtualKey).",
-                tech3Title: "Node.js TCP Sockets Engine",
-                tech3Desc: "Lightweight On-Premise private relay server written in Node.js for direct zero-buffer socket routing.",
+                tech1Desc: "Client natively compiled into a single ~100 KB portable executable. No installers or external dependencies.",
+                tech2Title: "Native Win32 API Injection",
+                tech2Desc: "SendInput injection with absolute screen coordinates and physical scan code mapping (MapVirtualKey).",
+                tech3Title: "TCP Sockets Engine in Node.js",
+                tech3Desc: "Ultra-lightweight private On-Premise Relay server written in Node.js for direct unbuffered packet routing.",
                 compSubtitle: "Comparison Table",
                 compTitle: "Why choose Connecting?",
                 compDesc: "Direct comparison against traditional commercial alternatives.",
@@ -376,7 +373,7 @@
                     ["Persistent PSK Key", "Saved Persistence", "Limited", "Random"],
                     ["Hostname + Alias History", "1-Click Visual Assignment", "ID Only", "ID Only"]
                 ],
-                footerText: "© 2026 Connecting Remote Desktop • Developed by <strong>@jh4n3r</strong>",
+                footerText: "© 2026 Connecting Remote Desktop • Developed by <strong>@jh4n3r</strong> | Paraguay",
                 footerDocs: "View Complete Technical Documentation",
                 footerTerms: "Legal License & Contact Terms"
             }

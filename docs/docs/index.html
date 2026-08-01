@@ -537,8 +537,8 @@ sc start "ConnectingService"
             </div>
 
             <!-- 7. CERTIFICACIÓN SIGNPATH FOUNDATION -->
-            <h2 id="licencia-signpath"><span id="sec7-title">7. Solicitud de Certificación SignPath Foundation</span></h2>
-            <p id="sec7-p1">Para cumplir con los estándares de la <strong>Free Software Foundation (FSF)</strong> y garantizar la distribución de ejecutables confiables sin alertas de Windows SmartScreen, el proyecto ha iniciado el proceso de solicitud de patrocinio con <strong>SignPath Foundation</strong> para obtener firma digital EV Authenticode de código abierto.</p>
+            <h2 id="licencia-signpath"><span id="sec7-title">7. Solicitud de Certificación SignPath Foundation (En Trámite)</span></h2>
+            <p id="sec7-p1">Para cumplir con los estándares de la <strong>Free Software Foundation (FSF)</strong> y garantizar la distribución de ejecutables confiables sin alertas de Windows SmartScreen, el proyecto se encuentra en proceso de solicitud de patrocinio con <strong>SignPath Foundation</strong> (actualmente en trámite y pendiente de aprobación final) para obtener firma digital EV Authenticode de código abierto.</p>
             <p id="sec7-p2">La firma Authenticode pública permitirá declarar la bandera <code>uiAccess="true"</code> en el manifiesto de la aplicación, habilitando la captura nativa de la pantalla de seguridad de UAC (<code>Winlogon</code> / SecureDesktop) sin requerir que la aplicación sea instalada previamente en <code>Program Files</code>.</p>
 
             <!-- 8. INSTRUCCIONES DE COMPILACIÓN -->
@@ -558,7 +558,7 @@ sc start "ConnectingService"
             <p id="sec8-p3">Este script ejecuta el proceso de compilación nativa del sistema, empaquetado de recursos y firma de seguridad Authenticode:</p>
             <ul id="sec8-ul2">
                 <li id="sec8-li-5"><strong>Finalización de Procesos Previos:</strong> Cierra cualquier instancia activa en ejecución de <code>Connecting.exe</code> mediante <code>taskkill</code> para liberar bloqueos de archivo en disco.</li>
-                <li id="sec8-li-6"><strong>Compilación C# con Codepage UTF-8:</strong> Invoca al compilador nativo de Microsoft .NET Framework (<code>csc.exe</code>) aplicando la bandera <code>-codepage:65001</code> junto a todas las librerías necesarias de WinForms (<code>System.dll</code>, <code>System.Drawing.dll</code>, <code>System.Windows.Forms.dll</code>, <code>System.Management.dll</code>).</li>
+                <li id="sec8-li-6"><strong>Compilación C# with Codepage UTF-8:</strong> Invoca al compilador nativo de Microsoft .NET Framework (<code>csc.exe</code>) aplicando la bandera <code>-codepage:65001</code> junto a todas las librerías necesarias de WinForms (<code>System.dll</code>, <code>System.Drawing.dll</code>, <code>System.Windows.Forms.dll</code>, <code>System.Management.dll</code>).</li>
                 <li id="sec8-li-7"><strong>Embebido de Manifiesto UAC e Icono:</strong> Integra el manifiesto de privilegios normales (<code>Connecting.manifest</code> con <code>asInvoker</code> y soporte DPI <code>pm</code>) y el icono principal (<code>icon.ico</code>) dentro de los recursos del ejecutable binario.</li>
                 <li id="sec8-li-8"><strong>Generación de Certificado y Firma Authenticode:</strong> Crea automáticamente un certificado digital autofirmado x509 si no existe en el sistema y firma el binario <code>Connecting.exe</code> aplicando sellado de tiempo de DigiCert (<code>http://timestamp.digicert.com</code>).</li>
             </ul>
@@ -666,8 +666,8 @@ powershell -ExecutionPolicy Bypass -File .\build.ps1
                 sec6Sub3: "Instalación del Servicio de Asistencia de Windows (`ConnectingService`):",
                 sec6P3: "Para soporte desatendido continuo en equipos corporativos, la aplicación permite la instalación como Servicio de Windows (ejecutado bajo la cuenta <code>NT AUTHORITY\\SYSTEM</code> en Sesión 0). La gestión se realiza directamente desde el panel de Configuración de la app o mediante la consola de comandos:",
                 fig4Cap: "Figura 4: Panel de Configuración mostrando la opción de instalación/desinstalación del Servicio de Windows.",
-                sec7Title: "7. Solicitud de Certificación SignPath Foundation",
-                sec7P1: "Para cumplir con los estándares de la <strong>Free Software Foundation (FSF)</strong> y garantizar la distribución de ejecutables confiables sin alertas de Windows SmartScreen, el proyecto ha iniciado el proceso de solicitud de patrocinio con <strong>SignPath Foundation</strong> para obtener firma digital EV Authenticode de código abierto.",
+                sec7Title: "7. Solicitud de Certificación SignPath Foundation (En Trámite)",
+                sec7P1: "Para cumplir con los estándares de la <strong>Free Software Foundation (FSF)</strong> y garantizar la distribución de ejecutables confiables sin alertas de Windows SmartScreen, el proyecto se encuentra en proceso de solicitud de patrocinio con <strong>SignPath Foundation</strong> (actualmente en trámite y pendiente de aprobación final) para obtener firma digital EV Authenticode de código abierto.",
                 sec7P2: "La firma Authenticode pública permitirá declarar la bandera <code>uiAccess=\"true\"</code> en el manifiesto de la aplicación, habilitando la captura nativa de la pantalla de seguridad de UAC (<code>Winlogon</code> / SecureDesktop) sin requerir que la aplicación sea instalada previamente en <code>Program Files</code>.",
                 sec8Title: "8. Instrucciones de Compilación y Funcionamiento de los Scripts de Build",
                 sec8P1: "El proyecto incluye scripts automatizados en PowerShell para compilar el código fuente sin necesidad de instalar Visual Studio completo. A continuación se detalla exactamente qué realiza cada script dentro del flujo de compilación:",
